@@ -1,30 +1,32 @@
+from config.config import CONFIG
+
 class MazeGenerator:
-    def __init__(self, width=21, height=21):
-        self.width = width
-        self.height = height
+    def __init__(self, width=None, height=None):
+        self.width = width or CONFIG.maze_generator.default_width
+        self.height = height or CONFIG.maze_generator.default_height
         self.maze = None
-        self.start = (1, 1)
-        self.end = (width-2, height-2)
+        self.start = (CONFIG.maze_generator.start_x, CONFIG.maze_generator.start_y)
+        self.end = (self.width - CONFIG.maze_generator.end_offset, self.height - CONFIG.maze_generator.end_offset)
 
     def generate_maze(self):
-        self.maze = [[1] * self.width for _ in range(self.height)]
+        self.maze = [[CONFIG.maze_generator.wall_value] * self.width for _ in range(self.height)]
         self._carve_path(self.start[0], self.start[1])
-        self.maze[self.end[1]][self.end[0]] = 0
+        self.maze[self.end[CONFIG.maze.y_index]][self.end[CONFIG.maze.x_index]] = CONFIG.maze_generator.path_value
 
     def _carve_path(self, x, y):
-        self.maze[y][x] = 0
+        self.maze[y][x] = CONFIG.maze_generator.path_value
         
         neighbours = [
-            (x, y-1),
-            (x, y+1),
-            (x-1, y),
-            (x+1, y)
+            (x, y + CONFIG.maze_generator.step_up),
+            (x, y + CONFIG.maze_generator.step_down),
+            (x + CONFIG.maze_generator.step_left, y),
+            (x + CONFIG.maze_generator.step_right, y)
         ]
                 
         for nx, ny in neighbours:
-            if 0 <= nx < self.width and 0 <= ny < self.height:
-                if self.maze[ny][nx] == 1:
-                    self.maze[ny][nx] = 0
+            if CONFIG.maze_generator.boundary_min <= nx < self.width and CONFIG.maze_generator.boundary_min <= ny < self.height:
+                if self.maze[ny][nx] == CONFIG.maze_generator.wall_value:
+                    self.maze[ny][nx] = CONFIG.maze_generator.path_value
                     self._carve_path(nx, ny)
 
     def get_maze(self):
