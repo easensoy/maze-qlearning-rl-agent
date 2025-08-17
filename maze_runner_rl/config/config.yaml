@@ -1,0 +1,40 @@
+actions:
+  up: [0, -1]
+  down: [0, 1]
+  left: [-1, 0]
+  right: [1, 0]
+
+penalties:
+  step_penalty: -0.1
+  wall_penalty: -1.0
+  
+rewards:
+  goal_reward: 100
+
+environment:
+  observation_low: 0
+  observation_high: 1
+  observation_width: 21
+  observation_height: 21
+  
+maze:
+  boundary_min: 0
+  empty_cell: 0
+  x_index: 0
+  y_index: 1
+  agent_value: 2
+
+rendering:
+  agent_symbol: 'A'
+  start_symbol: 'S'
+  end_symbol: 'E'
+  wall_symbol: '█'
+  empty_symbol: '-'
+  line_separator: '\n'
+  empty_string: ''
+
+agent:
+  learning_rate: 0.1
+  epsilon: 0.1
+  default_action: 0
+  min_positions: 0
