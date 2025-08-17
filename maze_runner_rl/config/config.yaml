@@ -38,3 +38,17 @@ agent:
   epsilon: 0.1
   default_action: 0
   min_positions: 0
+
+maze_generator:
+  default_width: 21
+  default_height: 21
+  start_x: 1
+  start_y: 1
+  end_offset: 2
+  wall_value: 1
+  path_value: 0
+  boundary_min: 0
+  step_up: -1
+  step_down: 1
+  step_left: -1
+  step_right: 1

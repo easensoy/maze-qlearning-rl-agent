@@ -41,6 +41,20 @@ class Agent:
     default_action: int
     min_positions: int
 
+class MazeGenerator:
+    default_width: int
+    default_height: int
+    start_x: int
+    start_y: int
+    end_offset: int
+    wall_value: int
+    path_value: int
+    boundary_min: int
+    step_up: int
+    step_down: int
+    step_left: int
+    step_right: int
+
 class Config:
     actions: Actions
     penalties: Penalties
@@ -49,5 +63,6 @@ class Config:
     maze: Maze
     rendering: Rendering
     agent: Agent
+    maze_generator: MazeGenerator
 
 CONFIG: Config
