@@ -1,6 +1,6 @@
 # 3D Maze as test field for the RL agent
 
-<img width="1904" height="1040" alt="Screenshot 2025-08-18 151606" src="https://github.com/user-attachments/assets/d4880f3d-be79-4405-b634-f53ebad9cab7" />
+<img width="1903" height="1033" alt="Screenshot 2025-08-18 152040" src="https://github.com/user-attachments/assets/be517a12-e71a-4366-8990-608a3cabe4be" />
 
 The 3D maze serves as both the testing environment and visual output for the reinforcement learning algorithm. The isometric view displays a multi-layered blue maze structure with white pathways, where the red sphere represents the agent's current position and the green sphere marks the target goal. This maze acts as the testing ground where the Q-learning agent must navigate from start to finish, learning optimal paths through trial and error across multiple episodes. The 3D structure adds complexity by allowing vertical movement between levels, creating a more challenging navigation problem than traditional 2D mazes.
 
