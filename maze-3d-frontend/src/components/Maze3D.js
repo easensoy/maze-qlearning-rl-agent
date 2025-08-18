@@ -97,6 +97,12 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
   const { maze, dimensions } = mazeData;
   const { width, height, depth } = dimensions;
   
+  // Calculate optimal camera positioning for perfect auto-fit on page load
+  const mazeSize = Math.max(width, height);
+  const cameraDistance = mazeSize * 0.75; // Adjusted for better scaling without distortion
+  const cameraHeight = mazeSize * 0.8; // Optimal height for full maze visibility
+  const fov = 60; // Reduced FOV for less distortion and better proportions
+  
   // Generate walls only where needed - this creates navigable corridors
   const walls = [];
   for (let z = 0; z < depth; z++) {
@@ -110,26 +116,14 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
     }
   }
   
-  // Also identify corridor positions for debugging
-  const corridors = [];
-  for (let z = 0; z < depth; z++) {
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (maze[z] && maze[z][y] && maze[z][y][x] === 0) {
-          corridors.push([x, y, z]);
-        }
-      }
-    }
-  }
-  
   return (
     <div className="maze-viewport">
       <div className="maze-3d-container">
         <Canvas
         shadows
         camera={{
-          position: [width/2, Math.max(width, height) + 5, width/2],  // Isometric view from above
-          fov: 45,
+          position: [width/2, cameraHeight, height/2 + cameraDistance/2],  // Perfect centering for auto-fit
+          fov: fov,
           near: 0.1,
           far: 1000
         }}
@@ -149,10 +143,10 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
           shadow-camera-bottom={-20}
         />
         
-        {/* Minimal ground plane - only for shadows */}
-        <mesh position={[width/2, -0.1, height/2]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[width * 1.1, height * 1.1]} />
-          <meshLambertMaterial color="#1A1A1A" roughness={0.9} transparent opacity={0.3} />
+        {/* Optimized ground plane - matches maze boundaries exactly */}
+        <mesh position={[(width-1)/2, -0.1, (height-1)/2]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[width, height]} />
+          <meshLambertMaterial color="#1A1A1A" roughness={0.9} transparent opacity={0.2} />
         </mesh>
         
         {/* Proper maze walls - consistent blocks creating clear corridors */}
@@ -180,16 +174,19 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
           <QValueHeatmap qValues={qValues} dimensions={dimensions} />
         )}
         
-        {/* Camera controls - better fit-to-viewport */}
+        {/* Camera controls - constrained for edge-to-edge view */}
         <OrbitControls
           ref={cameraRef}
-          enablePan={true}
+          enablePan={false}  // Disable panning to keep maze centered
           enableZoom={true}
           enableRotate={true}
           target={[width/2, 0, height/2]}
-          minDistance={5}
-          maxDistance={Math.max(width, height) * 2}
-          maxPolarAngle={Math.PI * 0.8}  // Limit rotation to keep top-down view
+          minDistance={cameraDistance * 0.5}  // Allow closer zoom for detail inspection
+          maxDistance={cameraDistance * 1.8}  // Allow more zoom out for overview
+          maxPolarAngle={Math.PI * 0.75}  // Slightly more rotation freedom
+          minPolarAngle={Math.PI * 0.05}  // Prevent looking from below
+          dampingFactor={0.1}  // Smoother camera movement
+          enableDamping={true}  // Enable smooth camera transitions
         />
         </Canvas>
       </div>
