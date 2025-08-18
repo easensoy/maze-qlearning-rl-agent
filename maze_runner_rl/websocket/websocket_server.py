@@ -5,31 +5,35 @@ import sys
 import os
 import threading
 import time
+import yaml
 from typing import Dict, List, Tuple
 
 from src.environments.maze_3d_env import Maze3DEnvironment
 from src.agents.q_learning_agent import QLearningAgent
 
 class MazeRLServer:
-    def __init__(self, host='localhost', port=8765):
-        self.host = host
-        self.port = port
+    def __init__(self, config_path='config.yaml'):
+        with open(os.path.join(os.path.dirname(__file__), config_path), 'r') as f:
+            self.config = yaml.safe_load(f)
+        
+        self.host = self.config['server']['host']
+        self.port = self.config['server']['port']
         self.clients = set()
         self.env = None
         self.agent = None
         self.is_training = False
         self.training_stats = {
-            'episode': 0,
-            'step': 0,
-            'total_reward': 0,
-            'epsilon': 0.1,
+            'episode': self.config['stats']['episode'],
+            'step': self.config['stats']['step'],
+            'total_reward': self.config['stats']['total_reward'],
+            'epsilon': self.config['stats']['epsilon'],
             'rewards_history': [],
             'steps_history': []
         }
         self.training_params = {
-            'speed': 1.0,
-            'max_episodes': 1000,
-            'max_steps_per_episode': 200
+            'speed': self.config['training']['speed'],
+            'max_episodes': self.config['training']['max_episodes'],
+            'max_steps_per_episode': self.config['training']['max_steps_per_episode']
         }
         
     async def register_client(self, websocket):
@@ -103,10 +107,14 @@ class MazeRLServer:
         
         await self.broadcast_message(q_data)
 
-    def initialize_environment(self, width=21, height=21, depth=1, **maze_params):
-        wall_density = maze_params.get('wall_density', 0.72)
-        branching_factor = maze_params.get('branching_factor', 0.35)
-        dead_end_percentage = maze_params.get('dead_end_percentage', 0.4)
+    def initialize_environment(self, width=None, height=None, depth=None, **maze_params):
+        width = width or self.config['maze']['default_width']
+        height = height or self.config['maze']['default_height']
+        depth = depth or self.config['maze']['default_depth']
+        
+        wall_density = maze_params.get('wall_density', self.config['maze']['wall_density'])
+        branching_factor = maze_params.get('branching_factor', self.config['maze']['branching_factor'])
+        dead_end_percentage = maze_params.get('dead_end_percentage', self.config['maze']['dead_end_percentage'])
         
         self.env = Maze3DEnvironment(width, height, depth, 
                                    wall_density=wall_density,
@@ -117,9 +125,9 @@ class MazeRLServer:
         self.agent = QLearningAgent(
             width * height * depth,
             6,
-            learning_rate=0.1,
-            epsilon=0.1,
-            epsilon_decay=0.995
+            learning_rate=self.config['agent']['learning_rate'],
+            epsilon=self.config['agent']['epsilon'],
+            epsilon_decay=self.config['agent']['epsilon_decay']
         )
         
         complexity_info = f"wall_density={wall_density:.2f}, branching={branching_factor:.2f}, dead_ends={dead_end_percentage:.2f}"
