@@ -7,7 +7,8 @@ function TrainingControls({
   onResetMaze,
   onUpdateParams,
   isTraining,
-  trainingStats 
+  trainingStats,
+  qValues 
 }) {
   const [params, setParams] = useState({
     learning_rate: 0.1,
@@ -22,6 +23,12 @@ function TrainingControls({
     dead_end_percentage: 0.3
   });
   
+  const [currentMazeSize, setCurrentMazeSize] = useState({
+    width: 21,
+    height: 21,
+    depth: 1
+  });
+  
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showMazeComplexity, setShowMazeComplexity] = useState(false);
   
@@ -32,6 +39,8 @@ function TrainingControls({
   };
   
   const handleMazeSize = (width, height, depth) => {
+    const newSize = { width, height, depth };
+    setCurrentMazeSize(newSize);
     onUpdateParams({ 
       maze_width: width, 
       maze_height: height, 
@@ -43,6 +52,11 @@ function TrainingControls({
   const handleMazeComplexityChange = (param, value) => {
     const newMazeParams = { ...mazeParams, [param]: parseFloat(value) };
     setMazeParams(newMazeParams);
+    // Immediately regenerate maze with new complexity parameters
+    onUpdateParams({
+      regenerate: true,
+      ...newMazeParams
+    });
   };
   
   const generateNewMaze = () => {
@@ -50,6 +64,33 @@ function TrainingControls({
       regenerate: true,
       ...mazeParams
     });
+  };
+  
+  const exportQTableToCSV = () => {
+    if (!qValues || !qValues.best_actions) {
+      console.log('No Q-table data available for export');
+      return;
+    }
+    
+    // Convert Q-values to CSV format
+    let csvContent = "State,Action,Q-Value\n";
+    
+    Object.entries(qValues.best_actions).forEach(([state, data]) => {
+      csvContent += `"${state}","${data.action}",${data.value}\n`;
+    });
+    
+    // Create and download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `q_table_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log('Q-table exported to CSV successfully');
   };
   
   return (
@@ -65,6 +106,15 @@ function TrainingControls({
           </button>
           <button className="btn btn-warning" onClick={onResetMaze}>
             🔄 Reset Maze
+          </button>
+        </div>
+        <div className="button-group" style={{ marginTop: '12px' }}>
+          <button 
+            className="btn btn-primary" 
+            onClick={exportQTableToCSV}
+            disabled={!qValues || !qValues.best_actions}
+          >
+            💾 Save Q-Table CSV
           </button>
         </div>
       </div>
@@ -153,9 +203,27 @@ function TrainingControls({
       <div className="controls-section">
         <h4>Maze Size</h4>
         <div className="maze-size-buttons">
-          <button onClick={() => handleMazeSize(15, 15, 1)}>Small (15x15)</button>
-          <button onClick={() => handleMazeSize(21, 21, 1)}>Medium (21x21)</button>
-          <button onClick={() => handleMazeSize(31, 31, 1)}>Large (31x31)</button>
+          <button 
+            className={currentMazeSize.width === 15 ? 'active' : ''}
+            onClick={() => handleMazeSize(15, 15, 1)}
+          >
+            Small (15x15)
+          </button>
+          <button 
+            className={currentMazeSize.width === 21 ? 'active' : ''}
+            onClick={() => handleMazeSize(21, 21, 1)}
+          >
+            Medium (21x21)
+          </button>
+          <button 
+            className={currentMazeSize.width === 31 ? 'active' : ''}
+            onClick={() => handleMazeSize(31, 31, 1)}
+          >
+            Large (31x31)
+          </button>
+        </div>
+        <div className="current-size-display">
+          Current: {currentMazeSize.width}x{currentMazeSize.height}
         </div>
       </div>
       
@@ -191,18 +259,6 @@ function TrainingControls({
               <span>{(mazeParams.branching_factor * 100).toFixed(0)}%</span>
             </div>
             
-            <div className="param-item">
-              <label>Dead End Paths:</label>
-              <input
-                type="range"
-                min="0.20"
-                max="0.70"
-                step="0.01"
-                value={mazeParams.dead_end_percentage}
-                onChange={(e) => handleMazeComplexityChange('dead_end_percentage', e.target.value)}
-              />
-              <span>{(mazeParams.dead_end_percentage * 100).toFixed(0)}%</span>
-            </div>
             
             <div className="param-item full-width">
               <button className="btn btn-primary" onClick={generateNewMaze}>
