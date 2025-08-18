@@ -1,5 +1,5 @@
 import gymnasium as gym
-from maze_generator import MazeGenerator
+from .maze_generator import MazeGenerator
 import numpy as np
 from config.config import CONFIG
 
