@@ -7,8 +7,6 @@ import threading
 import time
 from typing import Dict, List, Tuple
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 from src.environments.maze_3d_env import Maze3DEnvironment
 from src.agents.q_learning_agent import QLearningAgent
 
