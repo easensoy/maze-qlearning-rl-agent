@@ -7,7 +7,6 @@ import threading
 import time
 from typing import Dict, List, Tuple
 
-# Add src to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from environments.maze_3d_env import Maze3DEnvironment
@@ -30,27 +29,23 @@ class MazeRLServer:
             'steps_history': []
         }
         self.training_params = {
-            'speed': 1.0,  # Training speed multiplier
+            'speed': 1.0,
             'max_episodes': 1000,
             'max_steps_per_episode': 200
         }
         
     async def register_client(self, websocket):
-        """Register a new WebSocket client"""
         self.clients.add(websocket)
         print(f"Client connected. Total clients: {len(self.clients)}")
         
-        # Send initial maze state if available
         if self.env:
             await self.send_maze_state(websocket)
 
     async def unregister_client(self, websocket):
-        """Unregister a WebSocket client"""
         self.clients.discard(websocket)
         print(f"Client disconnected. Total clients: {len(self.clients)}")
 
     async def broadcast_message(self, message):
-        """Broadcast message to all connected clients"""
         if self.clients:
             await asyncio.gather(
                 *[client.send(json.dumps(message)) for client in self.clients],
@@ -58,7 +53,6 @@ class MazeRLServer:
             )
 
     async def send_maze_state(self, websocket=None):
-        """Send current maze state to client(s)"""
         if not self.env:
             return
             
@@ -80,7 +74,6 @@ class MazeRLServer:
             await self.broadcast_message(maze_data)
 
     async def send_training_update(self, step_data=None):
-        """Send training progress update"""
         update = {
             'type': 'training_update',
             'stats': self.training_stats.copy(),
@@ -93,18 +86,15 @@ class MazeRLServer:
         await self.broadcast_message(update)
 
     async def send_q_values(self):
-        """Send Q-values heatmap data"""
         if not self.agent or not hasattr(self.agent, 'q_table'):
             return
             
-        # Create simplified Q-values for visualization
         q_data = {
             'type': 'q_values',
-            'q_table': {}, # Simplified representation
+            'q_table': {},
             'best_actions': {}
         }
         
-        # Extract best actions for each position
         for pos, actions in self.agent.q_table.items():
             if actions:
                 best_action = max(actions, key=actions.get)
@@ -116,8 +106,6 @@ class MazeRLServer:
         await self.broadcast_message(q_data)
 
     def initialize_environment(self, width=21, height=21, depth=1, **maze_params):
-        """Initialize maze environment and agent"""
-        # Extract maze complexity parameters
         wall_density = maze_params.get('wall_density', 0.72)
         branching_factor = maze_params.get('branching_factor', 0.35)
         dead_end_percentage = maze_params.get('dead_end_percentage', 0.4)
@@ -128,10 +116,9 @@ class MazeRLServer:
                                    dead_end_percentage=dead_end_percentage)
         self.env.reset()
         
-        # Create agent with environment dimensions
         self.agent = QLearningAgent(
-            width * height * depth,  # state space size
-            6,  # action space size (6 directions in 3D)
+            width * height * depth,
+            6,
             learning_rate=0.1,
             epsilon=0.1,
             epsilon_decay=0.995
@@ -141,14 +128,12 @@ class MazeRLServer:
         print(f"Environment initialized: {width}x{height}x{depth} ({complexity_info})")
 
     async def start_training(self):
-        """Start RL training in background thread"""
         if self.is_training:
             return
             
         self.is_training = True
         self.training_stats['episode'] = 0
         
-        # Start training in background thread
         training_thread = threading.Thread(target=self.run_training_loop)
         training_thread.daemon = True
         training_thread.start()
@@ -156,19 +141,16 @@ class MazeRLServer:
         await self.broadcast_message({'type': 'training_started'})
 
     async def stop_training(self):
-        """Stop RL training"""
         self.is_training = False
         await self.broadcast_message({'type': 'training_stopped'})
 
     def run_training_loop(self):
-        """Main training loop (runs in separate thread)"""
         episode = 0
         
         while self.is_training and episode < self.training_params['max_episodes']:
             episode += 1
             self.training_stats['episode'] = episode
             
-            # Reset environment for new episode
             observation = self.env.reset()
             total_reward = 0
             step = 0
@@ -177,15 +159,12 @@ class MazeRLServer:
                 if not self.is_training:
                     break
                     
-                # Get agent's action
                 state = self.position_to_state(self.env.agent_position)
                 action = self.agent.choose_action(state)
                 
-                # Take step in environment
                 observation, reward, done, _ = self.env.step(action)
                 new_state = self.position_to_state(self.env.agent_position)
                 
-                # Update agent
                 self.agent.update_q_table(state, action, reward, new_state)
                 
                 total_reward += reward
@@ -193,7 +172,6 @@ class MazeRLServer:
                 self.training_stats['total_reward'] = total_reward
                 self.training_stats['epsilon'] = self.agent.epsilon
                 
-                # Send updates to clients
                 step_data = {
                     'action': action,
                     'reward': reward,
@@ -201,7 +179,6 @@ class MazeRLServer:
                     'done': done
                 }
                 
-                # Schedule async updates (will be called in main thread)
                 asyncio.run_coroutine_threadsafe(
                     self.send_maze_state(), 
                     asyncio.get_event_loop()
@@ -211,7 +188,7 @@ class MazeRLServer:
                     asyncio.get_event_loop()
                 )
                 
-                if step % 10 == 0:  # Send Q-values every 10 steps
+                if step % 10 == 0:
                     asyncio.run_coroutine_threadsafe(
                         self.send_q_values(),
                         asyncio.get_event_loop()
@@ -221,28 +198,22 @@ class MazeRLServer:
                     print(f"Episode {episode} completed in {step} steps, reward: {total_reward}")
                     break
                     
-                # Control training speed
                 time.sleep(1.0 / self.training_params['speed'])
             
-            # Episode statistics
             self.training_stats['rewards_history'].append(total_reward)
             self.training_stats['steps_history'].append(step)
             
-            # Keep only last 100 episodes for memory
             if len(self.training_stats['rewards_history']) > 100:
                 self.training_stats['rewards_history'] = self.training_stats['rewards_history'][-100:]
                 self.training_stats['steps_history'] = self.training_stats['steps_history'][-100:]
             
-            # Decay epsilon
             self.agent.decay_epsilon()
 
     def position_to_state(self, position):
-        """Convert 3D position to state index"""
         x, y, z = position
         return z * (self.env.maze_generator.width * self.env.maze_generator.height) + y * self.env.maze_generator.width + x
 
     async def handle_message(self, websocket, message):
-        """Handle incoming WebSocket messages"""
         try:
             data = json.loads(message)
             msg_type = data.get('type')
@@ -251,7 +222,6 @@ class MazeRLServer:
                 width = data.get('width', 11)
                 height = data.get('height', 11)
                 depth = data.get('depth', 5)
-                # Extract maze complexity parameters
                 maze_params = {k: v for k, v in data.items() 
                              if k in ['wall_density', 'branching_factor', 'dead_end_percentage']}
                 self.initialize_environment(width, height, depth, **maze_params)
@@ -282,7 +252,6 @@ class MazeRLServer:
             print(f"Error handling message: {e}")
 
     async def websocket_handler(self, websocket):
-        """Main WebSocket handler"""
         await self.register_client(websocket)
         try:
             async for message in websocket:
@@ -293,17 +262,15 @@ class MazeRLServer:
             await self.unregister_client(websocket)
 
     async def start_server(self):
-        """Start the WebSocket server"""
         print(f"Starting WebSocket server on {self.host}:{self.port}")
         
-        # Initialize default environment
         self.initialize_environment()
         
         start_server = websockets.serve(self.websocket_handler, self.host, self.port)
         print(f"WebSocket server running on ws://{self.host}:{self.port}")
         
         await start_server
-        await asyncio.Future()  # Run forever
+        await asyncio.Future()
 
 if __name__ == "__main__":
     server = MazeRLServer()
