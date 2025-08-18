@@ -1,0 +1,40 @@
+header:
+  height: 80
+  font_size: 1.6
+  border_radius: 16
+  padding: 24
+
+sidebar:
+  width: 380
+  sections: 5
+  gap: 2
+  padding: 16
+  border_width: 2
+
+buttons:
+  padding_x: 20
+  padding_y: 10
+  border_radius: 6
+  font_size: 14
+  gap: 8
+
+stats:
+  font_size: 13
+  padding_x: 12
+  padding_y: 8
+  border_radius: 6
+
+sliders:
+  height: 5
+  thumb_size: 16
+  margin: 4
+
+camera:
+  distance_multiplier: 0.75
+  height_multiplier: 0.8
+  fov: 60
+  min_distance_multiplier: 0.5
+  max_distance_multiplier: 1.8
+  max_polar_angle: 0.75
+  min_polar_angle: 0.05
+  damping_factor: 0.1
