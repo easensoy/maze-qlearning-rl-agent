@@ -1,0 +1,113 @@
+.training-charts {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 10px;
+}
+
+.charts-header {
+  margin-bottom: 20px;
+}
+
+.charts-header h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.4em;
+}
+
+.performance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.metric {
+  background: white;
+  padding: 12px 15px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-left: 4px solid #007bff;
+}
+
+.metric-label {
+  font-size: 0.85em;
+  color: #666;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  font-size: 1.2em;
+  color: #333;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.chart-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chart-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.1em;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.no-data p {
+  font-size: 1.1em;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .training-charts {
+    padding: 15px;
+    margin: 5px;
+  }
+  
+  .performance-metrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .chart-section {
+    padding: 15px;
+  }
+  
+  .metric {
+    padding: 8px 10px;
+  }
+  
+  .metric-label {
+    font-size: 0.8em;
+  }
+  
+  .metric-value {
+    font-size: 1em;
+  }
+}
