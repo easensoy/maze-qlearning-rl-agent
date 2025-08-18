@@ -46,47 +46,53 @@ function App() {
   
   return (
     <div className="App">
-      <header className="app-header">
-        <h1>🌿 3D Maze RL Training</h1>
-        <div className="connection-status">
-          <div className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`}>
-            {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+      {/* Header positioned in upper area spanning left and right of sidebar */}
+      <div className="app-header">
+        <div className="header-left">
+          <h1>🌿 3D Maze RL Training</h1>
+          <div className="connection-status">
+            <div className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`}>
+              {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+            </div>
+            {connectionError && (
+              <div className="error-message">⚠️ {connectionError}</div>
+            )}
           </div>
-          {connectionError && (
-            <div className="error-message">⚠️ {connectionError}</div>
-          )}
         </div>
-        <div className="view-controls">
-          <button 
-            className={selectedView === 'maze' ? 'active' : ''}
-            onClick={() => setSelectedView('maze')}
-          >
-            🎮 Maze View
-          </button>
-          <button 
-            className={selectedView === 'charts' ? 'active' : ''}
-            onClick={() => setSelectedView('charts')}
-          >
-            📊 Charts View
-          </button>
-          <button 
-            className={selectedView === 'both' ? 'active' : ''}
-            onClick={() => setSelectedView('both')}
-          >
-            🔄 Both Views
-          </button>
-          <label className="q-values-toggle">
-            <input
-              type="checkbox"
-              checked={showQValues}
-              onChange={(e) => setShowQValues(e.target.checked)}
-            />
-            Show Q-Values
-          </label>
+        <div className="header-right">
+          <div className="view-controls">
+            <button 
+              className={selectedView === 'maze' ? 'active' : ''}
+              onClick={() => setSelectedView('maze')}
+            >
+              🎮 Maze View
+            </button>
+            <button 
+              className={selectedView === 'charts' ? 'active' : ''}
+              onClick={() => setSelectedView('charts')}
+            >
+              📊 Charts View
+            </button>
+            <button 
+              className={selectedView === 'both' ? 'active' : ''}
+              onClick={() => setSelectedView('both')}
+            >
+              🔄 Both Views
+            </button>
+            <label className="q-values-toggle">
+              <input
+                type="checkbox"
+                checked={showQValues}
+                onChange={(e) => setShowQValues(e.target.checked)}
+              />
+              Show Q-Values
+            </label>
+          </div>
         </div>
-      </header>
-      
+      </div>
+
       <main className="app-main">
+
         <aside className="controls-panel">
           <TrainingControls
             onStartTraining={startTraining}
@@ -95,13 +101,13 @@ function App() {
             onUpdateParams={handleUpdateParams}
             isTraining={isTraining}
             trainingStats={trainingStats}
+            qValues={qValues}
           />
         </aside>
         
         <div className="content-area">
           {(selectedView === 'maze' || selectedView === 'both') && (
             <section className="maze-section">
-              <h2>🎯 Interactive 3D Maze</h2>
               {isConnected ? (
                 <Maze3D
                   mazeData={mazeData}
