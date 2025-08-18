@@ -48,7 +48,10 @@ class Maze3DGenerator:
         # Add some additional branching for complexity
         self._add_branching_corridors()
         
-        print(f"Generated maze: {self._calculate_wall_percentage():.1f}% walls")
+        # Ensure dead ends are clearly visible and well-distributed
+        self._enhance_dead_end_visibility()
+        
+        print(f"Generated maze: {self._calculate_wall_percentage():.1f}% walls, Dead ends enhanced")
 
     def _connect_isolated_regions(self):
         """Connect any isolated maze regions to ensure full connectivity"""
@@ -334,8 +337,108 @@ class Maze3DGenerator:
             # Need more walls - close some passages strategically
             self._close_passages(target_density - current_density)
         elif current_density > target_density + 0.05:  # 5% tolerance
-            # Need fewer walls - open some passages
+            # Need fewer walls - open more passages
             self._open_passages(current_density - target_density)
+
+    def _enhance_dead_end_visibility(self):
+        """Enhance dead end visibility by ensuring they are well-distributed and clearly marked"""
+        dead_ends = self._find_dead_ends()
+        target_dead_ends = int(self._count_path_cells() * self.dead_end_percentage)
+        
+        print(f"Found {len(dead_ends)} dead ends, target: {target_dead_ends}")
+        
+        if len(dead_ends) < target_dead_ends:
+            # Need more dead ends - create some by selectively closing passages
+            self._create_additional_dead_ends(target_dead_ends - len(dead_ends))
+        elif len(dead_ends) > target_dead_ends * 1.5:
+            # Too many dead ends - open some to create more connectivity
+            self._reduce_excessive_dead_ends(len(dead_ends) - target_dead_ends)
+    
+    def _find_dead_ends(self):
+        """Find all current dead ends in the maze"""
+        dead_ends = []
+        for z in range(self.depth):
+            for y in range(1, self.height - 1):
+                for x in range(1, self.width - 1):
+                    if self.maze[z, y, x] == 0:  # This is a path
+                        # Count neighboring paths
+                        neighbors = 0
+                        directions = [(0, 1, 0), (1, 0, 0), (0, -1, 0), (-1, 0, 0)]
+                        if self.depth > 1:
+                            directions.extend([(0, 0, 1), (0, 0, -1)])
+                        
+                        for dx, dy, dz in directions:
+                            nx, ny, nz = x + dx, y + dy, z + dz
+                            if (0 <= nx < self.width and 
+                                0 <= ny < self.height and 
+                                0 <= nz < self.depth and
+                                self.maze[nz, ny, nx] == 0):
+                                neighbors += 1
+                        
+                        if neighbors == 1:  # Dead end has exactly 1 neighbor
+                            dead_ends.append((x, y, z))
+        return dead_ends
+    
+    def _count_path_cells(self):
+        """Count total number of path cells"""
+        return np.sum(self.maze == 0)
+    
+    def _create_additional_dead_ends(self, needed):
+        """Create additional dead ends by selectively closing passages"""
+        for _ in range(needed):
+            # Find a random corridor segment that can be closed to create a dead end
+            for attempts in range(100):  # Limit attempts to prevent infinite loops
+                x = random.randint(2, self.width - 3)
+                y = random.randint(2, self.height - 3)
+                z = random.randint(0, min(self.depth - 1, 2))
+                
+                if self.maze[z, y, x] == 0:  # This is a path
+                    # Check if closing this would create a dead end without breaking connectivity
+                    neighbors = []
+                    directions = [(0, 1, 0), (1, 0, 0), (0, -1, 0), (-1, 0, 0)]
+                    
+                    for dx, dy, dz in directions:
+                        nx, ny, nz = x + dx, y + dy, z + dz
+                        if (0 <= nx < self.width and 
+                            0 <= ny < self.height and 
+                            0 <= nz < self.depth and
+                            self.maze[nz, ny, nx] == 0):
+                            neighbors.append((nx, ny, nz))
+                    
+                    if len(neighbors) >= 3:  # Can close this to create a dead end
+                        # Close one of the connections to create a dead end
+                        nx, ny, nz = random.choice(neighbors)
+                        if (nx, ny, nz) not in [self.start, self.end]:
+                            # Create a small dead-end corridor
+                            self.maze[nz, ny, nx] = 1
+                            break
+    
+    def _reduce_excessive_dead_ends(self, excess):
+        """Reduce excessive dead ends by connecting some of them"""
+        dead_ends = self._find_dead_ends()
+        
+        for _ in range(min(excess, len(dead_ends) // 2)):
+            if len(dead_ends) < 2:
+                break
+                
+            # Pick a random dead end to extend
+            dead_end = random.choice(dead_ends)
+            dead_ends.remove(dead_end)
+            
+            # Try to extend this dead end to connect to another path
+            x, y, z = dead_end
+            directions = [(0, 1, 0), (1, 0, 0), (0, -1, 0), (-1, 0, 0)]
+            random.shuffle(directions)
+            
+            for dx, dy, dz in directions:
+                nx, ny = x + dx * 2, y + dy * 2  # Skip one cell to create proper corridor
+                if (1 <= nx < self.width - 1 and 
+                    1 <= ny < self.height - 1 and
+                    self.maze[z, ny, nx] == 1):  # This is a wall we can break
+                    # Create a short corridor
+                    self.maze[z, y + dy, x + dx] = 0  # Intermediate cell
+                    self.maze[z, ny, nx] = 0  # End cell
+                    break
 
     def _calculate_wall_percentage(self):
         """Calculate current wall density percentage"""
