@@ -3,12 +3,10 @@ import random
 
 class Maze3DGenerator:
     def __init__(self, width=None, height=None, depth=None, wall_density=0.65, branching_factor=0.4, dead_end_percentage=0.3):
-        # Ensure odd dimensions for proper maze generation (minimum 15 for complexity)
         self.width = max(width or 21, 15)
         self.height = max(height or 21, 15)  
         self.depth = max(depth or 3, 1)
         
-        # Make dimensions odd to ensure proper wall/path structure
         if self.width % 2 == 0:
             self.width += 1
         if self.height % 2 == 0:
@@ -16,39 +14,30 @@ class Maze3DGenerator:
         if self.depth % 2 == 0:
             self.depth += 1
             
-        # Maze complexity parameters
-        self.wall_density = wall_density  # Target 70-80% wall coverage
-        self.branching_factor = branching_factor  # Controls decision points
-        self.dead_end_percentage = dead_end_percentage  # Configurable dead end percentage
+        self.wall_density = wall_density
+        self.branching_factor = branching_factor
+        self.dead_end_percentage = dead_end_percentage
         
         self.maze = None
-        self.start = (1, 1, 0)  # Start at ground level
-        self.end = (self.width - 2, self.height - 2, min(self.depth - 1, 2))  # End position
+        self.start = (1, 1, 0)
+        self.end = (self.width - 2, self.height - 2, min(self.depth - 1, 2))
 
     def generate_maze(self):
-        """Generate a proper maze with carved corridors using recursive backtracking"""
-        # Initialize completely filled with walls (1 = wall, 0 = path/corridor)
         self.maze = np.ones((self.depth, self.height, self.width), dtype=int)
         
-        # Start with a clean slate - carve out the starting area
         start_x, start_y, start_z = self.start
         self.maze[start_z, start_y, start_x] = 0
         
-        # Use proper recursive backtracking to carve corridors
         self._carve_maze_recursive(start_x, start_y, start_z)
         
-        # Ensure end position is accessible
         end_x, end_y, end_z = self.end
         self.maze[end_z, end_y, end_x] = 0
         
-        # Connect start to end if not already connected
         if not self._is_reachable(self.start, self.end):
             self._carve_direct_path(self.start, self.end)
         
-        # Add some additional branching for complexity
         self._add_branching_corridors()
         
-        # Ensure dead ends are clearly visible and well-distributed
         self._enhance_dead_end_visibility()
         
         print(f"Generated maze: {self._calculate_wall_percentage():.1f}% walls, Dead ends enhanced")

@@ -3,17 +3,16 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Box, Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Individual 3D wall cube - proper maze geometry
 function MazeWall({ position }) {
   return (
     <Box
-      position={[position[0], 1, position[1]]}  // Wall height 2 units (positioned at y=1)
-      scale={[1, 2, 1]}  // Wall: 1x2x1 (width x height x depth)
+      position={[position[0], 1, position[1]]}
+      scale={[1, 2, 1]}
       castShadow
       receiveShadow
     >
       <meshStandardMaterial 
-        color="#1565C0"  // Blue walls as requested
+        color="#1565C0"
         roughness={0.7}
         metalness={0.0}
       />
@@ -21,36 +20,33 @@ function MazeWall({ position }) {
   );
 }
 
-// Red agent sphere for maze navigation
 function Agent({ position, size = 0.4 }) {
   const meshRef = useRef();
   
   return (
     <Sphere
       ref={meshRef}
-      position={[position[0], size, position[1]]}  // Agent at ground level between walls
+      position={[position[0], size, position[1]]}
       scale={[size, size, size]}
       castShadow
     >
-      <meshStandardMaterial color="#FF0000" />  {/* Bright red agent */}
+      <meshStandardMaterial color="#FF0000" />
     </Sphere>
   );
 }
 
-// Green goal cube/sphere for maze target
 function Goal({ position, size = 0.4 }) {
   return (
     <Sphere
-      position={[position[0], size, position[1]]}  // Goal at ground level
+      position={[position[0], size, position[1]]}
       scale={[size, size, size]}
       castShadow
     >
-      <meshStandardMaterial color="#00FF00" />  {/* Bright green goal */}
+      <meshStandardMaterial color="#00FF00" />
     </Sphere>
   );
 }
 
-// Q-values heatmap overlay - floating above ground in corridors
 function QValueHeatmap({ qValues, dimensions }) {
   if (!qValues || !dimensions) return null;
   
@@ -58,12 +54,12 @@ function QValueHeatmap({ qValues, dimensions }) {
     <group>
       {Object.entries(qValues.best_actions || {}).map(([pos, data]) => {
         const [x, y, z] = pos.split(',').map(Number);
-        const intensity = Math.max(0, Math.min(1, data.value / 10)); // Normalize Q-value
+        const intensity = Math.max(0, Math.min(1, data.value / 10));
         
         return (
           <Box
             key={pos}
-            position={[x, y + 0.05, z]} // Float just above ground
+            position={[x, y + 0.05, z]}
             scale={[0.8, 0.05, 0.8]}
             transparent
             opacity={intensity * 0.6}
@@ -76,7 +72,6 @@ function QValueHeatmap({ qValues, dimensions }) {
   );
 }
 
-// Main 3D Maze component
 function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = false }) {
   const cameraRef = useRef();
   
@@ -97,18 +92,15 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
   const { maze, dimensions } = mazeData;
   const { width, height, depth } = dimensions;
   
-  // Calculate optimal camera positioning for perfect auto-fit on page load
   const mazeSize = Math.max(width, height);
-  const cameraDistance = mazeSize * 0.75; // Adjusted for better scaling without distortion
-  const cameraHeight = mazeSize * 0.8; // Optimal height for full maze visibility
-  const fov = 60; // Reduced FOV for less distortion and better proportions
+  const cameraDistance = mazeSize * 0.75;
+  const cameraHeight = mazeSize * 0.8;
+  const fov = 60;
   
-  // Generate walls only where needed - this creates navigable corridors
   const walls = [];
   for (let z = 0; z < depth; z++) {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        // Only render walls (1), leave corridors (0) as empty space
         if (maze[z] && maze[z][y] && maze[z][y][x] === 1) {
           walls.push([x, y, z]);
         }
@@ -128,7 +120,6 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
           far: 1000
         }}
       >
-        {/* Lighting */}
         <ambientLight intensity={0.4} />
         <directionalLight
           position={[width/2, height + 5, depth/2]}
@@ -143,50 +134,44 @@ function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = 
           shadow-camera-bottom={-20}
         />
         
-        {/* Optimized ground plane - matches maze boundaries exactly */}
         <mesh position={[(width-1)/2, -0.1, (height-1)/2]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[width, height]} />
           <meshLambertMaterial color="#1A1A1A" roughness={0.9} transparent opacity={0.2} />
         </mesh>
         
-        {/* Proper maze walls - consistent blocks creating clear corridors */}
         {walls.map(([x, y, z], index) => (
           <MazeWall 
             key={`wall-${index}`} 
-            position={[x, y]}  // Only pass x,y since walls are at ground level
+            position={[x, y]}
           />
         ))}
         
-        {/* No corridor markers - paths are empty space for clear navigation */}
         
-        {/* Agent */}
+        
         {agentPosition && (
           <Agent position={agentPosition} />
         )}
         
-        {/* Goal */}
         {goalPosition && (
           <Goal position={goalPosition} />
         )}
         
-        {/* Q-values heatmap */}
         {showQValues && (
           <QValueHeatmap qValues={qValues} dimensions={dimensions} />
         )}
         
-        {/* Camera controls - constrained for edge-to-edge view */}
         <OrbitControls
           ref={cameraRef}
-          enablePan={false}  // Disable panning to keep maze centered
+          enablePan={false}
           enableZoom={true}
           enableRotate={true}
           target={[width/2, 0, height/2]}
-          minDistance={cameraDistance * 0.5}  // Allow closer zoom for detail inspection
-          maxDistance={cameraDistance * 1.8}  // Allow more zoom out for overview
-          maxPolarAngle={Math.PI * 0.75}  // Slightly more rotation freedom
-          minPolarAngle={Math.PI * 0.05}  // Prevent looking from below
-          dampingFactor={0.1}  // Smoother camera movement
-          enableDamping={true}  // Enable smooth camera transitions
+          minDistance={cameraDistance * 0.5}
+          maxDistance={cameraDistance * 1.8}
+          maxPolarAngle={Math.PI * 0.75}
+          minPolarAngle={Math.PI * 0.05}
+          dampingFactor={0.1}
+          enableDamping={true}
         />
         </Canvas>
       </div>

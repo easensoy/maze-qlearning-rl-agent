@@ -46,7 +46,6 @@ function App() {
   
   return (
     <div className="App">
-      {/* Header positioned in upper area spanning left and right of sidebar */}
       <div className="app-header">
         <div className="header-left">
           <h1>🌿 3D Maze RL Training</h1>
