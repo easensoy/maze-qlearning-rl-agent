@@ -7,10 +7,10 @@ import threading
 import time
 from typing import Dict, List, Tuple
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from environments.maze_3d_env import Maze3DEnvironment
-from agents.q_learning_agent import QLearningAgent
+from src.environments.maze_3d_env import Maze3DEnvironment
+from src.agents.q_learning_agent import QLearningAgent
 
 class MazeRLServer:
     def __init__(self, host='localhost', port=8765):
