@@ -1,0 +1,39 @@
+maze:
+  default_size: 21
+  minimum_size: 15
+  default_depth: 3
+  minimum_depth: 1
+  wall_density: 0.65
+  branching_factor: 0.4
+  dead_end_percentage: 0.3
+
+generation:
+  max_attempts: 100
+  connection_attempts: 20
+  branching_attempts: 3
+
+agent:
+  sphere_size: 0.4
+  ground_level: 0
+
+goal:
+  sphere_size: 0.4
+  ground_level: 0
+
+walls:
+  height: 2
+  width: 1
+  depth: 1
+  position_y: 1
+
+ground:
+  position_y: -0.1
+  opacity: 0.2
+  roughness: 0.9
+
+lighting:
+  ambient_intensity: 0.4
+  directional_intensity: 0.8
+  shadow_map_size: 2048
+  shadow_camera_range: 20
+  height_offset: 5
