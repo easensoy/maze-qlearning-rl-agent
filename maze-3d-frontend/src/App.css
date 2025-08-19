@@ -12,8 +12,7 @@ html, body {
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, 
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-family-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -23,7 +22,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #e8eaf6;
+  background-color: var(--bg-primary);
   position: relative;
 }
 
@@ -33,24 +32,24 @@ body {
   left: 0;
   right: 0;
   height: 80px;
-  background: linear-gradient(135deg, #2196f3 0%, #3f51b5 100%);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  padding: 0 var(--spacing-2xl);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-index-dropdown);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--spacing-2xl);
 }
 
 .header-left h1 {
-  font-size: 1.6em;
+  font-size: var(--font-size-3xl);
   margin: 0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
@@ -58,7 +57,7 @@ body {
 .header-left .connection-status {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
   margin: 0;
 }
 
@@ -68,20 +67,20 @@ body {
 }
 
 .status-indicator {
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-weight: bold;
-  font-size: 0.85em;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-2xl);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
 }
 
 .status-indicator.connected {
   background-color: rgba(40, 167, 69, 0.2);
-  border: 2px solid #28a745;
+  border: 2px solid var(--color-success);
 }
 
 .status-indicator.disconnected {
   background-color: rgba(220, 53, 69, 0.2);
-  border: 2px solid #dc3545;
+  border: 2px solid var(--color-danger);
 }
 
 .error-message {
