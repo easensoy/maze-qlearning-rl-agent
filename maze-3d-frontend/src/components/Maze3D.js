@@ -1,76 +1,7 @@
 import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Box, Sphere } from '@react-three/drei';
-import * as THREE from 'three';
-
-function MazeWall({ position }) {
-  return (
-    <Box
-      position={[position[0], 1, position[1]]}
-      scale={[1, 2, 1]}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial 
-        color="#1565C0"
-        roughness={0.7}
-        metalness={0.0}
-      />
-    </Box>
-  );
-}
-
-function Agent({ position, size = 0.4 }) {
-  const meshRef = useRef();
-  
-  return (
-    <Sphere
-      ref={meshRef}
-      position={[position[0], size, position[1]]}
-      scale={[size, size, size]}
-      castShadow
-    >
-      <meshStandardMaterial color="#FF0000" />
-    </Sphere>
-  );
-}
-
-function Goal({ position, size = 0.4 }) {
-  return (
-    <Sphere
-      position={[position[0], size, position[1]]}
-      scale={[size, size, size]}
-      castShadow
-    >
-      <meshStandardMaterial color="#00FF00" />
-    </Sphere>
-  );
-}
-
-function QValueHeatmap({ qValues, dimensions }) {
-  if (!qValues || !dimensions) return null;
-  
-  return (
-    <group>
-      {Object.entries(qValues.best_actions || {}).map(([pos, data]) => {
-        const [x, y, z] = pos.split(',').map(Number);
-        const intensity = Math.max(0, Math.min(1, data.value / 10));
-        
-        return (
-          <Box
-            key={pos}
-            position={[x, y + 0.05, z]}
-            scale={[0.8, 0.05, 0.8]}
-            transparent
-            opacity={intensity * 0.6}
-          >
-            <meshBasicMaterial color={new THREE.Color().setHSL(0.3 * intensity, 1, 0.5)} />
-          </Box>
-        );
-      })}
-    </group>
-  );
-}
+import { OrbitControls } from '@react-three/drei';
+import { MazeWall, Agent, Goal, QValueHeatmap } from './3d';
 
 function Maze3D({ mazeData, agentPosition, goalPosition, qValues, showQValues = false }) {
   const cameraRef = useRef();
