@@ -12,26 +12,18 @@ export const downloadCSV = (data, filename) => {
   document.body.removeChild(link);
 };
 
+const getTimestamp = () => new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+
 export const exportQTableToCSV = (qValues) => {
-  if (!qValues || !qValues.best_actions) {
-    console.log('No Q-table data available for export');
-    return;
-  }
+  if (!qValues?.best_actions) return;
   
-  let csvContent = "State,Action,Q-Value\n";
+  const csvContent = "State,Action,Q-Value\n" + 
+    Object.entries(qValues.best_actions)
+      .map(([state, data]) => `"${state}","${data.action}",${data.value}`)
+      .join('\n');
   
-  Object.entries(qValues.best_actions).forEach(([state, data]) => {
-    csvContent += `"${state}","${data.action}",${data.value}\n`;
-  });
-  
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-  const filename = `q_table_${timestamp}.csv`;
-  
-  downloadCSV(csvContent, filename);
-  console.log('Q-table exported to CSV successfully');
+  downloadCSV(csvContent, generateTimestampedFilename('q_table', 'csv'));
 };
 
-export const generateTimestampedFilename = (baseName, extension) => {
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-  return `${baseName}_${timestamp}.${extension}`;
-};
+export const generateTimestampedFilename = (baseName, extension) => 
+  `${baseName}_${getTimestamp()}.${extension}`;
