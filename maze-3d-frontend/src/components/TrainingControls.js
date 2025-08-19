@@ -96,55 +96,25 @@ function TrainingControls({
         </h4>
         {showAdvanced && (
           <div className="params-grid">
-            <div className="param-item">
-              <label>Learning Rate:</label>
-              <input
-                type="range"
-                min="0.01"
-                max="1.0"
-                step="0.01"
-                value={params.learning_rate}
-                onChange={(e) => handleParamChange('learning_rate', e.target.value)}
-              />
-              <span>{params.learning_rate}</span>
-            </div>
-            
-            <div className="param-item">
-              <label>Epsilon (Exploration):</label>
-              <input
-                type="range"
-                min="0.01"
-                max="1.0"
-                step="0.01"
-                value={params.epsilon}
-                onChange={(e) => handleParamChange('epsilon', e.target.value)}
-              />
-              <span>{params.epsilon}</span>
-            </div>
-            
-            <div className="param-item">
-              <label>Training Speed:</label>
-              <input
-                type="range"
-                min="0.1"
-                max="10.0"
-                step="0.1"
-                value={params.speed}
-                onChange={(e) => handleParamChange('speed', e.target.value)}
-              />
-              <span>{params.speed}x</span>
-            </div>
-            
-            <div className="param-item">
-              <label>Max Episodes:</label>
-              <input
-                type="number"
-                min="10"
-                max="10000"
-                value={params.max_episodes}
-                onChange={(e) => handleParamChange('max_episodes', e.target.value)}
-              />
-            </div>
+            {[
+              { key: 'learning_rate', label: 'Learning Rate', type: 'range', min: 0.01, max: 1.0, step: 0.01 },
+              { key: 'epsilon', label: 'Epsilon (Exploration)', type: 'range', min: 0.01, max: 1.0, step: 0.01 },
+              { key: 'speed', label: 'Training Speed', type: 'range', min: 0.1, max: 10.0, step: 0.1, suffix: 'x' },
+              { key: 'max_episodes', label: 'Max Episodes', type: 'number', min: 10, max: 10000 }
+            ].map(({ key, label, type, min, max, step, suffix }) => (
+              <div key={key} className="param-item">
+                <label>{label}:</label>
+                <input
+                  type={type}
+                  min={min}
+                  max={max}
+                  step={step}
+                  value={params[key]}
+                  onChange={(e) => handleParamChange(key, e.target.value)}
+                />
+                <span>{params[key]}{suffix || ''}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -173,33 +143,23 @@ function TrainingControls({
         </h4>
         {showMazeComplexity && (
           <div className="params-grid">
-            <div className="param-item">
-              <label>Wall Density:</label>
-              <input
-                type="range"
-                min="0.60"
-                max="0.85"
-                step="0.01"
-                value={mazeParams.wall_density}
-                onChange={(e) => handleMazeComplexityChange('wall_density', e.target.value)}
-              />
-              <span>{(mazeParams.wall_density * 100).toFixed(0)}%</span>
-            </div>
-            
-            <div className="param-item">
-              <label>Branching Factor:</label>
-              <input
-                type="range"
-                min="0.20"
-                max="0.60"
-                step="0.01"
-                value={mazeParams.branching_factor}
-                onChange={(e) => handleMazeComplexityChange('branching_factor', e.target.value)}
-              />
-              <span>{(mazeParams.branching_factor * 100).toFixed(0)}%</span>
-            </div>
-            
-            
+            {[
+              { key: 'wall_density', label: 'Wall Density', min: 0.60, max: 0.85 },
+              { key: 'branching_factor', label: 'Branching Factor', min: 0.20, max: 0.60 }
+            ].map(({ key, label, min, max }) => (
+              <div key={key} className="param-item">
+                <label>{label}:</label>
+                <input
+                  type="range"
+                  min={min}
+                  max={max}
+                  step="0.01"
+                  value={mazeParams[key]}
+                  onChange={(e) => handleMazeComplexityChange(key, e.target.value)}
+                />
+                <span>{(mazeParams[key] * 100).toFixed(0)}%</span>
+              </div>
+            ))}
             <div className="param-item full-width">
               <Button variant="primary" onClick={generateNewMaze}>
                 🎲 Generate New Maze
