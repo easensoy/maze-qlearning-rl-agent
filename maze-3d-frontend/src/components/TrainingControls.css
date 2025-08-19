@@ -5,14 +5,14 @@
   padding: 0;
   gap: 2px;
   background: transparent;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 .controls-section {
   flex: 1;
-  padding: 16px;
-  background: #ffffff;
-  border-bottom: 2px solid #e8ecf0;
+  padding: var(--spacing-lg);
+  background: var(--bg-surface);
+  border-bottom: 2px solid var(--color-gray-200);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -23,28 +23,28 @@
 }
 
 .controls-section:first-child {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--gradient-purple);
+  color: var(--color-white);
 }
 
 .controls-section:nth-child(2) {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
+  background: var(--gradient-pink);
+  color: var(--color-white);
 }
 
 .controls-section:nth-child(3) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
+  background: var(--gradient-blue);
+  color: var(--color-white);
 }
 
 .controls-section:nth-child(4) {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  color: white;
+  background: var(--gradient-green);
+  color: var(--color-white);
 }
 
 .controls-section:last-child {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  color: white;
+  background: var(--gradient-orange);
+  color: var(--color-white);
   border-bottom: none;
   margin-bottom: 0;
 }
@@ -87,16 +87,16 @@
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: var(--spacing-md) var(--spacing-xl);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-sm);
   letter-spacing: -0.01em;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: var(--backdrop-blur);
+  box-shadow: var(--shadow-md);
   flex-shrink: 0;
 }
 
