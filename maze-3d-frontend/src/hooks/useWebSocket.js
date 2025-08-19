@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { WEBSOCKET_CONFIG, DEFAULT_MAZE_CONFIG } from '../utils/constants';
 
 const useWebSocket = (url) => {
   const [socket, setSocket] = useState(null);
@@ -12,7 +13,7 @@ const useWebSocket = (url) => {
   const [connectionError, setConnectionError] = useState(null);
   
   const reconnectTimeoutRef = useRef(null);
-  const maxReconnectAttempts = 5;
+  const maxReconnectAttempts = WEBSOCKET_CONFIG.maxReconnectAttempts;
   const reconnectAttemptsRef = useRef(0);
   
   const connect = useCallback(() => {
@@ -26,7 +27,12 @@ const useWebSocket = (url) => {
         reconnectAttemptsRef.current = 0;
         
         // Initialize maze on connection
-        sendMessage({ type: 'init_maze', width: 21, height: 21, depth: 1 });
+        sendMessage({ 
+          type: 'init_maze', 
+          width: DEFAULT_MAZE_CONFIG.width, 
+          height: DEFAULT_MAZE_CONFIG.height, 
+          depth: DEFAULT_MAZE_CONFIG.depth 
+        });
       };
       
       ws.onmessage = (event) => {
@@ -50,7 +56,7 @@ const useWebSocket = (url) => {
           
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
-          }, 2000 * reconnectAttemptsRef.current); // Exponential backoff
+          }, WEBSOCKET_CONFIG.reconnectDelayMultiplier * reconnectAttemptsRef.current); // Exponential backoff
         } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
           setConnectionError('Failed to connect after multiple attempts');
         }
