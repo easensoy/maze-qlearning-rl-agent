@@ -1,4 +1,16 @@
 import React, { useState } from 'react';
+import { Button } from './common';
+import { 
+  DEFAULT_TRAINING_PARAMS, 
+  DEFAULT_MAZE_CONFIG, 
+  MAZE_SIZES 
+} from '../utils/constants';
+import { 
+  createParameterHandler, 
+  createMazeSizeHandler, 
+  createComplexityHandler 
+} from '../utils/parameterUtils';
+import { exportQTableToCSV } from '../utils/fileUtils';
 import './TrainingControls.css';
 
 function TrainingControls({ 
@@ -10,54 +22,16 @@ function TrainingControls({
   trainingStats,
   qValues 
 }) {
-  const [params, setParams] = useState({
-    learning_rate: 0.1,
-    epsilon: 0.1,
-    speed: 1.0,
-    max_episodes: 1000
-  });
-  
-  const [mazeParams, setMazeParams] = useState({
-    wall_density: 0.65,
-    branching_factor: 0.4,
-    dead_end_percentage: 0.3
-  });
-  
-  const [currentMazeSize, setCurrentMazeSize] = useState({
-    width: 21,
-    height: 21,
-    depth: 1
-  });
+  const [params, setParams] = useState(DEFAULT_TRAINING_PARAMS);
+  const [mazeParams, setMazeParams] = useState(DEFAULT_MAZE_CONFIG);
+  const [currentMazeSize, setCurrentMazeSize] = useState(MAZE_SIZES.MEDIUM);
   
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showMazeComplexity, setShowMazeComplexity] = useState(false);
   
-  const handleParamChange = (param, value) => {
-    const newParams = { ...params, [param]: parseFloat(value) };
-    setParams(newParams);
-    onUpdateParams(newParams);
-  };
-  
-  const handleMazeSize = (width, height, depth) => {
-    const newSize = { width, height, depth };
-    setCurrentMazeSize(newSize);
-    onUpdateParams({ 
-      maze_width: width, 
-      maze_height: height, 
-      maze_depth: depth,
-      ...mazeParams  // Include complexity parameters
-    });
-  };
-  
-  const handleMazeComplexityChange = (param, value) => {
-    const newMazeParams = { ...mazeParams, [param]: parseFloat(value) };
-    setMazeParams(newMazeParams);
-    // Immediately regenerate maze with new complexity parameters
-    onUpdateParams({
-      regenerate: true,
-      ...newMazeParams
-    });
-  };
+  const handleParamChange = createParameterHandler(params, setParams, onUpdateParams);
+  const handleMazeSize = createMazeSizeHandler(setCurrentMazeSize, onUpdateParams);
+  const handleMazeComplexityChange = createComplexityHandler(mazeParams, setMazeParams, onUpdateParams);
   
   const generateNewMaze = () => {
     onUpdateParams({
@@ -66,56 +40,31 @@ function TrainingControls({
     });
   };
   
-  const exportQTableToCSV = () => {
-    if (!qValues || !qValues.best_actions) {
-      console.log('No Q-table data available for export');
-      return;
-    }
-    
-    // Convert Q-values to CSV format
-    let csvContent = "State,Action,Q-Value\n";
-    
-    Object.entries(qValues.best_actions).forEach(([state, data]) => {
-      csvContent += `"${state}","${data.action}",${data.value}\n`;
-    });
-    
-    // Create and download CSV file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `q_table_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    console.log('Q-table exported to CSV successfully');
-  };
+  const handleExportQTable = () => exportQTableToCSV(qValues);
   
   return (
     <div className="training-controls">
       <div className="controls-section">
         <h3>Training Controls</h3>
         <div className="button-group">
-          <button
-            className={`btn ${isTraining ? 'btn-danger' : 'btn-success'}`}
+          <Button
+            variant={isTraining ? 'danger' : 'success'}
             onClick={isTraining ? onStopTraining : onStartTraining}
           >
             {isTraining ? '⏹ Stop Training' : '▶ Start Training'}
-          </button>
-          <button className="btn btn-warning" onClick={onResetMaze}>
+          </Button>
+          <Button variant="warning" onClick={onResetMaze}>
             🔄 Reset Maze
-          </button>
+          </Button>
         </div>
         <div className="button-group" style={{ marginTop: '12px' }}>
-          <button 
-            className="btn btn-primary" 
-            onClick={exportQTableToCSV}
+          <Button 
+            variant="primary"
+            onClick={handleExportQTable}
             disabled={!qValues || !qValues.best_actions}
           >
             💾 Save Q-Table CSV
-          </button>
+          </Button>
         </div>
       </div>
       
@@ -203,24 +152,15 @@ function TrainingControls({
       <div className="controls-section">
         <h4>Maze Size</h4>
         <div className="maze-size-buttons">
-          <button 
-            className={currentMazeSize.width === 15 ? 'active' : ''}
-            onClick={() => handleMazeSize(15, 15, 1)}
-          >
-            Small (15x15)
-          </button>
-          <button 
-            className={currentMazeSize.width === 21 ? 'active' : ''}
-            onClick={() => handleMazeSize(21, 21, 1)}
-          >
-            Medium (21x21)
-          </button>
-          <button 
-            className={currentMazeSize.width === 31 ? 'active' : ''}
-            onClick={() => handleMazeSize(31, 31, 1)}
-          >
-            Large (31x31)
-          </button>
+          {Object.entries(MAZE_SIZES).map(([key, size]) => (
+            <button 
+              key={key}
+              className={currentMazeSize.width === size.width ? 'active' : ''}
+              onClick={() => handleMazeSize(size.width, size.height, size.depth, mazeParams)}
+            >
+              {size.label}
+            </button>
+          ))}
         </div>
         <div className="current-size-display">
           Current: {currentMazeSize.width}x{currentMazeSize.height}
@@ -261,9 +201,9 @@ function TrainingControls({
             
             
             <div className="param-item full-width">
-              <button className="btn btn-primary" onClick={generateNewMaze}>
+              <Button variant="primary" onClick={generateNewMaze}>
                 🎲 Generate New Maze
-              </button>
+              </Button>
             </div>
           </div>
         )}
