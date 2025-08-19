@@ -27,12 +27,12 @@ function App() {
   } = useWebSocket(WEBSOCKET_CONFIG.url);
   
   const handleUpdateParams = (params) => {
-    // Handle maze regeneration or size changes with complexity
     if (params.maze_width || params.maze_height || params.maze_depth || params.regenerate) {
-      const complexityParams = {};
-      if (params.wall_density !== undefined) complexityParams.wall_density = params.wall_density;
-      if (params.branching_factor !== undefined) complexityParams.branching_factor = params.branching_factor;
-      if (params.dead_end_percentage !== undefined) complexityParams.dead_end_percentage = params.dead_end_percentage;
+      const complexityParams = ['wall_density', 'branching_factor', 'dead_end_percentage']
+        .reduce((acc, key) => {
+          if (params[key] !== undefined) acc[key] = params[key];
+          return acc;
+        }, {});
       
       initializeMaze(
         params.maze_width || DEFAULT_MAZE_CONFIG.width,
