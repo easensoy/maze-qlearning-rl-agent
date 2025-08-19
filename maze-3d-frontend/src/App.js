@@ -3,11 +3,12 @@ import Maze3D from './components/Maze3D';
 import TrainingControls from './components/TrainingControls';
 import TrainingCharts from './components/TrainingCharts';
 import useWebSocket from './hooks/useWebSocket';
+import { VIEW_MODES, WEBSOCKET_CONFIG, DEFAULT_MAZE_CONFIG } from './utils/constants';
 import './App.css';
 
 function App() {
   const [showQValues, setShowQValues] = useState(false);
-  const [selectedView, setSelectedView] = useState('maze'); // 'maze', 'charts', 'both'
+  const [selectedView, setSelectedView] = useState(VIEW_MODES.MAZE);
   
   const {
     isConnected,
@@ -23,7 +24,7 @@ function App() {
     resetMaze,
     updateParameters,
     initializeMaze
-  } = useWebSocket('ws://localhost:8765');
+  } = useWebSocket(WEBSOCKET_CONFIG.url);
   
   const handleUpdateParams = (params) => {
     // Handle maze regeneration or size changes with complexity
@@ -34,9 +35,9 @@ function App() {
       if (params.dead_end_percentage !== undefined) complexityParams.dead_end_percentage = params.dead_end_percentage;
       
       initializeMaze(
-        params.maze_width || 21,
-        params.maze_height || 21, 
-        params.maze_depth || 1,
+        params.maze_width || DEFAULT_MAZE_CONFIG.width,
+        params.maze_height || DEFAULT_MAZE_CONFIG.height, 
+        params.maze_depth || DEFAULT_MAZE_CONFIG.depth,
         complexityParams
       );
     } else {
@@ -61,20 +62,20 @@ function App() {
         <div className="header-right">
           <div className="view-controls">
             <button 
-              className={selectedView === 'maze' ? 'active' : ''}
-              onClick={() => setSelectedView('maze')}
+              className={selectedView === VIEW_MODES.MAZE ? 'active' : ''}
+              onClick={() => setSelectedView(VIEW_MODES.MAZE)}
             >
               🎮 Maze View
             </button>
             <button 
-              className={selectedView === 'charts' ? 'active' : ''}
-              onClick={() => setSelectedView('charts')}
+              className={selectedView === VIEW_MODES.CHARTS ? 'active' : ''}
+              onClick={() => setSelectedView(VIEW_MODES.CHARTS)}
             >
               📊 Charts View
             </button>
             <button 
-              className={selectedView === 'both' ? 'active' : ''}
-              onClick={() => setSelectedView('both')}
+              className={selectedView === VIEW_MODES.BOTH ? 'active' : ''}
+              onClick={() => setSelectedView(VIEW_MODES.BOTH)}
             >
               🔄 Both Views
             </button>
@@ -105,7 +106,7 @@ function App() {
         </aside>
         
         <div className="content-area">
-          {(selectedView === 'maze' || selectedView === 'both') && (
+          {(selectedView === VIEW_MODES.MAZE || selectedView === VIEW_MODES.BOTH) && (
             <section className="maze-section">
               {isConnected ? (
                 <Maze3D
@@ -123,7 +124,7 @@ function App() {
             </section>
           )}
           
-          {(selectedView === 'charts' || selectedView === 'both') && (
+          {(selectedView === VIEW_MODES.CHARTS || selectedView === VIEW_MODES.BOTH) && (
             <section className="charts-section">
               <TrainingCharts trainingStats={trainingStats} />
             </section>
