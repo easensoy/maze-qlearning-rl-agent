@@ -83,7 +83,6 @@
   margin: 0;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .training-charts {
     padding: 15px;
