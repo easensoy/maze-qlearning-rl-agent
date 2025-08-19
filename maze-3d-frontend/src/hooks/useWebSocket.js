@@ -26,12 +26,9 @@ const useWebSocket = (url) => {
         setConnectionError(null);
         reconnectAttemptsRef.current = 0;
         
-        // Initialize maze on connection
         sendMessage({ 
           type: 'init_maze', 
-          width: DEFAULT_MAZE_CONFIG.width, 
-          height: DEFAULT_MAZE_CONFIG.height, 
-          depth: DEFAULT_MAZE_CONFIG.depth 
+          ...DEFAULT_MAZE_CONFIG
         });
       };
       
@@ -49,14 +46,13 @@ const useWebSocket = (url) => {
         setIsConnected(false);
         setSocket(null);
         
-        // Attempt to reconnect if not intentional disconnect
         if (!event.wasClean && reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current += 1;
           console.log(`Attempting to reconnect... (${reconnectAttemptsRef.current}/${maxReconnectAttempts})`);
           
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
-          }, WEBSOCKET_CONFIG.reconnectDelayMultiplier * reconnectAttemptsRef.current); // Exponential backoff
+          }, WEBSOCKET_CONFIG.reconnectDelayMultiplier * reconnectAttemptsRef.current);
         } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
           setConnectionError('Failed to connect after multiple attempts');
         }
@@ -108,7 +104,6 @@ const useWebSocket = (url) => {
         setIsTraining(data.is_training);
         
         if (data.step_data) {
-          // Update agent position from step data
           setAgentPosition(data.step_data.position);
         }
         break;
@@ -130,7 +125,6 @@ const useWebSocket = (url) => {
     }
   }, []);
   
-  // Connection management
   useEffect(() => {
     connect();
     
@@ -139,18 +133,11 @@ const useWebSocket = (url) => {
     };
   }, [connect, disconnect]);
   
-  // Training controls
-  const startTraining = useCallback(() => {
-    sendMessage({ type: 'start_training' });
-  }, [sendMessage]);
+  const createMessageSender = useCallback((type) => () => sendMessage({ type }), [sendMessage]);
   
-  const stopTraining = useCallback(() => {
-    sendMessage({ type: 'stop_training' });
-  }, [sendMessage]);
-  
-  const resetMaze = useCallback(() => {
-    sendMessage({ type: 'reset_maze' });
-  }, [sendMessage]);
+  const startTraining = createMessageSender('start_training');
+  const stopTraining = createMessageSender('stop_training');
+  const resetMaze = createMessageSender('reset_maze');
   
   const updateParameters = useCallback((params) => {
     sendMessage({ type: 'update_params', params });
