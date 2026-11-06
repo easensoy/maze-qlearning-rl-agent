@@ -1,12 +1,13 @@
 server:
-  host: "localhost"
-  port: 8765
+  host: "localhost"         # override with MAZE_SERVER_HOST (Docker sets 0.0.0.0)
+  port: 8765                # override with MAZE_SERVER_PORT
 
 training:
-  speed: 1.0
-  max_episodes: 1000
-  max_steps_per_episode: 200
-  update_interval: 10
+  speed: 20.0               # training steps per second; 1000 or more = no delay
+  max_episodes: 1000        # episodes per press of Start Training
+  max_steps_per_episode: 1000
+  update_interval: 10       # send Q-values every N steps (at most twice per second)
+  max_updates_per_second: 30
 
 agent:
   learning_rate: 0.1

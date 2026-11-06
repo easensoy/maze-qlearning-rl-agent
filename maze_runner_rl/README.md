@@ -1,0 +1,58 @@
+# maze_runner_rl (backend)
+
+Python side of the maze RL system: maze generators, Gymnasium environments, a tabular
+Q-learning agent and the WebSocket server the React frontend talks to.
+
+## Run
+
+```
+py -3.13 -m venv ..\.venv
+..\.venv\Scripts\python.exe -m pip install -r requirements.txt
+..\.venv\Scripts\python.exe main.py
+```
+
+Run from this folder: `config`, `src`, `experiments` and `websocket` are imported relative to it.
+The server listens on `ws://localhost:8765`; override with `MAZE_SERVER_HOST` / `MAZE_SERVER_PORT`.
+
+Offline training without the frontend:
+
+```
+..\.venv\Scripts\python.exe -m experiments.training_experiment --env 2d --seed 0
+..\.venv\Scripts\python.exe -m experiments.training_experiment --env 3d --depth 3 --seed 0 --save results.json
+```
+
+## Layout
+
+| Path | Contents |
+|---|---|
+| `main.py` | Starts `websocket.websocket_server.MazeRLServer` |
+| `websocket/config.yaml` | Server, training, agent and default maze settings |
+| `config/config.yaml` | Actions, rewards and size of the 2D environment |
+| `src/environments/maze_env.py` | `MazeEnvironment`: 2D maze, 4 actions |
+| `src/environments/maze_3d_env.py` | `Maze3DEnvironment`: multi-level maze, 6 actions (±x, ±y, ±z) |
+| `src/environments/maze_generator.py`, `maze_3d_generator.py` | Maze generation (always solvable, fully connected) |
+| `src/agents/q_learning_agent.py` | `QLearningAgent`: tabular, epsilon-greedy |
+| `src/algorithms/policy_iteration.py` | `PolicyIteration`: exact solver using the env's `step_from_state()` |
+| `src/utils/replay_buffer.py` | `ReplayBuffer` (not used by the tabular agent) |
+| `experiments/training_experiment.py` | `TrainingExperiment` loop and a command-line entry point |
+
+## Environment contract
+
+Both environments follow the Gymnasium API: `reset(seed=None, options=None)` returns
+`(observation, info)` and `step(action)` returns `(observation, reward, terminated, truncated, info)`.
+The maze is generated on the first reset and kept afterwards so an agent can learn it; pass a
+`seed` or `options={"new_maze": True}` for a new one. `info["state"]` is the agent's cell index,
+the state used by the Q-table. Rewards: −0.1 per move, −1 for bumping into a wall, +100 at the goal.
+
+## WebSocket messages
+
+| Direction | `type` | Fields |
+|---|---|---|
+| client → server | `init_maze` | `width`, `height`, `depth`, optional `wall_density`, `branching_factor`, `dead_end_percentage` (new maze, fresh agent) |
+| client → server | `start_training` / `stop_training` | |
+| client → server | `reset_maze` | new maze of the same size, fresh agent |
+| client → server | `update_params` | `params`: any of `speed` (steps/s), `max_episodes`, `max_steps_per_episode`, `learning_rate`, `epsilon` |
+| server → client | `maze_state` | `maze` (depth × height × width, 1 = wall), `agent_position`, `start_position`, `goal_position`, `dimensions` |
+| server → client | `training_update` | `stats` (episode, step, total_reward, epsilon, goals_reached, last-100 histories), `is_training`, optional `step_data` |
+| server → client | `q_values` | `best_actions`: `{"x,y,z": {"action", "value"}}` |
+| server → client | `training_started` / `training_stopped` | |
