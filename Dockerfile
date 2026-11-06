@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
@@ -7,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY maze_runner_rl/ .
 
+# Listen on all interfaces inside the container so the published port is reachable.
+ENV MAZE_SERVER_HOST=0.0.0.0
 EXPOSE 8765
 
 CMD ["python", "main.py"]
