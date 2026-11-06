@@ -1,28 +1,36 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box } from '@react-three/drei';
 import * as THREE from 'three';
+import { LEVEL_GAP } from '../../utils/constants';
 
+// One floor tile per visited cell, coloured by the best Q-value there:
+// red = lowest value in the table, green = highest. Keys from the server are "x,y,z".
 const QValueHeatmap = ({ qValues, dimensions }) => {
-  if (!qValues || !dimensions) return null;
-  
+  const tiles = useMemo(() => {
+    const entries = Object.entries(qValues?.best_actions || {});
+    if (!dimensions || entries.length === 0) return [];
+    const values = entries.map(([, data]) => data.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    return entries.map(([key, data]) => {
+      const [x, y, z] = key.split(',').map(Number);
+      const t = (data.value - min) / range;
+      return {
+        key,
+        position: [z * (dimensions.width + LEVEL_GAP) + x, 0.06, y],
+        color: new THREE.Color().setHSL(0.33 * t, 0.9, 0.5)
+      };
+    });
+  }, [qValues, dimensions]);
+
   return (
     <group>
-      {Object.entries(qValues.best_actions || {}).map(([pos, data]) => {
-        const [x, y, z] = pos.split(',').map(Number);
-        const intensity = Math.max(0, Math.min(1, data.value / 10));
-        
-        return (
-          <Box
-            key={pos}
-            position={[x, y + 0.05, z]}
-            scale={[0.8, 0.05, 0.8]}
-            transparent
-            opacity={intensity * 0.6}
-          >
-            <meshBasicMaterial color={new THREE.Color().setHSL(0.3 * intensity, 1, 0.5)} />
-          </Box>
-        );
-      })}
+      {tiles.map(({ key, position, color }) => (
+        <Box key={key} position={position} scale={[0.9, 0.06, 0.9]}>
+          <meshBasicMaterial color={color} transparent opacity={0.75} />
+        </Box>
+      ))}
     </group>
   );
 };
