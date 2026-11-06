@@ -1,0 +1,7 @@
+.git
+.venv
+venv
+**/__pycache__
+**/*.pyc
+maze-3d-frontend
+visual_outputs
