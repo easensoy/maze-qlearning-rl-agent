@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   maze-backend:
     build: .
@@ -7,6 +5,7 @@ services:
       - "8765:8765"
     environment:
       - PYTHONPATH=/app
+      - MAZE_SERVER_HOST=0.0.0.0
     volumes:
       - ./maze_runner_rl/websocket/config.yaml:/app/websocket/config.yaml
     restart: unless-stopped
@@ -14,7 +13,7 @@ services:
   maze-frontend:
     build: ./maze-3d-frontend
     ports:
-      - "3000:3000"
+      - "3001:3001"
     depends_on:
       - maze-backend
     restart: unless-stopped
