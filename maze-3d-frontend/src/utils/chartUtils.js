@@ -1,8 +1,8 @@
 import { CHART_CONFIG } from './constants';
 
-export const prepareRewardData = (rewards_history = [], steps_history = []) => {
+export const prepareRewardData = (rewards_history = [], steps_history = [], episodes_history = []) => {
   return rewards_history.map((reward, index) => ({
-    episode: index + 1,
+    episode: episodes_history[index] ?? index + 1,
     reward: reward,
     steps: steps_history[index] || 0
   }));
