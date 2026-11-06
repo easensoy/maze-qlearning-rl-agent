@@ -13,9 +13,9 @@ import './TrainingCharts.css';
 function TrainingCharts({ trainingStats }) {
   if (!trainingStats) return null;
   
-  const { rewards_history = [], steps_history = [] } = trainingStats;
+  const { rewards_history = [], steps_history = [], episodes_history = [] } = trainingStats;
   
-  const rewardData = prepareRewardData(rewards_history, steps_history);
+  const rewardData = prepareRewardData(rewards_history, steps_history, episodes_history);
   const rewardDataWithMA = calculateMovingAverage(rewardData);
   const recentData = getRecentData(rewardDataWithMA);
   const { avgReward, avgSteps, bestReward, bestSteps } = calculatePerformanceMetrics(rewards_history, steps_history);
@@ -62,6 +62,7 @@ function TrainingCharts({ trainingStats }) {
                   stroke={colors.primary}
                   strokeWidth={1}
                   dot={false}
+                  isAnimationActive={false}
                   name="Reward"
                 />
                 <Line 
@@ -70,6 +71,7 @@ function TrainingCharts({ trainingStats }) {
                   stroke={colors.secondary}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                   name="Moving Average"
                 />
               </LineChart>
@@ -91,6 +93,7 @@ function TrainingCharts({ trainingStats }) {
                   stroke={colors.success}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                   name="Steps"
                 />
               </LineChart>
@@ -107,7 +110,7 @@ function TrainingCharts({ trainingStats }) {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="reward" fill={colors.primary} name="Reward" />
+                  <Bar dataKey="reward" fill={colors.primary} name="Reward" isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
