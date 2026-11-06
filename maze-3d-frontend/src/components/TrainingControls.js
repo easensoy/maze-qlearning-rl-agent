@@ -20,7 +20,8 @@ function TrainingControls({
   onUpdateParams,
   isTraining,
   trainingStats,
-  qValues 
+  qValues,
+  mazeDimensions
 }) {
   const [params, setParams] = useState(DEFAULT_TRAINING_PARAMS);
   const [mazeParams, setMazeParams] = useState(DEFAULT_MAZE_CONFIG);
@@ -31,14 +32,24 @@ function TrainingControls({
   
   const handleParamChange = createParameterHandler(params, setParams, onUpdateParams);
   const handleMazeSize = createMazeSizeHandler(setCurrentMazeSize, onUpdateParams);
-  const handleMazeComplexityChange = createComplexityHandler(mazeParams, setMazeParams, onUpdateParams);
+  // The server's maze is the source of truth (another client or a reload may have changed it).
+  const activeSize = mazeDimensions
+    ? { width: mazeDimensions.width, height: mazeDimensions.height, depth: mazeDimensions.depth }
+    : currentMazeSize;
+  const handleMazeComplexityChange = createComplexityHandler(mazeParams, setMazeParams, onUpdateParams, activeSize);
   
   const generateNewMaze = () => {
     onUpdateParams({
       regenerate: true,
+      maze_width: activeSize.width,
+      maze_height: activeSize.height,
+      maze_depth: activeSize.depth,
       ...mazeParams
     });
   };
+
+  const sameSize = (a, b) => a.width === b.width && a.height === b.height && a.depth === b.depth;
+  const formatSpeed = (speed) => (speed < 10 ? speed.toFixed(1) : Math.round(speed));
   
   const handleExportQTable = () => exportQTableToCSV(qValues);
   
@@ -99,9 +110,9 @@ function TrainingControls({
             {[
               { key: 'learning_rate', label: 'Learning Rate', type: 'range', min: 0.01, max: 1.0, step: 0.01 },
               { key: 'epsilon', label: 'Epsilon (Exploration)', type: 'range', min: 0.01, max: 1.0, step: 0.01 },
-              { key: 'speed', label: 'Training Speed', type: 'range', min: 0.1, max: 10.0, step: 0.1, suffix: 'x' },
+              { key: 'speed', label: 'Training Speed (steps/s)', type: 'range', min: -1, max: 3, step: 0.05, log: true },
               { key: 'max_episodes', label: 'Max Episodes', type: 'number', min: 10, max: 10000 }
-            ].map(({ key, label, type, min, max, step, suffix }) => (
+            ].map(({ key, label, type, min, max, step, suffix, log }) => (
               <div key={key} className="param-item">
                 <label>{label}:</label>
                 <input
@@ -109,10 +120,10 @@ function TrainingControls({
                   min={min}
                   max={max}
                   step={step}
-                  value={params[key]}
-                  onChange={(e) => handleParamChange(key, e.target.value)}
+                  value={log ? Math.log10(params[key]) : params[key]}
+                  onChange={(e) => handleParamChange(key, log ? Math.pow(10, parseFloat(e.target.value)) : e.target.value)}
                 />
-                <span>{params[key]}{suffix || ''}</span>
+                <span>{log ? formatSpeed(params[key]) : params[key]}{suffix || ''}</span>
               </div>
             ))}
           </div>
@@ -125,7 +136,7 @@ function TrainingControls({
           {Object.entries(MAZE_SIZES).map(([key, size]) => (
             <button 
               key={key}
-              className={currentMazeSize.width === size.width ? 'active' : ''}
+              className={sameSize(activeSize, size) ? 'active' : ''}
               onClick={() => handleMazeSize(size.width, size.height, size.depth, mazeParams)}
             >
               {size.label}
@@ -133,7 +144,7 @@ function TrainingControls({
           ))}
         </div>
         <div className="current-size-display">
-          Current: {currentMazeSize.width}x{currentMazeSize.height}
+          Current: {activeSize.width}x{activeSize.height}{activeSize.depth > 1 ? `x${activeSize.depth}` : ''}
         </div>
       </div>
       
