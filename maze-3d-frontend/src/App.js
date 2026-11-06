@@ -102,6 +102,7 @@ function App() {
             isTraining={isTraining}
             trainingStats={trainingStats}
             qValues={qValues}
+            mazeDimensions={mazeData?.dimensions}
           />
         </aside>
         
@@ -137,7 +138,8 @@ function App() {
           <div className="quick-stats">
             Episode: {trainingStats.episode} | 
             Reward: {trainingStats.total_reward?.toFixed(2)} | 
-            ε: {trainingStats.epsilon?.toFixed(3)}
+            ε: {trainingStats.epsilon?.toFixed(3)} | 
+            Goal reached: {trainingStats.goals_reached ?? 0}x
           </div>
         </footer>
       )}
