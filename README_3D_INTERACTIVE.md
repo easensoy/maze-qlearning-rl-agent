@@ -36,7 +36,7 @@ npm start
 Navigate to: **http://localhost:3001** (port set in `maze-3d-frontend/.env`)
 
 ### Docker (alternative)
-`docker compose up --build` starts the backend on port 8765 and the frontend on port 3001.
+`docker compose up --build` is meant to start the backend on port 8765 and the frontend on port 3001. The compose file validates, but the images have not been built and tested yet.
 
 ## 🎮 Features
 
@@ -53,13 +53,13 @@ Navigate to: **http://localhost:3001** (port set in `maze-3d-frontend/.env`)
 - **Maze sizes** - Small 15x15, Medium 21x21, Large 31x31, and 21x21 with 3 levels
 
 ### 📊 Performance Analytics
-- **Reward progression** - line charts with moving averages (last 100 episodes)
+- **Reward progression** - reward per episode for the last 100 episodes, with a 10-episode moving average
 - **Episode statistics** - steps per episode
 - **Real-time metrics** - episode, step, reward, epsilon and how often the goal was reached
 - **Performance indicators** - average and best reward and steps
 
 ### ⚙️ Interactive Controls
-- **Training speed** - 0.1 to 1000 steps per second (logarithmic slider)
+- **Training speed** - logarithmic slider from 0.1 steps per second up to unthrottled (at the top, 1000, the delay between steps is removed)
 - **Hyperparameters** - real-time learning rate and epsilon tuning
 - **View modes** - maze view, charts view, or both simultaneously
 - **Q-value overlay** - toggle to see learned state values
@@ -94,13 +94,13 @@ Navigate to: **http://localhost:3001** (port set in `maze-3d-frontend/.env`)
 ### Maze Parameters
 - **Size**: 15x15 (Small) to 31x31 (Large), or 21x21 with 3 levels
 - **Algorithm**: Depth-first search with randomization
-- **Wall density**: 0.60 - 0.85, the minimum share of wall cells (dead ends are trimmed to reach it)
+- **Wall density**: 0.60 - 0.85, the target share of wall cells; dead ends are trimmed towards it, and trimming stops early once none are left
 - **Branching factor**: 0.20 - 0.60, how many extra loop corridors are added
 
 ### Training Parameters
 - **Learning Rate**: 0.01 - 1.0
 - **Epsilon**: 0.01 - 1.0 (exploration rate)
-- **Training Speed**: 0.1 - 1000 steps per second
+- **Training Speed**: 0.1 steps per second up to unthrottled
 - **Max Episodes**: 10 - 10,000 per run (up to 1000 steps per episode)
 
 ### Visualization Options
