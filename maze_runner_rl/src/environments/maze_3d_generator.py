@@ -230,9 +230,11 @@ class Maze3DGenerator:
                     break
 
     def _adjust_wall_density(self):
-        """Raise the wall share to at least wall_density by pruning dead-end tips.
+        """Trim dead-end tips until walls make up wall_density of the maze.
         Removing a tip never disconnects anything; start and goal are never removed.
-        If the maze already has more walls than wall_density, it is left as is."""
+        Stops early once no dead ends are left (only loops and the start-to-goal route
+        remain), so a high wall_density may not be reached. A maze that already has
+        more walls than wall_density is left as is."""
         total = self.maze.size
         while True:
             missing = int(np.ceil(self.wall_density * total)) - int(np.sum(self.maze == 1))
