@@ -21,6 +21,14 @@ Offline training without the frontend:
 ..\.venv\Scripts\python.exe -m experiments.training_experiment --env 3d --depth 3 --seed 0 --save results.json
 ```
 
+Each run reports three things separately:
+
+- how often training episodes reached the goal, while the agent was still exploring;
+- how often the greedy policy (no exploration) reaches the goal;
+- how often the greedy policy takes a shortest route. It is checked after every episode against a breadth-first search over the environment's own transition model.
+
+A run counts as converged only if the greedy route is a shortest route at every check for at least the last `--window` episodes (default 100). `--save` writes the per-episode results, the summary and the run settings (git commit, config, library versions).
+
 ## Layout
 
 | Path | Contents |
@@ -34,7 +42,7 @@ Offline training without the frontend:
 | `src/agents/q_learning_agent.py` | `QLearningAgent`: tabular, epsilon-greedy |
 | `src/algorithms/policy_iteration.py` | `PolicyIteration`: exact solver using the env's `step_from_state()` |
 | `src/utils/replay_buffer.py` | `ReplayBuffer` (not used by the tabular agent) |
-| `experiments/training_experiment.py` | `TrainingExperiment` loop and a command-line entry point |
+| `experiments/training_experiment.py` | `TrainingExperiment` loop, greedy-route checks, the convergence rule and a command-line entry point |
 
 ## Environment contract
 
