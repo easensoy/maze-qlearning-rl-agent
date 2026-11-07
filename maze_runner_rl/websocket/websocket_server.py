@@ -20,6 +20,9 @@ class MazeRLServer:
     Training runs in a worker thread. Messages from that thread are handed to the
     server's asyncio loop with run_coroutine_threadsafe(); per-step updates are capped
     at training.max_updates_per_second so fast training does not flood the clients.
+    Stopping or changing the speed cuts the wait between steps short, and a new run
+    (or a new maze) only starts once the previous worker has exited, so two workers
+    never train at the same time.
     """
 
     def __init__(self, config_path='config.yaml'):
@@ -34,6 +37,7 @@ class MazeRLServer:
         self.loop = None
         self.training_thread = None
         self.lock = threading.Lock()
+        self.wake_event = threading.Event()  # set to end the worker's wait between steps early
         self.is_training = False
         self.history_size = self.config['stats']['history_size']
         self.training_params = {
@@ -152,27 +156,44 @@ class MazeRLServer:
     async def reinitialize(self, width=None, height=None, depth=None, **maze_params):
         """New maze and a fresh agent: a Q-table learned on one maze is meaningless on another."""
         await self.stop_training()
+        if self.training_thread is not None and self.training_thread.is_alive():
+            print("Training thread is still running; maze not changed")
+            return
         self.initialize_environment(width, height, depth, **maze_params)
         for message in (self.maze_state_message(), self.training_update_message(), self.q_values_message()):
             await self.broadcast_message(message)
 
     # ------------------------------------------------------------------ training
     async def start_training(self):
-        if self.is_training or self.env is None:
+        if self.env is None:
             return
+        worker = self.training_thread
+        if worker is not None and worker.is_alive():
+            if self.is_training:
+                return  # already running
+            # A stopped run is still finishing its current step: let it exit first.
+            await asyncio.to_thread(worker.join, 5.0)
+            if worker.is_alive():
+                print("Previous training run has not stopped yet; start request ignored")
+                return
 
         self.loop = asyncio.get_running_loop()
         self.is_training = True
+        self.wake_event.clear()
         self.training_thread = threading.Thread(target=self.run_training_loop, daemon=True)
         self.training_thread.start()
 
         await self.broadcast_message({'type': 'training_started'})
 
     async def stop_training(self):
-        was_running = self.training_thread is not None and self.training_thread.is_alive()
+        worker = self.training_thread
+        was_running = worker is not None and worker.is_alive()
         self.is_training = False
+        self.wake_event.set()  # end a long wait between steps (slow speeds) right away
         if was_running:
-            await asyncio.to_thread(self.training_thread.join, 5.0)
+            await asyncio.to_thread(worker.join, 5.0)
+            if worker.is_alive():
+                print("Warning: training thread did not stop within 5 s")
         else:
             await self.broadcast_message({'type': 'training_stopped'})
 
@@ -232,8 +253,10 @@ class MazeRLServer:
                         self.post(self.q_values_message())
 
                     speed = float(self.training_params['speed'])
-                    if 0 < speed < 1000:
-                        time.sleep(1.0 / speed)
+                    if 0 < speed < 1000 and self.wake_event.wait(1.0 / speed):
+                        # Woken early by stop_training() or a speed change; the loop
+                        # condition picks up a stop, the next wait uses the new speed.
+                        self.wake_event.clear()
 
                 if not self.is_training and not terminated:
                     break  # stopped mid-episode: do not record a partial episode
@@ -291,6 +314,7 @@ class MazeRLServer:
                 params = data.get('params', {})
                 if 'speed' in params:
                     self.training_params['speed'] = float(params['speed'])
+                    self.wake_event.set()  # apply the new speed now, not after the current wait
                 for key in ('max_episodes', 'max_steps_per_episode'):
                     if key in params:
                         self.training_params[key] = int(params[key])
