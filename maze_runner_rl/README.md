@@ -29,6 +29,24 @@ Each run reports three things separately:
 
 A run counts as converged only if the greedy route is a shortest route at every check for at least the last `--window` episodes (default 100). `--save` writes the per-episode results, the summary and the run settings (git commit, config, library versions).
 
+## Tests
+
+```
+..\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+..\.venv\Scripts\python.exe -m pytest
+```
+
+The suite covers:
+
+- the Q-learning update rules;
+- maze solvability and connectivity across sizes, and the density settings;
+- the Gymnasium API, and that `step_from_state()` matches `step()`;
+- the convergence rule, plus a learning regression on the UI's default maze;
+- policy iteration against BFS;
+- the server's stop/restart lifecycle and its WebSocket protocol, over a real socket.
+
+CI runs it on every push (`.github/workflows/ci.yml`).
+
 ## Layout
 
 | Path | Contents |
@@ -41,8 +59,8 @@ A run counts as converged only if the greedy route is a shortest route at every 
 | `src/environments/maze_generator.py`, `maze_3d_generator.py` | Maze generation (always solvable, fully connected) |
 | `src/agents/q_learning_agent.py` | `QLearningAgent`: tabular, epsilon-greedy |
 | `src/algorithms/policy_iteration.py` | `PolicyIteration`: exact solver using the env's `step_from_state()` |
-| `src/utils/replay_buffer.py` | `ReplayBuffer` (not used by the tabular agent) |
 | `experiments/training_experiment.py` | `TrainingExperiment` loop, greedy-route checks, the convergence rule and a command-line entry point |
+| `tests/` | pytest suite: agent, generators, environments, training, policy iteration and the server |
 
 ## Environment contract
 
