@@ -36,7 +36,7 @@ npm start
 Navigate to: **http://localhost:3001** (port set in `maze-3d-frontend/.env`)
 
 ### Docker (alternative)
-`docker compose up --build` is meant to start the backend on port 8765 and the frontend on port 3001. The compose file validates, but the images have not been built and tested yet.
+`docker compose up --build` starts the backend on port 8765 and the frontend on port 3001 (the frontend image runs the development server). CI builds both images on every push and checks that they start and answer.
 
 ## 🎮 Features
 
