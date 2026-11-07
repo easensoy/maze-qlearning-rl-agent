@@ -20,7 +20,7 @@ maze:
   default_width: 21
   default_height: 21
   default_depth: 1
-  wall_density: 0.65
+  wall_density: 0.65        # target wall share; trimming stops early if no dead ends are left
   branching_factor: 0.4
   dead_end_percentage: 0.3
 
