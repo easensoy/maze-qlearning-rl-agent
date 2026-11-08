@@ -20,6 +20,24 @@ npm test -- --watchAll=false
 npm run build
 ```
 
+## Container
+
+The [`Dockerfile`](Dockerfile) is a two-stage build:
+
+1. `npm ci` and `npm run build` on `node:22-alpine`.
+2. The static bundle served by `nginx:1.28-alpine` on port 3001, configured in [`nginx.conf`](nginx.conf).
+
+Hashed assets under `/static/` are cached as immutable, and `index.html` is revalidated on every load.
+
+Create React App inlines `REACT_APP_*` variables when it builds, so the WebSocket URL is a build argument. The default is `ws://localhost:8765`:
+
+```bash
+docker build --build-arg REACT_APP_WS_URL=ws://localhost:8765 -t maze-frontend .
+docker run --rm -p 3001:3001 maze-frontend
+```
+
+The browser opens the WebSocket, so the URL must be reachable from the browser, not from the container.
+
 ## Layout
 
 | Path | Contents |
