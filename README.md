@@ -16,7 +16,7 @@ On the 60 seeded mazes whose shortest route is longer than 120 moves, this tabul
 2. **Faster propagation speeds up both halves of learning.** Dyna-Q turns its first arrival at the goal into a shortest greedy route 22–32× faster than Q-learning does. On three-level mazes it also finds the goal 4.7–6.3× sooner.
 3. **Long eligibility traces break exploration.** Q(λ) helped at λ = 0.3. At λ ≥ 0.7 its traces credit the exploring walk's penalties to the very corridors that led to new cells, and it converged on 0–15 of 60 development runs, against 47 for Q-learning.
 
-**Read** the [value-propagation results](docs/value-propagation/README.md) · **Reproduce** [them](#run-and-reproduce) · **Run** the [live 3D viewer](docs/demo.md) · **See** [how the original pipeline failed](docs/evaluation/case-study.md) and the [Claude tool-use harness](docs/claude-tool-use/README.md)
+**Read** the [value-propagation results](docs/value-propagation/README.md) · **Reproduce** [them](#run-and-reproduce) · **Run** the [live 3D viewer](docs/demo.md) · **See** [how the original pipeline failed](docs/evaluation/case-study.md)
 
 ## What was built
 
@@ -28,11 +28,8 @@ On the 60 seeded mazes whose shortest route is longer than 120 moves, this tabul
   - **[Value propagation](docs/value-propagation/README.md):** the three agents under a pre-registered protocol.
 
   Both are deterministic and record their code, settings and seeds.
-- **An MCP server and a Claude harness.**
-  - **[`mcp_maze/`](maze_runner_rl/mcp_maze):** serves isolated, seeded maze sessions through four tools.
-  - **[`claude_navigation.py`](maze_runner_rl/experiments/claude_navigation.py):** evaluates Claude through them, with token, cost and latency accounting, transcripts and a spending cap.
 - **Engineering.**
-  - **Tests:** 91 Python tests, including the server over a real socket, the MCP tool contract, and the experiment loop reproducing the suite run for run. Also 7 frontend tests.
+  - **Tests:** 91 Python tests, including the server over a real socket, the agents' update rules checked by hand, and the experiment loop reproducing the suite run for run. Also 7 frontend tests.
   - **CI:** runs them all, with lint, the production build and a check that both Docker images start.
 
 ## Learning-algorithm experiments
@@ -88,23 +85,6 @@ The [evaluation suite](docs/evaluation/README.md) measured the repository's agen
 - **It learns a route, not a map.** Value spreads back from the goal mostly along the route the agent uses. Averaged over all runs, the greedy action is optimal in 54–68% of reachable cells ([policy figure](docs/assets/policy.png)).
 - **Nothing transfers.** The state is the agent's cell, so a Q-table describes one maze. Trained agents reach the goal in 0 of 9,000 tests on unseen mazes.
 
-## Claude tool-use experiment
-
-**Status: built and tested, not yet run.** No Claude result appears anywhere in this repository, because this machine has no Claude API key and no spending limit has been approved.
-
-- **Task:** Claude navigates 10 held-out 11 × 11 mazes through the MCP tools `observe`, `step` and `episode_status`, three trials each.
-- **What it sees:** its position, the goal's position and the open directions from its cell, but not the map.
-- **What is recorded:**
-  - success, excess path length and invalid actions;
-  - latency, tokens and cost, under a hard spending cap;
-  - the full transcripts.
-- **References, already measured:**
-  - **Depth-first explorer:** same observations, perfect memory. It reached all 10 goals, with a median 4% excess over the shortest route.
-  - **Breadth-first search:** given the whole map, it is optimal by construction.
-  - **Random walk:** it reached the goal in 2 of 10,000 walks within the 120-move budget.
-
-This is zero-shot navigation, not a contest with the reinforcement-learning agents. Those learn one maze from rewards over hundreds of episodes and cannot see coordinates ([details](docs/claude-tool-use/README.md)).
-
 ## Historical debugging evidence
 
 *Archived evidence, from an audit on 6 November 2026 of the code as committed at [`3e99fbd`](https://github.com/easensoy/maze-qlearning-rl-agent/tree/3e99fbd) in August 2025.* Every component existed, yet the agent never learned a maze and the viewer never received training data. With the repository's own settings, 0% of training episodes reached the goal, over 25,000 offline episodes and 100 streamed live. Five stacked defects were behind it:
@@ -142,7 +122,6 @@ python -m experiments.compare_methods tune         # value propagation: developm
 python -m experiments.compare_methods final        # the final mazes with the frozen settings (16 min)
 python -m experiments.plot_value_propagation       # its figures and analysis.json
 python -m experiments.evaluate                     # the evaluation suite (34 min, 20 workers)
-python -m experiments.claude_navigation references # the Claude task's references; the Claude run needs requirements-claude.txt and an API key
 python -m experiments.capture_hero && python -m experiments.render_hero   # the animation above
 ```
 
@@ -154,18 +133,16 @@ Every experiment is deterministic and records the commit, a hash of the code it 
 - **One maze at a time.** The state is the agent's cell, so nothing transfers to a new maze. Generalising would need the maze in the state and training and test sets of mazes.
 - **Settings.** Only each new method's own setting was tuned, on development mazes. The shared settings are the repository's defaults, tuned for no method.
 - **Compute is not free.** Dyna-Q's sample efficiency costs about 3× the Q-value updates to converge, and 10–16× the agent time per run.
-- **The Claude experiment has not run.** When it does, its results will compare with the depth-first explorer, which has the same information, and not with the reinforcement-learning agents, which have different information and training budgets.
 - **The frontend Docker image runs the development server.** A production build served as static files would be much smaller.
 
 ## Repository
 
 | Path | Contents |
 |---|---|
-| [`maze_runner_rl/`](maze_runner_rl) | Python: generators, environments, agents, server, MCP server, experiments and tests ([README](maze_runner_rl/README.md)) |
+| [`maze_runner_rl/`](maze_runner_rl) | Python: generators, environments, agents, server, experiments and tests ([README](maze_runner_rl/README.md)) |
 | [`maze-3d-frontend/`](maze-3d-frontend) | React/Three.js viewer ([README](maze-3d-frontend/README.md)) |
 | [`docs/value-propagation/`](docs/value-propagation) | The Q-learning, Q(λ) and Dyna-Q experiment: report, frozen settings, raw results and figures |
 | [`docs/evaluation/`](docs/evaluation) | The evaluation suite's report, figures and raw results, and the [debugging case study](docs/evaluation/case-study.md) |
-| [`docs/claude-tool-use/`](docs/claude-tool-use) | The Claude tool-use task: rules, tool schemas, harness and reference results |
 | [`docs/assets/`](docs/assets) | The visuals on this page, the data they are drawn from, and how to regenerate them |
 | [`docs/demo.md`](docs/demo.md) | The live viewer: how to run it and what it shows |
 | `.github/workflows/ci.yml` | Tests, lint, build and Docker checks on every push to master and every pull request |
