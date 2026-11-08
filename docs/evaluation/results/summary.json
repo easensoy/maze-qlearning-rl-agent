@@ -1,0 +1,2175 @@
+{
+  "provenance": {
+    "started_utc": "2026-11-08T02:54:01+00:00",
+    "git_commit": "7e35fcc5c8bcf6a6db48c87ce4161b0dabfd77a1",
+    "git_uncommitted_source_changes": false,
+    "source_sha256": "d2e0c041cda91700be8c7e42b194a4025d99cf8e32545ed24b2d58c1df7a78d6",
+    "command": "python -m experiments.evaluate --workers 20",
+    "suite": {
+      "mazes": 60,
+      "episodes": 1000,
+      "window": 100
+    },
+    "maze_seeds": "0-59",
+    "heldout_seeds": "10000-10049",
+    "exploration_seed": "500000 + maze seed",
+    "kinds": [
+      "2d",
+      "3d_1",
+      "3d_3"
+    ],
+    "configs": {
+      "current": {
+        "label": "Current agent",
+        "rule": "current",
+        "max_steps": 1000,
+        "new_maze": false
+      },
+      "cap_200": {
+        "label": "Step cap back to 200",
+        "rule": "current",
+        "max_steps": 200,
+        "new_maze": false
+      },
+      "prefix_rule": {
+        "label": "Pre-fix action rule",
+        "rule": "prefix",
+        "max_steps": 1000,
+        "new_maze": false
+      },
+      "original": {
+        "label": "Both undone (original agent)",
+        "rule": "prefix",
+        "max_steps": 200,
+        "new_maze": false
+      },
+      "new_maze": {
+        "label": "New maze every episode",
+        "rule": "current",
+        "max_steps": 1000,
+        "new_maze": true
+      },
+      "gamma_099": {
+        "label": "Discount 0.99 instead of 0.95",
+        "rule": "current",
+        "max_steps": 1000,
+        "new_maze": false,
+        "gamma": 0.99
+      },
+      "episodes_x3": {
+        "label": "Three times the episodes",
+        "rule": "current",
+        "max_steps": 1000,
+        "new_maze": false,
+        "episode_factor": 3
+      }
+    },
+    "settings": {
+      "agent": {
+        "learning_rate": 0.1,
+        "epsilon": 0.1,
+        "epsilon_decay": 0.995,
+        "epsilon_min": 0.01,
+        "gamma": 0.95
+      },
+      "maze": {
+        "default_width": 21,
+        "default_height": 21,
+        "default_depth": 1,
+        "wall_density": 0.65,
+        "branching_factor": 0.4,
+        "dead_end_percentage": 0.3
+      }
+    },
+    "rewards": {
+      "goal": 100,
+      "step": -0.1,
+      "wall": -1.0
+    },
+    "python": "3.13.5",
+    "numpy": "2.3.2",
+    "gymnasium": "1.2.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "workers": 20,
+    "wall_seconds": 2044.5
+  },
+  "groups": {
+    "2d": {
+      "current": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 1766.5,
+          "ci": [
+            828.0,
+            2861.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 54,
+          "n": 60,
+          "rate": 0.9,
+          "ci": [
+            0.7985053527602123,
+            0.9533571655261158
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 58,
+          "n": 60,
+          "rate": 0.9666666666666667,
+          "ci": [
+            0.886362257256914,
+            0.9908106807438021
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 58,
+          "n": 60,
+          "rate": 0.9666666666666667,
+          "ci": [
+            0.886362257256914,
+            0.9908106807438021
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.9680000000000001,
+          "ci": [
+            0.9256666666666666,
+            0.998
+          ]
+        },
+        "converged_env_steps": {
+          "median": 97562.0,
+          "ci": [
+            83589.0,
+            118290.0
+          ],
+          "reached": 54
+        },
+        "converged_episode": {
+          "median": 556.5,
+          "ci": [
+            475.0,
+            603.0
+          ],
+          "reached": 54
+        },
+        "env_steps": {
+          "median": 134712.5,
+          "ci": [
+            122141.0,
+            153676.0
+          ],
+          "reached": 60
+        },
+        "visited_share": {
+          "mean": 0.8815226179905704,
+          "ci": [
+            0.8356728767280095,
+            0.9235905850141499
+          ]
+        },
+        "greedy_optimal_share": {
+          "mean": 0.6816702165574545,
+          "ci": [
+            0.6471265203688118,
+            0.7161224414042907
+          ]
+        },
+        "greedy_optimal_share_visited": {
+          "mean": 0.7444957027045758,
+          "ci": [
+            0.7150290069385512,
+            0.772193592998415
+          ]
+        },
+        "chance_optimal_share": {
+          "mean": 0.25,
+          "ci": [
+            0.25,
+            0.25
+          ]
+        },
+        "value_error_route": {
+          "mean": 0.01956701400304334,
+          "ci": [
+            0.011876479881406676,
+            0.027994336509206352
+          ]
+        },
+        "value_error_visited": {
+          "mean": 9.603433681284907,
+          "ci": [
+            8.401189395728997,
+            10.79270081910235
+          ]
+        }
+      },
+      "cap_200": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.9413333333333334,
+          "ci": [
+            0.8868333333333334,
+            0.985
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 30499.5,
+          "ci": [
+            21693.5,
+            40290.0
+          ],
+          "reached": 59
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 40,
+          "n": 60,
+          "rate": 0.6666666666666666,
+          "ci": [
+            0.5405686645211968,
+            0.7727073847647731
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 45,
+          "n": 60,
+          "rate": 0.75,
+          "ci": [
+            0.6276792992295218,
+            0.8422347746994333
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 45,
+          "n": 60,
+          "rate": 0.75,
+          "ci": [
+            0.6276792992295218,
+            0.8422347746994333
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.732,
+          "ci": [
+            0.6261666666666666,
+            0.8378333333333333
+          ]
+        },
+        "converged_env_steps": {
+          "median": 105708.0,
+          "ci": [
+            86320.0,
+            127209.5
+          ],
+          "reached": 40
+        },
+        "converged_episode": {
+          "median": 761.5,
+          "ci": [
+            663.0,
+            877.0
+          ],
+          "reached": 40
+        },
+        "env_steps": {
+          "median": 125418.0,
+          "ci": [
+            110926.0,
+            139146.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.2333333333333334,
+          "ci": [
+            -0.35,
+            -0.1333333333333333
+          ]
+        }
+      },
+      "prefix_rule": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.9994999999999999,
+          "ci": [
+            0.9988333333333335,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 40924.0,
+          "ci": [
+            35649.0,
+            44796.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 53,
+          "n": 60,
+          "rate": 0.8833333333333333,
+          "ci": [
+            0.7782121197582914,
+            0.9423227935994396
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 59,
+          "n": 60,
+          "rate": 0.9833333333333333,
+          "ci": [
+            0.9114487027240993,
+            0.9970518402052136
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 59,
+          "n": 60,
+          "rate": 0.9833333333333333,
+          "ci": [
+            0.9114487027240993,
+            0.9970518402052136
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.9481666666666667,
+          "ci": [
+            0.8985,
+            0.9875
+          ]
+        },
+        "converged_env_steps": {
+          "median": 115293.0,
+          "ci": [
+            100087.0,
+            134105.0
+          ],
+          "reached": 53
+        },
+        "converged_episode": {
+          "median": 569.5,
+          "ci": [
+            480.0,
+            644.0
+          ],
+          "reached": 53
+        },
+        "env_steps": {
+          "median": 150042.0,
+          "ci": [
+            137395.0,
+            167474.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.01666666666666672,
+          "ci": [
+            -0.050000000000000044,
+            0.0
+          ]
+        }
+      },
+      "original": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.36650000000000005,
+          "ci": [
+            0.24983333333333332,
+            0.48333333333333334
+          ]
+        },
+        "first_success_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 22
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 19,
+          "n": 60,
+          "rate": 0.31666666666666665,
+          "ci": [
+            0.21305867552366523,
+            0.44233767026176773
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 20,
+          "n": 60,
+          "rate": 0.3333333333333333,
+          "ci": [
+            0.2272926152352268,
+            0.4594313354788031
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 20,
+          "n": 60,
+          "rate": 0.3333333333333333,
+          "ci": [
+            0.2272926152352268,
+            0.4594313354788031
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.3285,
+          "ci": [
+            0.21666666666666667,
+            0.44533333333333336
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 19
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 19
+        },
+        "env_steps": {
+          "median": 200000.0,
+          "ci": [
+            200000.0,
+            200000.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.5833333333333334,
+          "ci": [
+            -0.7,
+            -0.4666666666666666
+          ]
+        }
+      },
+      "new_maze": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 3248.0,
+          "ci": [
+            956.0,
+            7450.0
+          ],
+          "reached": 57
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "gamma_099": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 1818.5,
+          "ci": [
+            828.0,
+            2955.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 56,
+          "n": 60,
+          "rate": 0.9333333333333333,
+          "ci": [
+            0.8407464268680283,
+            0.9737713012754938
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 59,
+          "n": 60,
+          "rate": 0.9833333333333333,
+          "ci": [
+            0.9114487027240993,
+            0.9970518402052136
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 59,
+          "n": 60,
+          "rate": 0.9833333333333333,
+          "ci": [
+            0.9114487027240993,
+            0.9970518402052136
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.9703333333333333,
+          "ci": [
+            0.9285,
+            0.999
+          ]
+        },
+        "converged_env_steps": {
+          "median": 98082.0,
+          "ci": [
+            83600.0,
+            118284.0
+          ],
+          "reached": 56
+        },
+        "converged_episode": {
+          "median": 549.5,
+          "ci": [
+            467.0,
+            599.0
+          ],
+          "reached": 56
+        },
+        "env_steps": {
+          "median": 135310.5,
+          "ci": [
+            122385.0,
+            153997.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": 0.033333333333333326,
+          "ci": [
+            0.0,
+            0.08333333333333337
+          ]
+        }
+      },
+      "episodes_x3": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 1766.5,
+          "ci": [
+            828.0,
+            2861.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "converged_env_steps": {
+          "median": 97562.0,
+          "ci": [
+            83589.0,
+            118290.0
+          ],
+          "reached": 60
+        },
+        "converged_episode": {
+          "median": 556.5,
+          "ci": [
+            475.0,
+            603.0
+          ],
+          "reached": 60
+        },
+        "env_steps": {
+          "median": 300344.0,
+          "ci": [
+            264051.0,
+            329799.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": 0.09999999999999998,
+          "ci": [
+            0.033333333333333326,
+            0.18333333333333335
+          ]
+        }
+      }
+    },
+    "3d_1": {
+      "current": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 1833.0,
+          "ci": [
+            1237.0,
+            3676.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "converged_env_steps": {
+          "median": 74649.0,
+          "ci": [
+            63860.0,
+            97944.0
+          ],
+          "reached": 60
+        },
+        "converged_episode": {
+          "median": 392.5,
+          "ci": [
+            352.0,
+            458.0
+          ],
+          "reached": 60
+        },
+        "env_steps": {
+          "median": 112135.0,
+          "ci": [
+            99882.0,
+            133848.0
+          ],
+          "reached": 60
+        },
+        "visited_share": {
+          "mean": 0.9547616566995927,
+          "ci": [
+            0.9283608271913966,
+            0.9776279754767825
+          ]
+        },
+        "greedy_optimal_share": {
+          "mean": 0.6144619922600643,
+          "ci": [
+            0.5801322122101261,
+            0.6501215560482508
+          ]
+        },
+        "greedy_optimal_share_visited": {
+          "mean": 0.6343518888236227,
+          "ci": [
+            0.5991675954420569,
+            0.6686619063557301
+          ]
+        },
+        "chance_optimal_share": {
+          "mean": 0.1670064398497542,
+          "ci": [
+            0.16684392326953007,
+            0.16718873874396706
+          ]
+        },
+        "value_error_route": {
+          "mean": 0.005611551590941858,
+          "ci": [
+            0.0021849213600475103,
+            0.009954985616881578
+          ]
+        },
+        "value_error_visited": {
+          "mean": 9.738168147676271,
+          "ci": [
+            8.405971563012187,
+            11.128282882300914
+          ]
+        }
+      },
+      "cap_200": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.9841666666666667,
+          "ci": [
+            0.9683333333333335,
+            0.9966666666666666
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 18283.0,
+          "ci": [
+            15400.0,
+            25975.5
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 44,
+          "n": 60,
+          "rate": 0.7333333333333333,
+          "ci": [
+            0.6099128690331636,
+            0.8286735999671945
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 51,
+          "n": 60,
+          "rate": 0.85,
+          "ci": [
+            0.7388541093022145,
+            0.9190255941983225
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 51,
+          "n": 60,
+          "rate": 0.85,
+          "ci": [
+            0.7388541093022145,
+            0.9190255941983225
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.8261666666666667,
+          "ci": [
+            0.7348333333333332,
+            0.9075
+          ]
+        },
+        "converged_env_steps": {
+          "median": 77692.0,
+          "ci": [
+            62106.5,
+            98602.0
+          ],
+          "reached": 44
+        },
+        "converged_episode": {
+          "median": 575.5,
+          "ci": [
+            497.0,
+            699.5
+          ],
+          "reached": 44
+        },
+        "env_steps": {
+          "median": 103015.5,
+          "ci": [
+            90765.0,
+            119942.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.2666666666666667,
+          "ci": [
+            -0.3833333333333333,
+            -0.16666666666666663
+          ]
+        }
+      },
+      "prefix_rule": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 41711.5,
+          "ci": [
+            31641.0,
+            51432.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 59,
+          "n": 60,
+          "rate": 0.9833333333333333,
+          "ci": [
+            0.9114487027240993,
+            0.9970518402052136
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.9994999999999999,
+          "ci": [
+            0.9984999999999999,
+            1.0
+          ]
+        },
+        "converged_env_steps": {
+          "median": 98864.0,
+          "ci": [
+            84522.5,
+            138371.0
+          ],
+          "reached": 59
+        },
+        "converged_episode": {
+          "median": 432.5,
+          "ci": [
+            358.0,
+            501.0
+          ],
+          "reached": 59
+        },
+        "env_steps": {
+          "median": 134224.5,
+          "ci": [
+            119878.0,
+            172731.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.01666666666666672,
+          "ci": [
+            -0.050000000000000044,
+            0.0
+          ]
+        }
+      },
+      "original": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.29866666666666664,
+          "ci": [
+            0.18533333333333335,
+            0.4153333333333334
+          ]
+        },
+        "first_success_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 19
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 15,
+          "n": 60,
+          "rate": 0.25,
+          "ci": [
+            0.15776522530056675,
+            0.37232070077047824
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 15,
+          "n": 60,
+          "rate": 0.25,
+          "ci": [
+            0.15776522530056675,
+            0.37232070077047824
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 15,
+          "n": 60,
+          "rate": 0.25,
+          "ci": [
+            0.15776522530056675,
+            0.37232070077047824
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.25533333333333336,
+          "ci": [
+            0.15133333333333335,
+            0.36733333333333335
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 15
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 15
+        },
+        "env_steps": {
+          "median": 200000.0,
+          "ci": [
+            200000.0,
+            200000.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.75,
+          "ci": [
+            -0.85,
+            -0.6333333333333333
+          ]
+        }
+      },
+      "new_maze": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.00016666666666666666,
+          "ci": [
+            0.0,
+            0.0005
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 4865.0,
+          "ci": [
+            2489.0,
+            6620.0
+          ],
+          "reached": 58
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "gamma_099": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 1889.5,
+          "ci": [
+            1265.0,
+            2913.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "converged_env_steps": {
+          "median": 77104.5,
+          "ci": [
+            65578.0,
+            98206.0
+          ],
+          "reached": 60
+        },
+        "converged_episode": {
+          "median": 393.0,
+          "ci": [
+            352.0,
+            454.0
+          ],
+          "reached": 60
+        },
+        "env_steps": {
+          "median": 114530.0,
+          "ci": [
+            101059.0,
+            135673.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "episodes_x3": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 1833.0,
+          "ci": [
+            1237.0,
+            3676.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "converged_env_steps": {
+          "median": 74649.0,
+          "ci": [
+            63860.0,
+            97944.0
+          ],
+          "reached": 60
+        },
+        "converged_episode": {
+          "median": 392.5,
+          "ci": [
+            352.0,
+            458.0
+          ],
+          "reached": 60
+        },
+        "env_steps": {
+          "median": 234011.0,
+          "ci": [
+            210805.0,
+            272495.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "3d_3": {
+      "current": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.9943333333333333,
+          "ci": [
+            0.9881666666666666,
+            0.9988333333333334
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 32876.0,
+          "ci": [
+            13937.0,
+            53828.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 26,
+          "n": 60,
+          "rate": 0.43333333333333335,
+          "ci": [
+            0.3157239680468677,
+            0.5589656122387444
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 30,
+          "n": 60,
+          "rate": 0.5,
+          "ci": [
+            0.3773502424155577,
+            0.6226497575844423
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 30,
+          "n": 60,
+          "rate": 0.5,
+          "ci": [
+            0.3773502424155577,
+            0.6226497575844423
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.5066666666666666,
+          "ci": [
+            0.38616666666666666,
+            0.6305
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            249549.0,
+            null
+          ],
+          "reached": 26
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            733.0,
+            null
+          ],
+          "reached": 26
+        },
+        "env_steps": {
+          "median": 392473.0,
+          "ci": [
+            276450.0,
+            453444.0
+          ],
+          "reached": 60
+        },
+        "visited_share": {
+          "mean": 0.9067591514741405,
+          "ci": [
+            0.8648090771922441,
+            0.9434245670305583
+          ]
+        },
+        "greedy_optimal_share": {
+          "mean": 0.5434933347571634,
+          "ci": [
+            0.5134614423145872,
+            0.576046870212194
+          ]
+        },
+        "greedy_optimal_share_visited": {
+          "mean": 0.5808450410944078,
+          "ci": [
+            0.5511868262021803,
+            0.6120573650785377
+          ]
+        },
+        "chance_optimal_share": {
+          "mean": 0.1670713177048082,
+          "ci": [
+            0.1669502979524995,
+            0.16720569208229843
+          ]
+        },
+        "value_error_route": {
+          "mean": 0.05776956473127467,
+          "ci": [
+            0.02101914116846267,
+            0.10430852096608202
+          ]
+        },
+        "value_error_visited": {
+          "mean": 6.021354413647675,
+          "ci": [
+            5.045153360880302,
+            7.056047175758627
+          ]
+        }
+      },
+      "cap_200": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.3793333333333333,
+          "ci": [
+            0.2678333333333333,
+            0.49416666666666664
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 173592.0,
+          "ci": [
+            91394.0,
+            null
+          ],
+          "reached": 31
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 15,
+          "n": 60,
+          "rate": 0.25,
+          "ci": [
+            0.15776522530056675,
+            0.37232070077047824
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 19,
+          "n": 60,
+          "rate": 0.31666666666666665,
+          "ci": [
+            0.21305867552366523,
+            0.44233767026176773
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 19,
+          "n": 60,
+          "rate": 0.31666666666666665,
+          "ci": [
+            0.21305867552366523,
+            0.44233767026176773
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.2703333333333333,
+          "ci": [
+            0.16433333333333333,
+            0.3831666666666667
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 15
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 15
+        },
+        "env_steps": {
+          "median": 199907.5,
+          "ci": [
+            193406.0,
+            200000.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.18333333333333335,
+          "ci": [
+            -0.2833333333333333,
+            -0.08333333333333337
+          ]
+        }
+      },
+      "prefix_rule": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.6106666666666667,
+          "ci": [
+            0.49099999999999994,
+            0.7293333333333334
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 255694.0,
+          "ci": [
+            180118.5,
+            917737.5
+          ],
+          "reached": 39
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 21,
+          "n": 60,
+          "rate": 0.35,
+          "ci": [
+            0.24167774406017556,
+            0.47637381158245135
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 25,
+          "n": 60,
+          "rate": 0.4166666666666667,
+          "ci": [
+            0.30064278558341617,
+            0.5427191897735989
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 26,
+          "n": 60,
+          "rate": 0.43333333333333335,
+          "ci": [
+            0.3157239680468677,
+            0.5589656122387444
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.41083333333333333,
+          "ci": [
+            0.2908333333333334,
+            0.5333333333333333
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 21
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 21
+        },
+        "env_steps": {
+          "median": 539487.0,
+          "ci": [
+            397745.0,
+            978960.5
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.08333333333333337,
+          "ci": [
+            -0.16666666666666663,
+            -0.016666666666666663
+          ]
+        }
+      },
+      "original": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.05,
+          "ci": [
+            0.0,
+            0.11666666666666667
+          ]
+        },
+        "first_success_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 3
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 3,
+          "n": 60,
+          "rate": 0.05,
+          "ci": [
+            0.01714950216439568,
+            0.1370051647634852
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 3,
+          "n": 60,
+          "rate": 0.05,
+          "ci": [
+            0.01714950216439568,
+            0.1370051647634852
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 3,
+          "n": 60,
+          "rate": 0.05,
+          "ci": [
+            0.01714950216439568,
+            0.1370051647634852
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.05,
+          "ci": [
+            0.0,
+            0.11666666666666667
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 3
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 3
+        },
+        "env_steps": {
+          "median": 200000.0,
+          "ci": [
+            200000.0,
+            200000.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": -0.38333333333333336,
+          "ci": [
+            -0.5166666666666666,
+            -0.26666666666666666
+          ]
+        }
+      },
+      "new_maze": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 55974.0,
+          "ci": [
+            25908.0,
+            null
+          ],
+          "reached": 36
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "gamma_099": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 0.9914999999999999,
+          "ci": [
+            0.9838333333333333,
+            0.9975
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 32476.0,
+          "ci": [
+            16953.0,
+            56948.5
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 26,
+          "n": 60,
+          "rate": 0.43333333333333335,
+          "ci": [
+            0.3157239680468677,
+            0.5589656122387444
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 31,
+          "n": 60,
+          "rate": 0.5166666666666667,
+          "ci": [
+            0.39307810032592494,
+            0.6382495046026722
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 31,
+          "n": 60,
+          "rate": 0.5166666666666667,
+          "ci": [
+            0.39307810032592494,
+            0.6382495046026722
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 0.493,
+          "ci": [
+            0.3728333333333333,
+            0.6171666666666666
+          ]
+        },
+        "converged_env_steps": {
+          "median": null,
+          "ci": [
+            259944.0,
+            null
+          ],
+          "reached": 26
+        },
+        "converged_episode": {
+          "median": null,
+          "ci": [
+            730.5,
+            null
+          ],
+          "reached": 26
+        },
+        "env_steps": {
+          "median": 408520.0,
+          "ci": [
+            284364.0,
+            469034.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "episodes_x3": {
+        "runs": 60,
+        "training_success_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "first_success_env_steps": {
+          "median": 32876.0,
+          "ci": [
+            13937.0,
+            53828.0
+          ],
+          "reached": 60
+        },
+        "heldout_greedy_reaches": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "heldout_greedy_shortest": {
+          "mean": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "converged": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_reaches_final": {
+          "k": 60,
+          "n": 60,
+          "rate": 1.0,
+          "ci": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "greedy_shortest_last100": {
+          "mean": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "converged_env_steps": {
+          "median": 402781.5,
+          "ci": [
+            249549.0,
+            488612.0
+          ],
+          "reached": 60
+        },
+        "converged_episode": {
+          "median": 1000.0,
+          "ci": [
+            733.0,
+            1208.5
+          ],
+          "reached": 60
+        },
+        "env_steps": {
+          "median": 625279.0,
+          "ci": [
+            449458.5,
+            729236.0
+          ],
+          "reached": 60
+        },
+        "converged_change_vs_current": {
+          "diff": 0.5666666666666667,
+          "ci": [
+            0.43333333333333335,
+            0.7
+          ]
+        }
+      }
+    }
+  },
+  "baselines": {
+    "2d": {
+      "mazes": 60,
+      "shortest_route": {
+        "median": 82.0,
+        "min": 40,
+        "max": 152
+      },
+      "planner_matches_bfs": 60,
+      "reachable_cells": 189.0,
+      "loops": 0.0,
+      "random_walk_reach_200": {
+        "mean": 1.6455875888277128e-06,
+        "ci": [
+          7.78430841970786e-08,
+          4.451881868442845e-06
+        ]
+      },
+      "random_walk_reach_1000": {
+        "mean": 0.008566593028739538,
+        "ci": [
+          0.004060814375594994,
+          0.014114125453784803
+        ]
+      },
+      "random_walk_expected_steps": {
+        "median": 16515.999999999603
+      },
+      "random_walk_expected_over_shortest": {
+        "median": 209.11688311687027
+      },
+      "random_walk_median_steps": {
+        "median": 12682.0
+      }
+    },
+    "3d_1": {
+      "mazes": 60,
+      "shortest_route": {
+        "median": 62.0,
+        "min": 38,
+        "max": 118
+      },
+      "planner_matches_bfs": 60,
+      "reachable_cells": 152.0,
+      "loops": 0.0,
+      "random_walk_reach_200": {
+        "mean": 3.843811604194632e-08,
+        "ci": [
+          3.1241806697224207e-09,
+          8.838384500942098e-08
+        ]
+      },
+      "random_walk_reach_1000": {
+        "mean": 0.0029075763812033916,
+        "ci": [
+          0.001743503617923616,
+          0.004274370451014884
+        ]
+      },
+      "random_walk_expected_steps": {
+        "median": 20768.999999978667
+      },
+      "random_walk_expected_over_shortest": {
+        "median": 352.3749999994838
+      },
+      "random_walk_median_steps": {
+        "median": 15667.5
+      }
+    },
+    "3d_3": {
+      "mazes": 60,
+      "shortest_route": {
+        "median": 107.0,
+        "min": 46,
+        "max": 206
+      },
+      "planner_matches_bfs": 60,
+      "reachable_cells": 395.0,
+      "loops": 0.5,
+      "random_walk_reach_200": {
+        "mean": 6.94982090395276e-11,
+        "ci": [
+          6.470749861856954e-14,
+          2.0830152972865316e-10
+        ]
+      },
+      "random_walk_reach_1000": {
+        "mean": 0.00013368148115319167,
+        "ci": [
+          4.516213848847669e-05,
+          0.0002815854585969946
+        ]
+      },
+      "random_walk_expected_steps": {
+        "median": 110762.99999938466
+      },
+      "random_walk_expected_over_shortest": {
+        "median": 924.6011605355246
+      },
+      "random_walk_median_steps": {
+        "median": 77559.0
+      }
+    }
+  },
+  "route_law": {
+    "2d": {
+      "slope": 7.212935847376353,
+      "intercept": -163.44351966022737,
+      "r": 0.9816687846858559,
+      "runs": 59
+    },
+    "3d_1": {
+      "slope": 6.666114965616897,
+      "intercept": -115.31364290082024,
+      "r": 0.9788245483568968,
+      "runs": 60
+    },
+    "3d_3": {
+      "slope": 8.940662041052327,
+      "intercept": -213.41628119880522,
+      "r": 0.9245788296680115,
+      "runs": 36
+    }
+  }
+}
