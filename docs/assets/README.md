@@ -2,7 +2,7 @@
 
 [README](../../README.md) · [Value-propagation experiment](../value-propagation/README.md) · [Evaluation](../evaluation/README.md) · [Debugging case study](../evaluation/case-study.md)
 
-This page covers the animation and the two figures on the [README](../../README.md): what they show, what they are drawn from, and how to draw them again. Code in this repository generates every image from recorded training runs. None is a mock-up, and none is AI-generated. The animation is a recorded replay drawn by its own renderer, not a capture of the live viewer.
+This page covers the 3D replay and the two evaluation-suite figures: what they show, what they are drawn from, and how to draw them again. The README's four visual analyses have their own page, [analysis/](analysis/README.md), with data sources, definitions and text equivalents. Code in this repository generates every image from recorded training runs. None is a mock-up, and none is AI-generated. The animation is a recorded replay drawn by its own renderer, not a capture of the live viewer.
 
 ## Files
 
