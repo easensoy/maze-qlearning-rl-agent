@@ -54,7 +54,8 @@ The suite covers:
 - the convergence rule, plus a learning regression on the UI's default maze;
 - policy iteration against BFS;
 - the server's stop/restart lifecycle and its WebSocket protocol, over a real socket;
-- the evaluation suite: its confidence intervals, the exact random-walk and value-iteration references, the pre-fix agent rule used in the ablation, a deterministic end-to-end run and the figures.
+- the evaluation suite: its confidence intervals, the exact random-walk and value-iteration references, the pre-fix agent rule used in the ablation, a deterministic end-to-end run and the figures;
+- the README visuals: that the replay matches the suite run for run, and that the figures and the animation draw from the recorded data.
 
 CI runs it on every push (`.github/workflows/ci.yml`).
 
@@ -73,7 +74,9 @@ CI runs it on every push (`.github/workflows/ci.yml`).
 | `experiments/training_experiment.py` | `TrainingExperiment` loop, greedy-route checks, the convergence rule and a command-line entry point |
 | `experiments/evaluate.py`, `stats.py` | Evaluation suite (seeds, references, ablation, unseen mazes) and its confidence intervals |
 | `experiments/plot_evaluation.py` | Figures for `docs/evaluation` |
-| `tests/` | pytest suite: agent, generators, environments, training, policy iteration, the server and the evaluation suite |
+| `experiments/capture_traces.py` | Replays the suite's runs for the README visuals, checked against its records ([docs/assets](../docs/assets/README.md)) |
+| `experiments/render_hero.py`, `render_figures.py`, `asset_style.py` | The README's animation and figures, drawn from those traces |
+| `tests/` | pytest suite: agent, generators, environments, training, policy iteration, the server, the evaluation suite and the README visuals |
 
 ## Environment contract
 
