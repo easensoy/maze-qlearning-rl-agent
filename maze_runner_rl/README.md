@@ -123,6 +123,9 @@ CI runs it on every push (`.github/workflows/ci.yml`).
 | `experiments/claude_navigation.py`, `mcp_maze/` | The Claude tool-use evaluation and its MCP server ([docs/claude-tool-use](../docs/claude-tool-use/README.md)) |
 | `experiments/capture_traces.py` | Replays the suite's runs for the README figures, checked against its records ([docs/assets](../docs/assets/README.md)) |
 | `experiments/capture_hero.py`, `render_hero.py`, `iso_maze.py` | The README animation: recorded runs on one three-level maze, drawn in an exploded 3D view |
+| `experiments/capture_analysis.py`, `analysis_data.py`, `render_analysis.py` | The README's visual analyses: checkpointed replays of published runs, checked against their records; the quantities derived from them; their rendering ([docs/assets/analysis](../docs/assets/analysis/README.md)) |
+| `experiments/diagnose_trace_cut.py` | A one-rule intervention for the Q(λ) long-trace failure, on development mazes only |
+| `experiments/plot_tradeoff.py` | The interaction–computation trade-off figure, from published records only |
 | `experiments/render_figures.py`, `asset_style.py` | The README's results and policy figures, and the style the visuals share |
 | `tests/` | pytest suite: the agents, generators, environments, training, policy iteration, the server, the evaluation suite, the value-propagation experiment, the MCP server and Claude harness, and the README visuals |
 | `requirements.txt`, `requirements-dev.txt`, `requirements-claude.txt` | Runtime; tests and figures; the Claude evaluation |
