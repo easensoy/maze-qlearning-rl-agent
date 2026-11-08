@@ -1,0 +1,551 @@
+{
+ "definitions": {
+  "region": "non-goal states from which the frozen greedy policy reaches the goal (share of the maze's reachable non-goal states)",
+  "value_error": "e(s) = V(s) - V*(s), V(s) = max_a Q(s, a) with untried actions at 0, V* by value iteration",
+  "bellman_residual": "rho(s) = max_a [r(s, a) + gamma (1 - done) V(s')] - V(s) under the exact model",
+  "frontier_cell": "a visited non-goal state with an untried action whose successor has never been visited",
+  "budget_snapshot": "the end of the first episode whose cumulative real steps reach the budget"
+ },
+ "comparison": {
+  "10000": {
+   "q_learning": {
+    "episode": 10,
+    "env_steps": 10000,
+    "updates": 10000,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 0,
+    "region_share": 0.0,
+    "visited": 106,
+    "unvisited_in_region": 0
+   },
+   "q_lambda": {
+    "episode": 10,
+    "env_steps": 10000,
+    "updates": 91933,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 0,
+    "region_share": 0.0,
+    "visited": 92,
+    "unvisited_in_region": 0
+   },
+   "dyna_q": {
+    "episode": 13,
+    "env_steps": 10568,
+    "updates": 538968,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 46,
+    "region_share": 0.12169312169312169,
+    "visited": 290,
+    "unvisited_in_region": 0
+   }
+  },
+  "20000": {
+   "q_learning": {
+    "episode": 20,
+    "env_steps": 20000,
+    "updates": 20000,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 0,
+    "region_share": 0.0,
+    "visited": 146,
+    "unvisited_in_region": 0
+   },
+   "q_lambda": {
+    "episode": 20,
+    "env_steps": 20000,
+    "updates": 178280,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 0,
+    "region_share": 0.0,
+    "visited": 117,
+    "unvisited_in_region": 0
+   },
+   "dyna_q": {
+    "episode": 50,
+    "env_steps": 20065,
+    "updates": 1023315,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 175,
+    "region_share": 0.46296296296296297,
+    "visited": 290,
+    "unvisited_in_region": 0
+   }
+  },
+  "40000": {
+   "q_learning": {
+    "episode": 41,
+    "env_steps": 40888,
+    "updates": 40888,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 2,
+    "region_share": 0.005291005291005291,
+    "visited": 272,
+    "unvisited_in_region": 0
+   },
+   "q_lambda": {
+    "episode": 40,
+    "env_steps": 40000,
+    "updates": 372477,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 0,
+    "region_share": 0.0,
+    "visited": 219,
+    "unvisited_in_region": 0
+   },
+   "dyna_q": {
+    "episode": 171,
+    "env_steps": 40126,
+    "updates": 2046426,
+    "verdict": "shortest",
+    "route_moves": 146,
+    "region": 292,
+    "region_share": 0.7724867724867724,
+    "visited": 290,
+    "unvisited_in_region": 2
+   }
+  },
+  "80000": {
+   "q_learning": {
+    "episode": 83,
+    "env_steps": 80410,
+    "updates": 80410,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 11,
+    "region_share": 0.0291005291005291,
+    "visited": 346,
+    "unvisited_in_region": 0
+   },
+   "q_lambda": {
+    "episode": 82,
+    "env_steps": 80814,
+    "updates": 788091,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 15,
+    "region_share": 0.03968253968253968,
+    "visited": 337,
+    "unvisited_in_region": 0
+   },
+   "dyna_q": {
+    "episode": 438,
+    "env_steps": 80006,
+    "updates": 4080306,
+    "verdict": "shortest",
+    "route_moves": 146,
+    "region": 292,
+    "region_share": 0.7724867724867724,
+    "visited": 290,
+    "unvisited_in_region": 2
+   }
+  },
+  "160000": {
+   "q_learning": {
+    "episode": 181,
+    "env_steps": 160492,
+    "updates": 160492,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 15,
+    "region_share": 0.03968253968253968,
+    "visited": 378,
+    "unvisited_in_region": 0
+   },
+   "q_lambda": {
+    "episode": 182,
+    "env_steps": 160620,
+    "updates": 1929892,
+    "verdict": "loops",
+    "route_moves": null,
+    "region": 39,
+    "region_share": 0.10317460317460317,
+    "visited": 378,
+    "unvisited_in_region": 0
+   },
+   "dyna_q": {
+    "episode": 981,
+    "env_steps": 160058,
+    "updates": 8162958,
+    "verdict": "shortest",
+    "route_moves": 146,
+    "region": 292,
+    "region_share": 0.7724867724867724,
+    "visited": 290,
+    "unvisited_in_region": 2
+   }
+  }
+ },
+ "value": {
+  "2500": {
+   "q_learning": {
+    "visited": 106,
+    "median_abs_error": 1.5928215,
+    "max_abs_error": 9.830187,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.07880000000000001,
+    "min_residual": -0.10017000000000002,
+    "episode": 3,
+    "env_steps": 3000
+   },
+   "q_lambda": {
+    "visited": 63,
+    "median_abs_error": 1.417789,
+    "max_abs_error": 1.582481,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.038179999999999936,
+    "min_residual": -0.10792999999999991,
+    "episode": 3,
+    "env_steps": 3000
+   },
+   "dyna_q": {
+    "visited": 207,
+    "median_abs_error": 3.460319,
+    "max_abs_error": 62.28544,
+    "share_below_0.01": 0.004830917874396135,
+    "max_residual": 0.0,
+    "min_residual": -0.19480999999999998,
+    "episode": 3,
+    "env_steps": 3000
+   }
+  },
+  "5000": {
+   "q_learning": {
+    "visited": 106,
+    "median_abs_error": 1.4969015,
+    "max_abs_error": 9.830187,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.07792500000000002,
+    "min_residual": -0.1,
+    "episode": 5,
+    "env_steps": 5000
+   },
+   "q_lambda": {
+    "visited": 86,
+    "median_abs_error": 1.230088,
+    "max_abs_error": 2.699119,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.020610000000000017,
+    "min_residual": -0.10838499999999998,
+    "episode": 5,
+    "env_steps": 5000
+   },
+   "dyna_q": {
+    "visited": 276,
+    "median_abs_error": 2.396127,
+    "max_abs_error": 48.487792,
+    "share_below_0.01": 0.007246376811594203,
+    "max_residual": 10.661285,
+    "min_residual": -0.12775000000000003,
+    "episode": 8,
+    "env_steps": 5568
+   }
+  },
+  "10000": {
+   "q_learning": {
+    "visited": 106,
+    "median_abs_error": 1.2772785,
+    "max_abs_error": 9.830187,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.06596999999999997,
+    "min_residual": -0.1,
+    "episode": 10,
+    "env_steps": 10000
+   },
+   "q_lambda": {
+    "visited": 92,
+    "median_abs_error": 0.8703719999999999,
+    "max_abs_error": 3.769286,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.007600000000000051,
+    "min_residual": -0.10563499999999998,
+    "episode": 10,
+    "env_steps": 10000
+   },
+   "dyna_q": {
+    "visited": 290,
+    "median_abs_error": 1.677128000000001,
+    "max_abs_error": 20.829442,
+    "share_below_0.01": 0.04827586206896552,
+    "max_residual": 3.273584999999999,
+    "min_residual": -0.1,
+    "episode": 13,
+    "env_steps": 10568
+   }
+  },
+  "20000": {
+   "q_learning": {
+    "visited": 146,
+    "median_abs_error": 1.0236524999999999,
+    "max_abs_error": 22.258342,
+    "share_below_0.01": 0.0,
+    "max_residual": -0.04918499999999992,
+    "min_residual": -0.10048000000000001,
+    "episode": 20,
+    "env_steps": 20000
+   },
+   "q_lambda": {
+    "visited": 117,
+    "median_abs_error": 0.55054,
+    "max_abs_error": 14.09348,
+    "share_below_0.01": 0.008547008547008548,
+    "max_residual": 0.027294999999999847,
+    "min_residual": -0.1,
+    "episode": 20,
+    "env_steps": 20000
+   },
+   "dyna_q": {
+    "visited": 290,
+    "median_abs_error": 0.7040449999999996,
+    "max_abs_error": 4.469622,
+    "share_below_0.01": 0.1413793103448276,
+    "max_residual": 0.9914799999999997,
+    "min_residual": -0.1,
+    "episode": 50,
+    "env_steps": 20065
+   }
+  },
+  "40000": {
+   "q_learning": {
+    "visited": 272,
+    "median_abs_error": 2.397522,
+    "max_abs_error": 94.91000000000001,
+    "share_below_0.01": 0.0,
+    "max_residual": 90.0,
+    "min_residual": -0.1,
+    "episode": 41,
+    "env_steps": 40888
+   },
+   "q_lambda": {
+    "visited": 219,
+    "median_abs_error": 3.4280809999999997,
+    "max_abs_error": 50.360892,
+    "share_below_0.01": 0.0136986301369863,
+    "max_residual": 0.012680000000000025,
+    "min_residual": -0.12790500000000005,
+    "episode": 40,
+    "env_steps": 40000
+   },
+   "dyna_q": {
+    "visited": 290,
+    "median_abs_error": 4.000000000001225e-05,
+    "max_abs_error": 0.19781999999999988,
+    "share_below_0.01": 0.7241379310344828,
+    "max_residual": 0.023330000000000073,
+    "min_residual": -8.000000001118224e-05,
+    "episode": 171,
+    "env_steps": 40126
+   }
+  },
+  "80000": {
+   "q_learning": {
+    "visited": 346,
+    "median_abs_error": 1.342009,
+    "max_abs_error": 81.139238,
+    "share_below_0.01": 0.0,
+    "max_residual": 31.276910000000008,
+    "min_residual": -0.1095,
+    "episode": 83,
+    "env_steps": 80410
+   },
+   "q_lambda": {
+    "visited": 337,
+    "median_abs_error": 1.364322,
+    "max_abs_error": 81.141538,
+    "share_below_0.01": 0.01483679525222552,
+    "max_residual": 47.8297,
+    "min_residual": -0.13132999999999997,
+    "episode": 82,
+    "env_steps": 80814
+   },
+   "dyna_q": {
+    "visited": 290,
+    "median_abs_error": 2.2999999999995246e-05,
+    "max_abs_error": 5.000000000165983e-05,
+    "share_below_0.01": 1.0,
+    "max_residual": 8.499999999994623e-05,
+    "min_residual": -8.000000001118224e-05,
+    "episode": 438,
+    "env_steps": 80006
+   }
+  },
+  "160000": {
+   "q_learning": {
+    "visited": 378,
+    "median_abs_error": 1.141146,
+    "max_abs_error": 81.139238,
+    "share_below_0.01": 0.010582010582010581,
+    "max_residual": 64.00479999999999,
+    "min_residual": -0.09582000000000002,
+    "episode": 181,
+    "env_steps": 160492
+   },
+   "q_lambda": {
+    "visited": 378,
+    "median_abs_error": 1.2308805,
+    "max_abs_error": 76.966156,
+    "share_below_0.01": 0.0,
+    "max_residual": 59.853325,
+    "min_residual": -0.12473500000000004,
+    "episode": 182,
+    "env_steps": 160620
+   },
+   "dyna_q": {
+    "visited": 290,
+    "median_abs_error": 2.2999999999995246e-05,
+    "max_abs_error": 5.000000000165983e-05,
+    "share_below_0.01": 1.0,
+    "max_residual": 8.499999999994623e-05,
+    "min_residual": -8.000000001118224e-05,
+    "episode": 981,
+    "env_steps": 160058
+   }
+  }
+ },
+ "failure_traces": {
+  "q_learning": {
+   "step 1,000": {
+    "env_steps": 1000,
+    "visited": 94,
+    "frontier": [
+     217,
+     383,
+     405
+    ],
+    "greedy_reaches": false
+   },
+   "50,000 steps": {
+    "env_steps": 50349,
+    "visited": 183,
+    "frontier": [
+     76
+    ],
+    "greedy_reaches": false
+   },
+   "discovered_total": 185,
+   "last_discovery_step": 53306
+  },
+  "q_lambda": {
+   "step 1,000": {
+    "env_steps": 1000,
+    "visited": 26,
+    "frontier": [
+     115
+    ],
+    "greedy_reaches": false
+   },
+   "50,000 steps": {
+    "env_steps": 50000,
+    "visited": 26,
+    "frontier": [
+     115
+    ],
+    "greedy_reaches": false
+   },
+   "frontier_last_visit_step": {
+    "115": 209
+   },
+   "frontier_q": {
+    "115": [
+     null,
+     -0.3021,
+     -0.2364,
+     null
+    ]
+   },
+   "discovered_total": 26,
+   "last_discovery_step": 208
+  },
+  "intervention": {
+   "q_lambda": {
+    "runs": 60,
+    "median_share": 0.1638755980861244,
+    "quartiles": [
+     0.10291223404255319,
+     0.23236991131531148
+    ],
+    "reached_goal": 0
+   },
+   "q_lambda_cut_untried": {
+    "runs": 60,
+    "median_share": 0.5823829064666761,
+    "quartiles": [
+     0.37003576556250645,
+     0.7361085271317829
+    ],
+    "reached_goal": 16
+   },
+   "q_learning": {
+    "runs": 60,
+    "median_share": 1.0,
+    "quartiles": [
+     0.7617596713454297,
+     1.0
+    ],
+    "reached_goal": 53
+   }
+  }
+ },
+ "failure_dyna": {
+  "route_moves": 114,
+  "shortest": 106,
+  "leave_state": 416,
+  "leave_distance": 4,
+  "untried_state": 417,
+  "untried_distance": 3,
+  "tried_q_at_untried_state": [
+   49.4609,
+   49.4609,
+   53.1167
+  ],
+  "continuation_unvisited_by_dyna": 2,
+  "continuation_visited_by_q_learning_ep60": 3,
+  "first_route_episode": 74,
+  "q_learning_first_shortest_episode": 703,
+  "action_values": [
+   {
+    "state": 416,
+    "action": 2,
+    "name": "① greedy action (detour)",
+    "values": [
+     56.0176,
+     56.0176,
+     56.0176,
+     56.0176,
+     56.0176
+    ]
+   },
+   {
+    "state": 416,
+    "action": 3,
+    "name": "① shortest direction",
+    "values": [
+     50.3608,
+     50.3609,
+     50.3609,
+     50.3609,
+     50.3609
+    ]
+   },
+   {
+    "state": 417,
+    "action": 3,
+    "name": "② goal-ward action",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ]
+   }
+  ]
+ }
+}
