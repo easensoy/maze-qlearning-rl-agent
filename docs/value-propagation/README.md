@@ -110,16 +110,31 @@ On the development mazes, λ = 0.3 beat Q-learning: 57 of 60 runs converged, aga
 
 Replacing traces fail the same way: 15 and 0 of 60 runs converged at λ 0.7 and 0.9.
 
-**Proposed mechanism.** It is consistent with the coverage measurements, but no ablation isolated it.
+**Observed on development maze 1004,** chosen by rule as the 2D development maze with the median route ([case study](../assets/analysis/README.md#long-traces-on-development-maze-1004)):
 
-- **What is credited.** Watkins's Q(λ) cuts its traces only after a non-greedy action. A choice among untried actions, which all tie at 0, counts as greedy. Every step and wall penalty of an exploratory walk is therefore credited back along the whole path, including the corridors that led toward unexplored cells.
-- **What that does.** Those corridors become as negative as explored ones, the value gradient toward the frontier disappears, and the walk stays local. On development maze 1004, chosen by rule as the 2D development maze with the median route, Q(λ) with λ = 0.9 had discovered 26 of the maze's 185 cells after 50,000 steps. Q-learning had discovered 183.
-- **Scope.** The effect depends on the conditions measured here:
-  - zero initialisation with strictly negative non-terminal rewards;
-  - Watkins's cut rule with ties counted as greedy;
-  - this ε schedule.
+- Q(λ) with λ = 0.9 visited 26 of the maze's 185 cells within its first 208 steps.
+- It never revisited its only frontier cell after step 209, though that cell's untried actions (Q = 0) would be greedy there.
+- It visited no new cell in the rest of its 1,000,000 steps. Its tried Q-values fell to −3.7.
+- Q-learning visited 94 cells in its first 1,000 steps and all 185 by step 53,306.
 
-  The tuning grid included λ ≥ 0.7, and the selection rule chose 0.3, so the final results show Q(λ) at a setting where coverage holds.
+**Proposed mechanism.** Watkins's Q(λ) cuts its traces only after a non-greedy action. A choice among untried actions, which all tie at 0, counts as greedy. Every step and wall penalty of an exploratory walk is therefore credited back along the whole path walked, including the corridors that lead toward unexplored cells. The walk then stays where it is.
+
+**Tested by one intervention,** specified in [`diagnose_trace_cut.py`](../../maze_runner_rl/experiments/diagnose_trace_cut.py) before its first run. The commit postdates that run. On the 60 development mazes at λ = 0.9 with accumulating traces, the traces are also cut whenever the next action has never been tried. Every other rule and seed is unchanged. Coverage after 50,000 real steps ([`figures/diagnostic_trace_cut.json`](figures/diagnostic_trace_cut.json)):
+
+| Variant | Median coverage (IQR) | Runs that reached the goal |
+|---|---|---|
+| Q(λ), unmodified (matches the tuning records episode by episode) | 16% (10–23%) | 0 of 60 |
+| Q(λ), traces also cut at untried next actions | 58% (37–74%) | 16 of 60 |
+| Q-learning | 100% (76–100%) | 53 of 60 |
+
+The cut rule therefore explains part of the collapse, not all of it. What the intervention leaves unexplained is open. Long traces still spread penalties along paths that the cut does not interrupt.
+
+**Scope.** These results hold under the conditions measured here:
+- zero initialisation with strictly negative non-terminal rewards;
+- Watkins's cut rule;
+- this ε schedule.
+
+The tuning grid included λ ≥ 0.7, and the selection rule chose 0.3, so the final results show Q(λ) at a setting where coverage holds.
 
 ### Dyna-Q: a never-taken action near the goal
 
@@ -131,7 +146,8 @@ Dyna-Q failed to converge on one final maze: three-level maze 58, shortest route
   - One cell further along the shortest continuation, 3 moves from the goal, the goal-ward action was never taken in 1,000 episodes, so its estimate is still 0.
   - The tried actions in that cell carry propagated estimates of 49.5, 49.5 and 53.1.
   - Two of the three cells on that continuation, a shaft up to the goal level, were never visited.
-- **Interpretation.** Once planning has propagated the goal's value to a cell, its tried actions are valued above 0, so an untried action there never wins the greedy choice. With ε = 0.01 late in training, exploration did not take the action within the budget. Rapid propagation reduces the exploration that zero initialisation would otherwise force. Here that cost Dyna-Q the optimal route. The argument requires the tried actions' estimates to be positive. At the optimum that holds only within 77 moves of the goal; here the cell is 3 moves away.
+- **Checkpointed replay** ([case study](../assets/analysis/README.md#dyna-q-on-suite-maze-58)). The first greedy route to reach the goal, at episode 74, is already the 114-move route; from episode 85 it never changes. The action values at the junction are fixed from episode 60 on: 56.02 for the detour and 50.36 for the shortest direction. Q-learning had visited all three cells of the continuation by episode 60.
+- **Interpretation, a hypothesis not tested by intervention.** Once planning has propagated the goal's value to a cell, its tried actions are valued above 0, so an untried action there never wins the greedy choice. With ε = 0.01 late in training, exploration did not take the action within the budget. Rapid propagation reduces the exploration that zero initialisation would otherwise force. Here that cost Dyna-Q the optimal route. The argument requires the tried actions' estimates to be positive. At the optimum that holds only within 77 moves of the goal; here the cell is 3 moves away.
 
 ## What this does and does not show
 
@@ -157,6 +173,22 @@ The [evaluation suite](../evaluation/README.md) found two things about the repos
 One-step Q-learning backs the goal's value up by one state per update, so the proposed explanation was **slow value propagation**. That explanation predicts that methods which propagate value faster converge on long routes where Q-learning does not. If propagation were the only factor, they would do so without exploring differently. The first prediction held; the second did not, which is why the [diagnostic](#diagnostic-which-phase-of-learning-changed) separates the two phases.
 
 ## Methods
+
+**Environment.** Seeded generators produce three maze types:
+
+- perfect 2D mazes, 21 × 21;
+- one-level 3D mazes, 21 × 21 × 1;
+- three-level 3D mazes, 21 × 21 × 3, whose levels connect through vertical shafts.
+
+The start and goal sit in opposite corners. The environments implement the [Gymnasium](https://gymnasium.farama.org/) API (Farama Foundation, version 1.2.0). States are cell indices. The actions are north, south, west and east, plus down and up on 3D mazes. Transitions are deterministic and exposed as `step_from_state(s, a)`.
+
+**The shared update.** In the notation used below, every agent applies this one-step backup:
+
+```math
+Q(s,a) \leftarrow Q(s,a) + \alpha\,\delta,\qquad \delta = r + \gamma\,(1-\mathrm{done})\,\max_{b} Q(s',b) - Q(s,a)
+```
+
+A cell d moves from the goal has optimal value $`Q^*(s,a^*) = 102\,\gamma^{d-1} - 2`$, which is negative for d ≥ 78.
 
 All three agents share everything except how experience updates the Q-table:
 
