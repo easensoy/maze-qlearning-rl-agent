@@ -1,0 +1,67 @@
+{
+  "assets": {
+    "hero-poster.png": {
+      "size": [
+        1600,
+        1120
+      ]
+    },
+    "hero.gif": {
+      "end_card": {
+        "converged": 26,
+        "converged_x3": 60,
+        "heldout": "0 of 3,000",
+        "n": 60,
+        "one_level": "60/60",
+        "two_d": "54/60"
+      },
+      "explore_moves_per_frame": 25,
+      "frames": 121,
+      "maze_seed": 12,
+      "megabytes": 1.38,
+      "route_moves_per_frame": 3,
+      "seconds": 19.88,
+      "size": [
+        800,
+        560
+      ],
+      "timelapse_episodes_per_frame": 10
+    },
+    "policy.png": {
+      "dpi": 200,
+      "maze_seeds": {
+        "failure": 0,
+        "success": 12
+      },
+      "route_law_from_suite": true
+    },
+    "results.png": {
+      "dpi": 200,
+      "reliable_training": "45 of the last 50 training episodes reach the goal",
+      "runs": {
+        "2d": {
+          "converged": 54,
+          "final_short": 58,
+          "late": 1.0,
+          "n": 60
+        },
+        "3d_1": {
+          "converged": 60,
+          "final_short": 60,
+          "late": 1.0,
+          "n": 60
+        },
+        "3d_3": {
+          "converged": 26,
+          "final_short": 30,
+          "late": 0.9943333333333333,
+          "n": 60
+        }
+      }
+    }
+  },
+  "matplotlib": "3.10.5",
+  "numpy": "2.3.2",
+  "pillow": "13.0.0",
+  "typeface": "Segoe UI"
+}
