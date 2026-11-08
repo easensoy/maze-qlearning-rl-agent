@@ -228,8 +228,9 @@ def featured_run(kind, maze_seed, episodes, window, record_episodes, snapshot_ep
     optimal = q_star >= q_star.max(axis=1, keepdims=True) - 1e-9
 
     checkpoints, snapshots, trained = [], [], 0
-    stops = sorted(set(range(CHECKPOINT_EVERY, episodes + 1, CHECKPOINT_EVERY)) | set(snapshot_episodes)
-                   | {e for e in key_episodes if e} | {1})
+    wanted = (set(range(CHECKPOINT_EVERY, episodes + 1, CHECKPOINT_EVERY)) | set(snapshot_episodes)
+              | {e for e in key_episodes if e} | {1, episodes})
+    stops = sorted(e for e in wanted if e <= episodes)   # never train past the budget the record reports
     for stop in stops:
         run_episodes(env, experiment, stop - trained)   # training in segments is the same as one call
         trained = stop
