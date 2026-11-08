@@ -1,5 +1,47 @@
 {
   "assets": {
+    "analysis/comparison.gif": {
+      "frames": 16,
+      "megabytes": 0.85,
+      "seconds": 24.2,
+      "size": [
+        800,
+        800
+      ]
+    },
+    "analysis/comparison.png": {
+      "size": [
+        1600,
+        1019
+      ]
+    },
+    "analysis/failure-dyna.png": {
+      "size": [
+        1600,
+        1040
+      ]
+    },
+    "analysis/failure-traces.png": {
+      "size": [
+        1600,
+        1040
+      ]
+    },
+    "analysis/value.gif": {
+      "frames": 22,
+      "megabytes": 1.1,
+      "seconds": 27.3,
+      "size": [
+        800,
+        800
+      ]
+    },
+    "analysis/value.png": {
+      "size": [
+        1600,
+        1540
+      ]
+    },
     "hero-poster.png": {
       "size": [
         1600,
