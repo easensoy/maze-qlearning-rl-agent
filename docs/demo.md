@@ -1,155 +1,117 @@
-# 🌿 Interactive 3D Maze RL Training System
+# Interactive training viewer
 
-A full-stack real-time reinforcement learning environment featuring:
-- **Interactive 3D maze** rendered with Three.js, including multi-level mazes
-- **Real-time RL agent training** visualization
-- **Live performance charts** and Q-value heatmaps
-- **WebSocket communication** between Python backend and React frontend
+[README](../README.md) · [Evaluation](evaluation/README.md) · [Debugging case study](evaluation/case-study.md)
 
-## 🚀 Quick Start
+![The viewer during training: the agent (red) exploring the default 21x21 maze towards the goal (green)](images/ui_maze_view.png)
 
-### 1. Start the Backend Server
+A React and Three.js front end shows the agent while it trains. A Python WebSocket server runs the Q-learning loop and streams the maze, the agent's position, the statistics and the Q-values.
+
+## Run it
+
+### Backend
+
 ```bash
-# Option 1: Use batch file (creates .venv on first run)
-double-click start_backend.bat
-
-# Option 2: Manual start
+# Windows: double-click start_backend.bat (creates .venv on the first run), or:
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r maze_runner_rl\requirements.txt
 cd maze_runner_rl
 ..\.venv\Scripts\python.exe main.py
 ```
+
 The server listens on `ws://localhost:8765` (see `maze_runner_rl/websocket/config.yaml`).
 
-### 2. Start the Frontend
-```bash
-# Option 1: Use batch file (runs npm ci on first run)
-double-click start_frontend.bat
+### Frontend
 
-# Option 2: Manual start
+```bash
+# Windows: double-click start_frontend.bat (runs npm ci on the first run), or:
 cd maze-3d-frontend
 npm ci
 npm start
 ```
 
-### 3. Open Browser
-Navigate to: **http://localhost:3001** (port set in `maze-3d-frontend/.env`)
+Open **http://localhost:3001** (the port is set in `maze-3d-frontend/.env`).
 
-### Docker (alternative)
+### Docker
+
 `docker compose up --build` starts the backend on port 8765 and the frontend on port 3001 (the frontend image runs the development server). CI builds both images on every push and checks that they start and answer.
 
-## 🎮 Features
+## Controls
 
-### 🌿 3D Visualization
-- **Blue wall blocks** on a dark floor; a multi-level maze is laid out level by level, side by side, with shaft tiles (amber = way up, cyan = way down)
-- **Red agent sphere** and **green goal sphere**, drawn on top so walls never hide them
-- **Interactive camera** - zoom and rotate with the mouse
-- **Q-value heatmap** - floor tiles coloured by the best learned value per cell (red = lowest, green = highest)
+- **Training:** Start and Stop; Reset Maze builds a new maze and starts a fresh agent; Save Q-Table CSV writes the best action for each cell.
+- **Parameters**, adjustable while training:
+  - learning rate, 0.01 to 1.0;
+  - epsilon (exploration rate), 0.01 to 1.0;
+  - speed, from 0.1 steps per second up to unthrottled (the top of the logarithmic slider removes the delay between steps);
+  - episodes per run, 10 to 10,000, each of up to 1000 steps.
+- **Maze size:** Small 15x15, Medium 21x21, Large 31x31, or 21x21 with 3 levels.
+- **Maze complexity:** wall density and branching factor, described below.
+- **Views:** maze, charts or both, and a Q-value overlay.
 
-### 🤖 Real-time Training
-- **Live agent movement** - watch the RL agent explore in real-time
-- **Training controls** - start/stop, reset maze (new maze and a fresh agent), save best actions as CSV
-- **Parameter tuning** - adjust learning rate, epsilon, speed and episodes per run on the fly
-- **Maze sizes** - Small 15x15, Medium 21x21, Large 31x31, and 21x21 with 3 levels
+## Reading the display
 
-### 📊 Performance Analytics
-- **Reward progression** - reward per episode for the last 100 episodes, with a 10-episode moving average
-- **Episode statistics** - steps per episode
-- **Real-time metrics** - episode, step, reward, epsilon and how often the goal was reached
-- **Performance indicators** - average and best reward and steps
+- **Maze:** blue wall blocks on a dark floor. A multi-level maze is laid out level by level, side by side, with shaft tiles (amber is a way up, cyan a way down).
+- **Agent and goal:** the red sphere is the agent, the green sphere the goal. Both are drawn on top, so walls never hide them.
+- **Q-value overlay:** each floor tile is coloured by the best learned value of its cell, from red (lowest) to green (highest).
+- **Statistics:** episode, step, reward and epsilon. The footer counts how often the goal was reached.
+- **Charts:** the reward of each of the last 100 episodes with a 10-episode moving average, and the steps per episode. Average and best reward and steps sit above them.
 
-### ⚙️ Interactive Controls
-- **Training speed** - logarithmic slider from 0.1 steps per second up to unthrottled (at the top, 1000, the delay between steps is removed)
-- **Hyperparameters** - real-time learning rate and epsilon tuning
-- **View modes** - maze view, charts view, or both simultaneously
-- **Q-value overlay** - toggle to see learned state values
+Reaching the goal during training is not the same as having learned the shortest route, because training episodes still include random exploratory moves. The [evaluation](evaluation/README.md) checks the learned (greedy) route separately.
 
-## 🛠️ Technical Stack
+## Maze settings
 
-### Backend (Python)
-- **WebSocket Server** - real-time bidirectional communication; per-step updates capped at 30 per second
-- **Maze Generators** - depth-first search (recursive backtracker), plus loop corridors and dead-end shaping that never disconnects the maze
-- **Gymnasium Environments** - 2D and multi-level 3D mazes (`reset() -> (obs, info)`, five-value `step()`)
-- **Q-Learning Agent** - tabular, epsilon-greedy; untried actions count as 0
-- **Training Loop** - runs in a worker thread and hands messages to the asyncio loop
+- **Wall density, 0.60 to 0.85:** the target share of wall cells. Dead ends are trimmed towards it, and trimming stops early once none are left, so high targets may not be reached.
+- **Branching factor, 0.20 to 0.60:** how many short side corridors are carved (0.4 gives 10). A side corridor that meets another corridor creates a loop, and so an alternative route. Most do not, and they are trimmed again as dead ends: with the default settings, 47 of the 60 one-level evaluation mazes have a single route, and 30 of the 60 three-level ones (`docs/evaluation/results/baselines.csv`, column `loops`).
 
-### Frontend (React + Three.js)
-- **Three.js/React Fiber** - 3D rendering
-- **WebSocket Client** - one connection per tab, automatic reconnect
-- **Recharts** - performance charts
-- **Responsive Design** - layout adapts below 1200 px and 768 px
+## How it works
 
-## 🎯 How It Works
+1. The backend generates a maze. It stays the same for the whole training run, so the Q-table can learn it.
+2. The server sends the maze to the frontend when it changes, and per-step updates at most 30 times a second.
+3. Three.js renders the walls, the agent and the goal.
+4. The agent trains with tabular Q-learning and an epsilon-greedy policy, in a worker thread.
+5. The frontend updates the agent's position and the statistics live; the charts show training progress.
+6. Parameter changes from the controls reach the running training loop immediately.
 
-1. **Backend generates** a maze; it stays the same for the whole training run
-2. **WebSocket sends** the maze to the frontend when it changes
-3. **Three.js renders** walls, agent and goal
-4. **RL agent trains** using Q-learning with epsilon-greedy policy
-5. **Frontend updates** agent position and statistics live
-6. **Charts display** training progress and performance metrics
-7. **User controls** training parameters and visualization options
+## Technical stack
 
-## 🔧 Customization
+**Backend (Python)**
 
-### Maze Parameters
-- **Size**: 15x15 (Small) to 31x31 (Large), or 21x21 with 3 levels
-- **Algorithm**: Depth-first search with randomization
-- **Wall density**: 0.60 - 0.85, the target share of wall cells; dead ends are trimmed towards it, and trimming stops early once none are left
-- **Branching factor**: 0.20 - 0.60, how many extra loop corridors are added
+- WebSocket server for two-way, real-time messages; per-step updates capped at 30 per second.
+- Maze generators: depth-first search (recursive backtracker), plus side corridors and dead-end shaping that never disconnect the maze.
+- Gymnasium environments for 2D and multi-level 3D mazes (`reset() -> (obs, info)`, five-value `step()`).
+- Tabular Q-learning agent with epsilon-greedy exploration; untried actions count as 0.
+- Training loop in a worker thread that hands messages to the asyncio loop.
 
-### Training Parameters
-- **Learning Rate**: 0.01 - 1.0
-- **Epsilon**: 0.01 - 1.0 (exploration rate)
-- **Training Speed**: 0.1 steps per second up to unthrottled
-- **Max Episodes**: 10 - 10,000 per run (up to 1000 steps per episode)
+**Frontend (React + Three.js)**
 
-### Visualization Options
-- **Camera Controls**: Orbit and zoom
-- **Q-value Heatmaps**: Toggle learned value overlays
-- **View Modes**: Maze only, charts only, or split view
-- **Real-time Stats**: Episode, reward, epsilon, goals reached
+- Three.js through React Three Fiber for the 3D scene.
+- One WebSocket connection per tab, with automatic reconnect.
+- Recharts for the performance charts.
+- Layout that adapts below 1200 px and 768 px.
 
-## 📁 Project Structure
+## Project structure
+
 ```
 ├── maze_runner_rl/
 │   ├── main.py                        # Entry point: python main.py
-│   ├── requirements.txt
 │   ├── websocket/
 │   │   ├── config.yaml                # Server, training, agent and maze settings
 │   │   └── websocket_server.py        # WebSocket RL server
-│   ├── config/                        # 2D environment settings
+│   ├── config/                        # Environment settings (rewards, actions)
 │   ├── experiments/
-│   │   └── training_experiment.py     # Offline training
-│   └── src/
-│       ├── environments/
-│       │   ├── maze_env.py            # 2D maze environment
-│       │   ├── maze_3d_env.py         # 3D maze environment
-│       │   └── maze_3d_generator.py   # 3D maze generation
-│       ├── agents/
-│       │   └── q_learning_agent.py    # Q-learning implementation
-│       └── algorithms/
-│           └── policy_iteration.py    # Exact solver for comparison
-├── maze-3d-frontend/
+│   │   ├── training_experiment.py     # One training run from the command line
+│   │   ├── evaluate.py                # Evaluation suite (docs/evaluation)
+│   │   └── plot_evaluation.py         # Evaluation figures
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Maze3D.js              # Three.js 3D visualization
-│   │   │   ├── TrainingControls.js    # Control panel
-│   │   │   └── TrainingCharts.js      # Performance charts
-│   │   ├── hooks/
-│   │   │   └── useWebSocket.js        # WebSocket communication
-│   │   └── App.js                     # Main application
-├── start_backend.bat                  # Backend startup script
-├── start_frontend.bat                 # Frontend startup script
+│   │   ├── environments/              # 2D and 3D mazes and their generators
+│   │   ├── agents/q_learning_agent.py # Q-learning implementation
+│   │   └── algorithms/policy_iteration.py  # Exact solver for comparison
+│   └── tests/                         # pytest suite
+├── maze-3d-frontend/
+│   └── src/
+│       ├── components/                # Maze3D, TrainingControls, TrainingCharts
+│       ├── hooks/useWebSocket.js      # WebSocket connection
+│       └── App.js
+├── docs/                              # This guide and the evaluation
+├── start_backend.bat, start_frontend.bat
 └── docker-compose.yml
 ```
-
-## 🎉 Ready to Train!
-
-**Next Steps:**
-1. Start both backend and frontend
-2. Click "▶ Start Training"
-3. Watch the agent learn in real-time; raise the speed under ⚙️ Parameters to finish a run in seconds
-4. Experiment with different parameters
-5. Try different maze sizes, including the 3-level maze
-6. Toggle Q-value visualization
-7. Analyze performance charts
