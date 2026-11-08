@@ -296,6 +296,69 @@ def discovered_by(kind, method, params, seed, budget):
     return env, facts, seen, counts
 
 
+def replay_final_run(r, params):
+    """Train a recorded final run again exactly as compare_methods.train does (same seeds, same
+    draws; the per-episode greedy checks draw no random numbers) and return the agent, the
+    maze facts and the visited cells. Stops if the replay's final greedy route differs."""
+    import contextlib
+    import io
+    import random
+
+    from experiments import evaluate as ev
+
+    with contextlib.redirect_stdout(io.StringIO()):
+        env = ev.make_env(r["kind"], r["maze_seed"])
+    facts = cm.maze_facts(env)
+    random.seed(ev.exploration_seed(r["maze_seed"]))
+    agent = cm.make_agent(r["method"], params, env, r["maze_seed"])
+    begin = getattr(agent, "begin_episode", None)
+    end = getattr(agent, "end_episode", None) or agent.decay_epsilon
+    seen = {facts["start"]}
+    for _ in range(r["episodes"]):
+        _, info = env.reset()
+        if begin:
+            begin()
+        state = info["state"]
+        for _ in range(cm.MAX_STEPS):
+            action = agent.choose_action(state)
+            _, reward, terminated, truncated, info = env.step(action)
+            agent.update_q_table(state, action, reward, info["state"], terminated)
+            state = info["state"]
+            seen.add(state)
+            if terminated or truncated:
+                break
+        end()
+    greedy = cm.greedy_walk(agent, facts["nxt"], facts["start"], facts["goal"], env.num_states)
+    if greedy != r["final_greedy_route"]:
+        raise SystemExit(f"the replay of {r['method']} on {r['kind']} maze {r['maze_seed']} does not match the record")
+    return agent, facts, seen
+
+
+def dyna_failure_trace(r, params):
+    """Why a Dyna-Q run's greedy route stayed longer than the shortest route: the cell where
+    the final greedy route leaves every shortest route, and the first cell on a shortest
+    continuation from there whose goal-ward action was never taken (its Q-value is still 0)."""
+    agent, facts, seen = replay_final_run(r, params)
+    nxt, goal, to_goal = facts["nxt"], facts["goal"], facts["to_goal"]
+    state = facts["start"]
+    while to_goal.get(int(nxt[state, agent.greedy_action(state)])) == to_goal[state] - 1:
+        state = int(nxt[state, agent.greedy_action(state)])
+    leave = {"distance_to_goal": to_goal[state], "moves_from_start": r["shortest_route"] - to_goal[state]}
+    cell, untried = state, None
+    continuation = []
+    while cell != goal:
+        step = next(a for a in range(agent.action_space_size) if to_goal.get(int(nxt[cell, a])) == to_goal[cell] - 1)
+        if untried is None and (cell, step) not in agent.model:
+            tried = [agent.q_table[cell][a] for a in range(agent.action_space_size) if (cell, a) in agent.model]
+            untried = {"distance_to_goal": to_goal[cell], "tried_actions_q": sorted(round(q, 3) for q in tried),
+                       "untried_goalward_action_q": agent.action_values(cell)[step]}
+        cell = int(nxt[cell, step])
+        continuation.append(cell)
+    return {"leaves_shortest_routes": leave, "first_untried_goalward_action": untried,
+            "continuation_cells_never_visited": sum(c not in seen for c in continuation[:-1]),
+            "continuation_cells": len(continuation) - 1, "final_epsilon": agent.epsilon}
+
+
 def draw_map(ax, env, facts, seen, colour):
     """A top-down 2D maze: walls dark, open cells grey, discovered cells in the method's colour."""
     from matplotlib.patches import Rectangle
@@ -413,6 +476,12 @@ def failure(dev_runs, dev_raw, title):
     return save(fig, "failure.png"), {"maze_seed": seed, "route": route, "discovered": maps}
 
 
+def runs_param(runs, method, name):
+    """A method's frozen setting, read back from its runs' params column."""
+    key = next(r["params"] for r in runs if r["method"] == method)
+    return dict(kv.split("=") for kv in key.split(","))[name]
+
+
 def geometric_ratio(pairs):
     """Geometric mean of a / b over pairs, with a percentile-bootstrap 95% interval."""
     from experiments.stats import bootstrap_interval
@@ -479,6 +548,11 @@ def analysis(runs, raw, dev_runs, dev_raw, failure_info):
          "q_lambda_converged_episode": next(q["converged_episode"] for q in runs if q["method"] == "q_lambda" and
                                             (q["split"], q["kind"], q["maze_seed"]) == (r["split"], r["kind"], r["maze_seed"]))}
         for r in runs if r["method"] == "dyna_q" and r["converged_episode"] is None]
+    params = {"planning_steps": int(runs_param(runs, "dyna_q", "planning_steps"))}
+    for entry in out["failure"]["dyna_q_not_converged"]:
+        r = next(x for x in runs if x["method"] == "dyna_q" and (x["split"], x["kind"], x["maze_seed"]) ==
+                 (entry["split"], entry["kind"], entry["maze_seed"]))
+        entry["replay"] = dyna_failure_trace(r, params)
     out["failure"]["q_lambda_map"] = failure_info
     grid = np.array([MAP_BUDGET])
     for replacing in (False, True):
@@ -505,7 +579,7 @@ TITLES = {
     "learning_curves": "Dyna-Q's greedy route is shortest after far fewer real moves, and on every long route",
     "route_length": "Beyond 120 moves, Q-learning converged on 0 of 60 mazes, Q(λ) on 30, Dyna-Q on all 60",
     "diagnostics": "Dyna-Q shortens both phases; Q(λ) only the second, and it finds the goal more slowly",
-    "failure": "With long traces, Q(λ) stops exploring: at λ ≥ 0.7 it rarely converges",
+    "failure": "With long traces, Q(λ)'s state coverage stalls: at λ ≥ 0.7 it rarely converges",
 }
 
 
