@@ -8,9 +8,9 @@ This page covers the animation and the two figures on the [README](../../README.
 
 | File | Shows | Drawn by, from |
 |---|---|---|
-| [`hero.gif`](hero.gif) | Q-learning and Dyna-Q on one three-level maze, in an exploded 3D view. 800 × 680 px, 62 frames, 18.1 s, 0.66 MB | `render_hero.py`, from `data/hero.json`. The end card's counts come from [`summary.json`](../value-propagation/results/summary.json) |
-| [`hero.webp`](hero.webp) | The same frames without the GIF's 256-colour palette (0.67 MB) | `render_hero.py` |
-| [`hero-poster.png`](hero-poster.png) | The learned-route frame at twice the size (1600 × 1360 px). The README shows it instead of the animation when the reader's system asks for reduced motion | `render_hero.py` |
+| [`hero.gif`](hero.gif) | Q-learning and Dyna-Q on one three-level maze, in an exploded 3D view. 800 × 720 px, 62 frames, 18.1 s, 0.75 MB | `render_hero.py`, from `data/hero.json`. The end card's counts come from [`summary.json`](../value-propagation/results/summary.json) |
+| [`hero.webp`](hero.webp) | The same frames without the GIF's 256-colour palette (0.83 MB) | `render_hero.py` |
+| [`hero-poster.png`](hero-poster.png) | The final-route frame at twice the size (1600 × 1440 px). The README shows it instead of the animation when the reader's system asks for reduced motion | `render_hero.py` |
 | [`results.png`](results.png) | All 180 evaluation-suite runs of Q-learning: exploring success, greedy-route optimality and convergence, against moves of experience | `render_figures.py`, from `data/traces_*.json` |
 | [`policy.png`](policy.png) | What Q-learning's greedy policy knows in a converged run and in one that ran out of episodes | `render_figures.py`, from `data/featured.json` |
 | [`data/hero.json`](data/hero.json) | The animation's runs: the maze, a BFS route, episode 1's cells, and each method's greedy policy after 10k, 20k, 40k, 80k and 160k real moves | `capture_hero.py` |
@@ -25,23 +25,25 @@ The scripts are in [`maze_runner_rl/experiments/`](../../maze_runner_rl/experime
 
 The animation, part by part. Every number is from [`data/hero.json`](data/hero.json).
 
-1. **The maze** (2.4 s): three-level maze 54 of the final suite, 21 × 21 × 3 cells.
+1. **The maze** (2.4 s). Title: "Three-level maze: 21×21×3 cells, seed 54", three-level maze 54 of the final suite.
    - Level 0, where the agent starts, is at the bottom; level 2, with the goal, at the top.
-   - Level 1 is only the 9 shafts that join them, drawn as vertical columns.
+   - Level 1 consists only of the 9 shaft cells that join them, drawn as vertical columns.
    - The shortest route is 146 moves.
-2. **Episode 1** (2.2 s): Q-learning's first episode.
-   - It is 1,000 moves of exploration that never reach the goal.
-   - It plays at 50 moves per frame, with the path in cyan.
-3. **Q-learning after 20k, 40k, 80k and 160k real moves** (3.2 s), at episodes 20, 41, 83 and 181. Episodes between the checkpoints are skipped.
-   - **Blue cells:** its greedy policy reaches the goal from 0, 2, 11 and then 15 cells, all next to the goal.
-   - **Its greedy walk from the start:** in amber, it loops after a few moves every time.
-4. **Dyna-Q after the same real moves** (3.2 s), at episodes 50, 171, 438 and 981, with 50 planning updates per real move.
-   - **Blue cells:** 175 after 20k real moves, then 292 of the maze's 378 non-goal cells.
-   - **Its greedy route:** from 40k real moves (episode 171) it is a shortest route.
-5. **Dyna-Q's learned route** (3.3 s): 146 moves, the same length as the dashed breadth-first-search route.
-   - It changes level 6 times through the shafts.
-   - It plays at 5 moves per frame, cell by cell, with no interpolation.
-6. **The result** (3.8 s): on the 30 long-route mazes, Dyna-Q converged on 30, Q(λ) on 15 and Q-learning on 0. These are the same mazes and exploration seeds, with 1,000 episodes each, and Dyna-Q spends 51 updates per real move.
+2. **Episode 1** (2.2 s). Title: "Episode 1: exploring from an all-zero Q-table". This is Q-learning's first episode: 1,000 exploratory moves that do not reach the goal, shown at 50 moves per frame with the path in cyan.
+3. **Q-learning after 20k, 40k, 80k and 160k environment steps** (3.2 s), at episodes 20, 41, 83 and 181. The episodes between the checkpoints are omitted.
+   - **Blue cells:** its frozen greedy policy reaches the goal from 0, 2, 11 and then 15 cells, all next to the goal.
+   - **Its greedy walk from the start:** shown in amber, it loops after a few moves at every checkpoint ("greedy route loops before the goal").
+4. **Dyna-Q (n = 50) after the same environment steps** (3.2 s), at episodes 50, 171, 438 and 981.
+   - **Blue cells:** 175 after 20k steps, then 292 of the maze's 378 non-goal cells.
+   - **Its greedy route:** from 40k steps (episode 171) it is a shortest route.
+5. **Dyna-Q's greedy route** (3.3 s): 146 moves, the length of the dashed breadth-first-search route. It changes level 6 times through the shafts and plays at 5 moves per frame, cell by cell, with no interpolation.
+6. **The result** (3.8 s). End card:
+   - "Long-route set: 30 mazes, shortest routes of at least 141 moves";
+   - "Converged: Dyna-Q 30 · Q(λ) 15 · Q-learning 0";
+   - the criterion, "greedy route shortest at every check for the last ≥ 100 of 1,000 episodes";
+   - "Same mazes and exploration seeds · Dyna-Q: 51 Q-value updates per real move".
+
+Every frame's footer reads "Recorded replay, not the live viewer" with the playback rate or the checkpoint budgets.
 
 ### How it was made
 
@@ -55,10 +57,20 @@ The animation, part by part. Every number is from [`data/hero.json`](data/hero.j
   - **Rendering:** the plates for each set of learned cells are drawn once and reused, and only paths, markers and text change between frames.
 - **Colours,** as in the other figures:
   - cyan for the path taken while exploring;
-  - blue for cells the greedy policy already leads to the goal from;
+  - blue for cells from which the greedy policy reaches the goal;
   - amber, the one accent, for the greedy route;
   - a dashed off-white line for a breadth-first-search route;
   - a hollow ring for the start and a filled disk for the goal.
+- **Contrast.** The overlays carry the message, but every structural element still reads against the background:
+  - open cells' top faces (`#5b6575`) clear the background (`#101318`) by about 3:1, and stay darker than every overlay;
+  - shaft cells (`#a3adbb`) and the columns joining them (`#8f99a7`) are lighter than open cells but darker than the white route dashes;
+  - level labels are set in the primary ink;
+  - captions and footers are set in the secondary ink, 8.4:1 against the background.
+- **Legibility.** Text is sized for the README's 800-pixel column, and it stays readable when GitHub scales the frame to a phone's width (about 0.43×):
+  - titles are 28 px and verdicts 20 px;
+  - labels, legends and footers are 14–15 px.
+
+  Methodological detail (the maze-selection rule, omitted episodes, playback rates) is in the README caption and this text version rather than in small type inside the frame.
 - **Accessibility.** The README shows the poster instead of the animation to readers whose system asks for reduced motion (`prefers-reduced-motion`). Its alt text summarises the run, and this section is the full text version.
 
 ## The figures
@@ -92,16 +104,18 @@ Bands are 95% Wilson intervals for a share of 60 independent runs. A run that ha
 
 ## Regenerate
 
-From `maze_runner_rl/`, with the development requirements installed (`python -m pip install -r requirements-dev.txt`):
+From `maze_runner_rl/`, with the repository's virtual environment called explicitly and the development requirements installed ([README](../../README.md#reproduction)). Use `..\.venv\Scripts\python.exe` on Windows (PowerShell: `& $PY …`) and `../.venv/bin/python` on Linux and macOS.
 
 ```bash
-python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv   # the figures' data, 1-2 min on 8 workers
-python -m experiments.render_figures         # results.png and policy.png
-python -m experiments.capture_hero           # data/hero.json, checked against the value-propagation results
-python -m experiments.render_hero            # hero.gif, hero.webp and hero-poster.png
+PY=../.venv/bin/python
+$PY -m experiments.render_hero            # hero.gif, hero.webp and hero-poster.png, from data/hero.json
+$PY -m experiments.render_figures         # results.png and policy.png, from data/traces_*.json and featured.json
+# Re-record the source data by training the runs again (each checks itself against the committed results):
+$PY -m experiments.capture_hero           # data/hero.json, against docs/value-propagation/results/runs.csv
+$PY -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv   # 1-2 min on 8 workers
 ```
 
-`capture_hero.py` needs the value-propagation results (`python -m experiments.compare_methods final`). `capture_traces.py` checks against the evaluation suite's results (`python -m experiments.evaluate`).
+The first two commands only redraw from committed data. The last two retrain runs and stop if any checked field differs from the committed records.
 
 **Dependencies.** numpy, gymnasium and PyYAML from `requirements.txt`, plus matplotlib and its dependency Pillow from `requirements-dev.txt`. The versions used are recorded in `data/provenance.json` and `data/render.json`. Text is set in Segoe UI where it is installed and otherwise in matplotlib's bundled DejaVu Sans. Single-line text shrinks to fit, so the wider fallback still fits the frame.
 
