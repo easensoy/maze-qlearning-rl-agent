@@ -98,3 +98,49 @@ def test_tune_then_final_end_to_end(tmp_path):
     summary = json.load(open(out / "summary.json", encoding="utf-8"))
     assert "suite:3d_3" in summary["groups"] and "long:3d_3" in summary["groups"]
     assert len(cm.read_raw(out / "episodes.jsonl.gz")) == len(runs)
+
+    # Committed records are not replaced by accident.
+    with pytest.raises(SystemExit, match="already exists"):
+        cm.cmd_tune(args)
+    with pytest.raises(SystemExit, match="already exists"):
+        cm.cmd_final(args)
+
+    # A reproduction reads the committed settings and writes to its own folder; `verify`
+    # finds it identical to the published runs apart from timing.
+    rerun = tmp_path / "rerun"
+    rerun_args = argparse.Namespace(**{**vars(args), "out": str(rerun),
+                                       "settings": str(tmp_path / "frozen_settings.json")})
+    quiet(cm.cmd_final, rerun_args)
+    assert not os.path.exists(rerun / "frozen_settings.json")
+    with open(rerun / "results" / "provenance.json", encoding="utf-8") as f:
+        assert json.load(f)["frozen_settings_sha256"] == provenance["frozen_settings_sha256"]
+    verify_args = argparse.Namespace(out=str(rerun), reference=str(out / "runs.csv"))
+    report = quiet(cm.cmd_verify, verify_args)
+    assert report["compared"] == len(runs) and not report["differences"] and not report["missing"]
+
+
+def test_a_recorded_run_replays_exactly_for_the_failure_analysis():
+    """The Dyna-Q failure trace in analysis.json replays a final run; the replay must be the
+    recorded run (it stops otherwise) and must see the cells the run visited."""
+    pytest.importorskip("matplotlib")
+    from experiments import plot_value_propagation as pv
+
+    record, _, _ = quiet(cm.train, "3d_1", "dyna_q", {"planning_steps": 10}, 2, "suite", episodes=30)
+    agent, facts, seen = pv.replay_final_run(record, {"planning_steps": 10})
+    assert facts["start"] in seen and len(seen) > 1
+    assert agent.planning_updates == record["planning_updates"]
+
+
+def test_verify_reports_a_changed_field_and_ignores_timing(tmp_path):
+    fields = {f: "1" for f in cm.RUN_FIELDS}
+    fields.update(split="suite", kind="2d", method="dyna_q", params="planning_steps=50", maze_seed="7")
+    reference = tmp_path / "reference.csv"
+    ev.write_csv(str(reference), cm.RUN_FIELDS, [fields])
+    rerun = tmp_path / "rerun" / "results"
+    rerun.mkdir(parents=True)
+    ev.write_csv(str(rerun / "runs.csv"), cm.RUN_FIELDS, [dict(fields, agent_seconds="9", run_seconds="9")])
+    args = argparse.Namespace(out=str(tmp_path / "rerun"), reference=str(reference))
+    assert not quiet(cm.cmd_verify, args)["differences"]
+    ev.write_csv(str(rerun / "runs.csv"), cm.RUN_FIELDS, [dict(fields, converged_env_steps="2")])
+    with pytest.raises(SystemExit, match="runs that differ: 1;"):
+        quiet(cm.cmd_verify, args)
