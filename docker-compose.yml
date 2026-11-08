@@ -11,7 +11,11 @@ services:
     restart: unless-stopped
 
   maze-frontend:
-    build: ./maze-3d-frontend
+    build:
+      context: ./maze-3d-frontend
+      args:
+        # Inlined into the production bundle; the browser connects to this URL.
+        REACT_APP_WS_URL: ${REACT_APP_WS_URL:-ws://localhost:8765}
     ports:
       - "3001:3001"
     depends_on:

@@ -83,15 +83,17 @@ jobs:
           assert types == ["maze_state", "training_update", "q_values"], types
           print("snapshot:", types)
           EOF
-      - name: Frontend container serves the app
+      - name: Frontend container serves the production build
         run: |
           docker run -d --name frontend -p 3001:3001 maze-frontend
-          for attempt in $(seq 90); do
-            if curl -fsS http://localhost:3001 > /dev/null; then
-              echo "frontend answered on port 3001"
-              exit 0
-            fi
-            sleep 2
+          for attempt in $(seq 30); do
+            if curl -fsS http://localhost:3001 -o index.html; then break; fi
+            sleep 1
           done
-          docker logs frontend
-          exit 1
+          curl -fsSI http://localhost:3001 | grep -i '^server: nginx' || { docker logs frontend; exit 1; }
+          grep -Eo 'static/js/main\.[0-9a-f]+\.js' index.html    # a hashed bundle, not the dev server's bundle.js
+      - name: The production bundle connects to the backend in a browser
+        run: |
+          google-chrome --headless=new --no-sandbox --disable-gpu --remote-debugging-port=9222 \
+            --user-data-dir="$RUNNER_TEMP/chrome" about:blank > "$RUNNER_TEMP/chrome.log" 2>&1 &
+          docker run --rm -i --network host maze-backend python - < .github/scripts/viewer_connects.py
