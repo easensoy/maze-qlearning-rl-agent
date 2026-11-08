@@ -25,11 +25,16 @@ from PIL import Image
 
 from experiments import asset_style as st
 from experiments import compare_methods as cm
-from experiments.iso_maze import TRAIL, IsoMaze
+from experiments.iso_maze import TOP_LEARNED, TRAIL, IsoMaze
 
-W, H = 800, 680
+# Text is sized for the README's 800-pixel column and stays readable when GitHub scales the
+# frame to a phone's width (about 0.43x): titles and verdicts carry the message in-frame;
+# methodological detail lives in the README text beside the animation.
+W, H = 800, 720
 UNIT, LEVEL_GAP, SLAB = 12.0, 132.0, 6.0
-ORIGIN = (392.0, 352.0)        # screen point of the back corner of the bottom plate
+ORIGIN = (352.0, 372.0)        # screen point of the back corner of the bottom plate
+GHOST = "#5f6977"              # dashed outline of the shaft level's plane
+LABEL_SIZE, NOTE_SIZE = 15, 14
 FRAME_MS = 70                  # GIF delays are stored in units of 10 ms
 CHECKPOINT_MS = 700
 EXPLORE_MOVES_PER_FRAME = 50
@@ -106,7 +111,7 @@ class Scene:
         iso.draw_level(ax, 0, learned, zorder=2)
         iso.draw_columns(ax, 0, zorder=10)
         ghost = iso.plate_outline(1)
-        ax.add_patch(Polygon(ghost, closed=True, facecolor="none", edgecolor=st.RULE, linewidth=pt(1, cv.scale),
+        ax.add_patch(Polygon(ghost, closed=True, facecolor="none", edgecolor=GHOST, linewidth=pt(1.2, cv.scale),
                              linestyle=(0, (3, 3)), zorder=9))
         iso.draw_level(ax, 1, learned, zorder=12)
         iso.draw_columns(ax, 1, zorder=20)
@@ -114,16 +119,17 @@ class Scene:
         labels = {0: "Level 0 · start", 1: f"Level 1 · {self.shafts} shafts", 2: "Level 2 · goal"}
         for level, label in labels.items():
             _, right, _, _ = iso.plate_outline(level)
-            cv.text(right[0] + 12, right[1], label, size=11.5, color=st.INK2, weight="bold", va="center")
+            cv.fit(right[0] + 12, right[1], label, W - 12 - (right[0] + 12), size=LABEL_SIZE, color=st.INK,
+                   weight="bold", va="center")
 
     def markers(self, cv):
         for pos, fill in ((self.start, "none"), (self.goal, st.INK)):
             cx, cy = self.iso.centre(*pos, lift=1.5)
-            cv.ax.add_patch(Circle((cx, cy), 6.5, facecolor=fill, edgecolor=st.INK, linewidth=pt(2.4, cv.scale),
+            cv.ax.add_patch(Circle((cx, cy), 7.5, facecolor=fill, edgecolor=st.INK, linewidth=pt(2.6, cv.scale),
                                    zorder=45))
         for pos, word in ((self.start, "start"), (self.goal, "goal")):
             cx, cy = self.iso.centre(*pos, lift=1.5)
-            cv.text(cx + 12, cy + 4, word, size=11, color=st.INK, weight="bold", va="center",
+            cv.text(cx + 14, cy + 4, word, size=LABEL_SIZE, color=st.INK, weight="bold", va="center",
                     bbox=dict(boxstyle="round,pad=0.25", facecolor=st.BG, edgecolor="none", alpha=0.85))
 
     def path(self, cv, states, colour, width, alpha=1.0, dashes=None, boost=0.0):
@@ -133,44 +139,45 @@ class Scene:
 
     def agent(self, cv, state, colour=st.INK):
         cx, cy = self.iso.centre(*self.xyz(state), lift=2.5)
-        cv.ax.add_patch(Circle((cx, cy), 9, facecolor=colour, edgecolor="none", alpha=0.25, zorder=46))
-        cv.ax.add_patch(Circle((cx, cy), 5, facecolor=colour, edgecolor=st.BG, linewidth=pt(1.2, cv.scale),
+        cv.ax.add_patch(Circle((cx, cy), 11, facecolor=colour, edgecolor="none", alpha=0.25, zorder=46))
+        cv.ax.add_patch(Circle((cx, cy), 6, facecolor=colour, edgecolor=st.BG, linewidth=pt(1.2, cv.scale),
                                zorder=47))
 
     def loop_mark(self, cv, state):
         cx, cy = self.iso.centre(*self.xyz(state), lift=2.5)
-        cv.text(cx, cy, "×", size=18, color=st.AMBER, weight="bold", ha="center", va="center", zorder=48)
+        cv.text(cx, cy, "×", size=26, color=st.AMBER, weight="bold", ha="center", va="center", zorder=48)
 
     def header(self, cv, title, subtitle=None):
-        cv.fit(24, 34, title, W - 48, size=19, weight="bold")
+        cv.fit(24, 42, title, W - 48, size=28, weight="bold")
         if subtitle:
-            cv.fit(24, 58, subtitle, W - 48, size=12.5, color=st.INK2)
+            cv.fit(24, 76, subtitle, W - 48, size=20, color=st.INK2)
 
-    def legend(self, cv, items, y=622):
+    def legend(self, cv, items, y=656):
         x = 24
         for kind, colour, label in items:
             if kind == "line":
-                cv.ax.plot([x, x + 20], [y, y], color=colour, linewidth=pt(3, cv.scale), solid_capstyle="round",
+                cv.ax.plot([x, x + 22], [y, y], color=colour, linewidth=pt(3.5, cv.scale), solid_capstyle="round",
                            zorder=50)
             elif kind == "dash":
-                line, = cv.ax.plot([x, x + 20], [y, y], color=colour, linewidth=pt(2, cv.scale), zorder=50)
+                line, = cv.ax.plot([x, x + 22], [y, y], color=colour, linewidth=pt(2.4, cv.scale), zorder=50)
                 line.set_dashes((3, 2.5))
             else:
-                cv.ax.add_patch(Polygon([(x + 10, y - 6), (x + 20, y), (x + 10, y + 6), (x, y)], closed=True,
+                cv.ax.add_patch(Polygon([(x + 11, y - 7), (x + 22, y), (x + 11, y + 7), (x, y)], closed=True,
                                         facecolor=colour, edgecolor="none", zorder=50))
-            t = cv.text(x + 27, y, label, size=11, color=st.INK2, va="center")
-            x += 27 + t.get_window_extent(renderer=cv.fig.canvas.get_renderer()).width / cv.scale + 22
+            t = cv.text(x + 30, y, label, size=LABEL_SIZE, color=st.INK2, va="center")
+            x += 30 + t.get_window_extent(renderer=cv.fig.canvas.get_renderer()).width / cv.scale + 24
 
     def footer(self, cv, note):
-        cv.ax.plot([24, W - 24], [646, 646], color=st.RULE, linewidth=pt(1, cv.scale), zorder=50)
-        cv.fit(24, 666, note, W - 48, size=11, color=st.INK3)
+        cv.ax.plot([24, W - 24], [681, 681], color=st.RULE, linewidth=pt(1, cv.scale), zorder=50)
+        cv.fit(24, 704, note, W - 48, size=NOTE_SIZE, color=st.INK2)
 
     def endcard(self, cv, lines):
-        cv.ax.add_patch(Rectangle((0, 0), W, H, facecolor=st.BG, edgecolor="none", alpha=0.86, zorder=60))
+        cv.ax.add_patch(Rectangle((0, 0), W, H, facecolor=st.BG, edgecolor="none", alpha=0.88, zorder=60))
         y = 300
         for i, (text, size, colour, weight) in enumerate(lines):
-            cv.fit(W / 2, y, text, W - 80, size=size, color=colour, weight=weight, ha="center", zorder=61)
-            y += size * 2.1
+            cv.fit(W / 2, y, text, W - 64, size=size, color=colour, weight=weight, ha="center", zorder=61)
+            if i + 1 < len(lines):
+                y += 0.5 * size + 0.9 * lines[i + 1][1] + 14     # baseline to baseline
 
     def background(self, cv, learned):
         """The plates, shafts and level labels for one set of learned cells, drawn once and
@@ -188,11 +195,11 @@ class Scene:
         cv.clear()
         cv.ax.imshow(image, extent=(0, W, H, 0), interpolation="none", zorder=1)
         if f.get("bfs"):
-            self.path(cv, self.data["bfs_route"], st.INK, 2.0, alpha=0.9, dashes=(3, 2.5), boost=1)
+            self.path(cv, self.data["bfs_route"], st.INK, 2.2, alpha=0.95, dashes=(3, 2.5), boost=1)
         if f.get("trail"):
-            self.path(cv, f["trail"], TRAIL, 1.7, alpha=0.95, boost=2)
+            self.path(cv, f["trail"], TRAIL, 2.0, alpha=0.95, boost=2)
         if f.get("route"):
-            self.path(cv, f["route"], st.AMBER, 3.6, boost=3)
+            self.path(cv, f["route"], st.AMBER, 4.0, boost=3)
             if f.get("loop"):
                 self.loop_mark(cv, f["route"][-1])
         self.markers(cv)
@@ -208,10 +215,11 @@ class Scene:
 
 # --- the storyboard -----------------------------------------------------------------------
 
-LEGEND_EXPLORE = [("line", TRAIL, "path taken while exploring")]
-LEGEND_POLICY = [("tile", "#1f6c98", "cells its greedy policy leads to the goal from"),
+LEGEND_EXPLORE = [("line", TRAIL, "path in episode 1")]
+LEGEND_POLICY = [("tile", TOP_LEARNED, "greedy policy reaches the goal"),
                  ("line", st.AMBER, "greedy route from the start"), ("dash", st.INK, "shortest route")]
-LEGEND_ROUTE = [("line", st.AMBER, "learned greedy route"), ("dash", st.INK, "shortest route (BFS)")]
+LEGEND_ROUTE = [("line", st.AMBER, "greedy route"), ("dash", st.INK, "shortest route (BFS)")]
+REPLAY = "Recorded replay, not the live viewer"
 
 
 def thousands(n):
@@ -223,10 +231,9 @@ def frames(data, summary):
     n = dq["params"]["planning_steps"]
     size = "×".join(str(v) for v in data["size"])
     route = data["shortest_route"]
-    replay = "Recorded replay of real training runs, drawn by this repository (not the live viewer)"
-    out = [dict(title=f"A three-level maze: {size} cells, seed {data['maze_seed']}",
-                subtitle=f"Start on level 0, goal on level 2; the shortest route is {route} moves",
-                footer=replay, duration=2400)]
+    out = [dict(title=f"Three-level maze: {size} cells, seed {data['maze_seed']}",
+                subtitle=f"Start on level 0, goal on level 2 · shortest route: {route} moves",
+                footer=f"{REPLAY} · rendered from logged training runs", duration=2400)]
 
     # 2. Episode 1 of Q-learning, compressed.
     path = q["episode1"]
@@ -234,26 +241,24 @@ def frames(data, summary):
     moves = len(path) - 1
     for i in range(1, moves + EXPLORE_MOVES_PER_FRAME, EXPLORE_MOVES_PER_FRAME):
         k = min(i, moves)
-        out.append(dict(title="Episode 1: the agent knows nothing and explores",
-                        subtitle=f"Move {k:,} of {moves:,}" + ("" if reached else ", without reaching the goal"),
+        out.append(dict(title="Episode 1: exploring from an all-zero Q-table",
+                        subtitle=f"Move {k:,} of {moves:,}" + ("" if reached else " · goal not reached"),
                         trail=path[:k + 1], agent=path[k], legend=LEGEND_EXPLORE,
-                        footer=f"{replay} · {EXPLORE_MOVES_PER_FRAME} moves per frame", duration=FRAME_MS))
+                        footer=f"{REPLAY} · {EXPLORE_MOVES_PER_FRAME} moves per frame", duration=FRAME_MS))
     out[-1]["duration"] = 800
 
     # 3-4. Each method's greedy policy after the same numbers of real moves.
-    for run, name in ((q, "Q-learning"), (dq, f"Dyna-Q ({n} planning updates per move)")):
+    budgets = ", ".join(thousands(b) for b in data["budgets"][-SHOWN_BUDGETS:])
+    for run, name in ((q, "Q-learning"), (dq, f"Dyna-Q (n = {n})")):
         for cp in run["checkpoints"][-SHOWN_BUDGETS:]:
             walk = cp["greedy_path"]
-            verdict = ("its greedy route is a shortest route" if cp["greedy_shortest"]
-                       else "its greedy route reaches the goal" if cp["greedy_reaches"]
-                       else "its greedy route loops before the goal")
+            verdict = ("greedy route is a shortest route" if cp["greedy_shortest"]
+                       else "greedy route reaches the goal" if cp["greedy_reaches"]
+                       else "greedy route loops before the goal")
             out.append(dict(title=f"{name} after {thousands(cp['budget'])} real moves",
-                            subtitle=f"Episode {cp['episode']}: {verdict}",
+                            subtitle=f"Episode {cp['episode']} · {verdict}",
                             learned=cp["learned"], route=walk, loop=not cp["greedy_reaches"], bfs=True,
-                            legend=LEGEND_POLICY,
-                            footer=f"{replay} · checkpoints after "
-                                   f"{', '.join(thousands(b) for b in data['budgets'][-SHOWN_BUDGETS:])} "
-                                   "real moves; the episodes between them are skipped",
+                            legend=LEGEND_POLICY, footer=f"{REPLAY} · checkpoints at {budgets} real moves",
                             duration=CHECKPOINT_MS))
         out[-1]["duration"] = 1100
 
@@ -263,23 +268,24 @@ def frames(data, summary):
                   for a, b in zip(final, final[1:]))
     per_frame = max(2, -(-(len(final) - 1) // ROUTE_FRAMES))
     for k in range(0, len(final), per_frame):
-        out.append(dict(title=f"Dyna-Q's learned route: {len(final) - 1} moves, a shortest route",
-                        subtitle=f"Up and down through the shafts: {changes} level changes",
+        out.append(dict(title=f"Dyna-Q's greedy route: {len(final) - 1} moves, a shortest route",
+                        subtitle=f"{changes} level changes through the shafts",
                         route=final[:k + 1], agent=final[k], agent_colour=st.AMBER, bfs=True, legend=LEGEND_ROUTE,
-                        footer=f"{replay} · {per_frame} moves per frame, cell by cell, no interpolation",
-                        duration=FRAME_MS))
+                        footer=f"{REPLAY} · {per_frame} moves per frame", duration=FRAME_MS))
     out.append(dict(out[-1], route=final, agent=final[-1], duration=1200))
 
-    # 6. The measured result, with its scope.
+    # 6. The measured result, with its definition and scope.
     long = summary["groups"]["long:3d_3"]
     lq, ll, ld = (long[m]["converged"] for m in ("q_learning", "q_lambda", "dyna_q"))
     upd = long["dyna_q"]["updates_per_real_step"]
     out.append(dict(out[-1], duration=3800, endcard=[
-        (f"{ld['n']} long-route mazes: Dyna-Q converged on {ld['k']}, Q(λ) on {ll['k']}, Q-learning on {lq['k']}",
-         19, st.INK, "bold"),
-        (f"Same mazes and exploration seeds, 1,000 episodes each; Dyna-Q spends {upd:.0f} updates per real move",
-         12.5, st.INK2, "normal"),
-        ("Tabular agents on small deterministic mazes, one maze at a time", 12.5, st.INK2, "normal"),
+        (f"Long-route set: {ld['n']} mazes, shortest routes of at least {cm.LONG_ROUTES['min_route']} moves", 18,
+         st.INK2, "normal"),
+        (f"Converged: Dyna-Q {ld['k']} · Q(λ) {ll['k']} · Q-learning {lq['k']}", 28, st.INK, "bold"),
+        ("Converged: greedy route shortest at every check for the last ≥ 100 of 1,000 episodes", 16, st.INK2,
+         "normal"),
+        (f"Same mazes and exploration seeds · Dyna-Q: {upd:.0f} Q-value updates per real move", 16, st.INK2,
+         "normal"),
     ]))
     return out
 
@@ -319,7 +325,7 @@ def render(data, summary, out=st.ASSETS, frames_dir=None):
     full = [Image.fromarray(im) for im in images]
     full[0].save(webp, save_all=True, append_images=full[1:], duration=durations, loop=0, quality=88, method=6)
     poster = Canvas(scale=2)
-    scene.draw(poster, poster_frame(specs))
+    scene.draw(poster, dict(poster_frame(specs), footer="Still from a recorded replay, not the live viewer"))
     Image.fromarray(poster.image()).save(os.path.join(out, "hero-poster.png"), optimize=True)
     poster.close()
     st.record_render(out, {
