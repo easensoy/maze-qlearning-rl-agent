@@ -33,7 +33,16 @@ Open **http://localhost:3001** (the port is set in `maze-3d-frontend/.env`).
 
 ### Docker
 
-`docker compose up --build` starts the backend on port 8765 and the frontend on port 3001 (the frontend image runs the development server). CI builds both images on every push and checks that they start and answer.
+`docker compose up --build` starts the backend on port 8765 and the frontend on port 3001. The frontend image is a multi-stage build: `npm run build` produces the production bundle, which nginx serves as static files.
+
+The WebSocket is opened by the browser, not by the container, so the bundle must contain a URL the browser can reach. The default is `ws://localhost:8765`, the backend's published port. Create React App inlines `REACT_APP_*` variables at build time, so another server is set with a build argument:
+
+```bash
+REACT_APP_WS_URL=ws://example-host:8765 docker compose up --build
+docker build --build-arg REACT_APP_WS_URL=ws://example-host:8765 -t maze-frontend maze-3d-frontend
+```
+
+CI builds both images on every push and pull request. It checks that the backend answers with a snapshot and that nginx serves a hashed production bundle. It then loads the page in headless Chrome and waits for the viewer's WebSocket indicator to read "Connected" ([`.github/scripts/viewer_connects.py`](../.github/scripts/viewer_connects.py)).
 
 ## Controls
 
