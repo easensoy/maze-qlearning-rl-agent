@@ -659,7 +659,25 @@
         "final_greedy_route": 114,
         "first_greedy_shortest_episode": null,
         "q_learning_converged_episode": 891,
-        "q_lambda_converged_episode": 332
+        "q_lambda_converged_episode": 332,
+        "replay": {
+          "leaves_shortest_routes": {
+            "distance_to_goal": 4,
+            "moves_from_start": 102
+          },
+          "first_untried_goalward_action": {
+            "distance_to_goal": 3,
+            "tried_actions_q": [
+              49.461,
+              49.461,
+              53.117
+            ],
+            "untried_goalward_action_q": 0.0
+          },
+          "continuation_cells_never_visited": 2,
+          "continuation_cells": 3,
+          "final_epsilon": 0.01
+        }
       }
     ],
     "q_lambda_map": {
