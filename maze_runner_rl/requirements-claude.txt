@@ -1,0 +1,4 @@
+# The Claude tool-use evaluation (experiments/claude_navigation.py) and its MCP server (mcp_maze/).
+-r requirements.txt
+mcp==2.3.0
+anthropic==2.6.0
