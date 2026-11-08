@@ -34,7 +34,7 @@ Runs that did not converge (maze seeds): Q-learning: 9, 31, 38, 55, 56, 57.
 
 | Method | Converged | Real steps to converge (median) | Final greedy route shortest | Updates per real step | Agent time per run (median) | Planning updates per run (median) |
 |---|---|---|---|---|---|---|
-| Q-learning (default) | 26/60 (32–56%) | not reached (fewer than half: 26 of 60) | 30/60 (38–62%) | 1.0 | 5.5 s | 0 |
+| Q-learning (default) | 26/60 (32–56%) | not reached (reached in only 26 of 60 runs) | 30/60 (38–62%) | 1.0 | 5.5 s | 0 |
 | Watkins's Q(λ) (replacing=False,trace_decay=0.3) | 45/60 (63–84%) | 223k (149k–313k) | 46/60 (65–86%) | 23.0 | 11.1 s | 0 |
 | Dyna-Q (planning_steps=50) | 59/60 (91–100%) | 33k (20k–40k) | 59/60 (91–100%) | 51.0 | 54.6 s | 6.68M |
 
@@ -49,8 +49,8 @@ Runs that did not converge (maze seeds): Q-learning: 0, 3, 4, 7, 8, 10, 11, 13, 
 
 | Method | Converged | Real steps to converge (median) | Final greedy route shortest | Updates per real step | Agent time per run (median) | Planning updates per run (median) |
 |---|---|---|---|---|---|---|
-| Q-learning (default) | 0/30 (0–11%) | not reached (fewer than half: 0 of 30) | 0/30 (0–11%) | 1.0 | 7.8 s | 0 |
-| Watkins's Q(λ) (replacing=False,trace_decay=0.3) | 15/30 (33–67%) | not reached (fewer than half: 15 of 30) | 18/30 (42–75%) | 30.8 | 23.6 s | 0 |
+| Q-learning (default) | 0/30 (0–11%) | not reached (reached in only 0 of 30 runs) | 0/30 (0–11%) | 1.0 | 7.8 s | 0 |
+| Watkins's Q(λ) (replacing=False,trace_decay=0.3) | 15/30 (33–67%) | not reached (reached in only 15 of 30 runs) | 18/30 (42–75%) | 30.8 | 23.6 s | 0 |
 | Dyna-Q (planning_steps=50) | 30/30 (89–100%) | 57k (53k–66k) | 30/30 (89–100%) | 51.0 | 100.9 s | 9.94M |
 
 | Compared with Q-learning, same mazes | Converged: only this method / only Q-learning (exact p) | Change in converged share | Converged with fewer real steps / more (p) | Speed-up where both converged (geometric mean) |
