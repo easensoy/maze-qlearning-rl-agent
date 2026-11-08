@@ -1,0 +1,28 @@
+{
+  "mazes": 10,
+  "shortest_route": {
+    "median": 33.0,
+    "min": 24,
+    "max": 46
+  },
+  "dfs_explorer": {
+    "reached": 10,
+    "median_excess": 0.0444664031620553
+  },
+  "random_walk": {
+    "reached_share_mean": 0.0002
+  },
+  "rl_per_maze": {
+    "dyna_q": {
+      "median_first_goal_moves": 620.5,
+      "converged": 10,
+      "median_converged_moves": 2105.5
+    },
+    "q_learning": {
+      "median_first_goal_moves": 526.0,
+      "converged": 10,
+      "median_converged_moves": 23736.0
+    }
+  },
+  "claude": {}
+}

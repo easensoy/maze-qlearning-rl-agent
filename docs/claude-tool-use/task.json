@@ -1,0 +1,119 @@
+{
+  "task": {
+    "width": 11,
+    "height": 11,
+    "levels": 1,
+    "max_moves": 120,
+    "maze_seeds": [
+      30000,
+      30001,
+      30002,
+      30003,
+      30004,
+      30005,
+      30006,
+      30007,
+      30008,
+      30009
+    ],
+    "trials": 3
+  },
+  "claude_tools": [
+    {
+      "name": "episode_status",
+      "description": "Whether the goal was reached, whether the episode is over, moves used and left, wall bumps and refused calls. Costs no move.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "title": "episode_statusArguments"
+      }
+    },
+    {
+      "name": "observe",
+      "description": "Your position, the goal's position, the open directions from your cell, and the moves used and left. Costs no move.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "title": "observeArguments"
+      }
+    },
+    {
+      "name": "step",
+      "description": "Move one cell in a direction. Costs one move; a move into a wall leaves you in place and still costs the move. Returns whether you moved and the new observation.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "up",
+              "down"
+            ],
+            "title": "Direction",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "direction"
+        ],
+        "title": "stepArguments"
+      }
+    }
+  ],
+  "system_prompt": "You are navigating a maze through tools. Reach the goal using as few moves as possible.\n\nRules:\n- You cannot see the maze. observe returns your position, the goal's position, and the directions that are open from your current cell. Nothing else.\n- Positions are (x, y, level). north is y - 1, south is y + 1, west is x - 1, east is x + 1. This maze has one level, so up and down are always blocked.\n- step moves one cell and costs one move. A step into a wall costs a move and leaves you where you were. observe and episode_status cost nothing.\n- You have 120 moves. The episode ends when you reach the goal or run out of moves.\n- The tools do not remember where you have been. Keep track of it yourself.\n\nUse the session_id from the first message in every call.",
+  "system_prompt_sha256": "659bb3d38b1f7eefb3971a0339883947bc7ab667fd2dcc5f11a78503a0e97b93",
+  "first_message": "Your session_id is <session_id>. The episode has started. Reach the goal.",
+  "max_api_calls_per_episode": 200,
+  "max_tokens": 16000,
+  "default_model": "claude-opus-5-5",
+  "default_effort": "medium",
+  "prices_usd_per_million_tokens": {
+    "claude-opus-5-5": {
+      "input": 4.0,
+      "output": 20.0,
+      "cache_write": 5.0,
+      "cache_read": 0.2
+    },
+    "claude-sonnet-5-5": {
+      "input": 2.0,
+      "output": 10.0,
+      "cache_write": 2.5,
+      "cache_read": 0.2
+    },
+    "claude-haiku-5-5": {
+      "input": 0.1,
+      "output": 0.5,
+      "cache_write": 0.125,
+      "cache_read": 0.01
+    }
+  },
+  "price_source": "Claude API reference bundled with Claude Code, model table cached 2026-10-06; cache writes at 1.25x input for the 5-minute TTL; Haiku 5.5 cache reads assumed at 10% of input",
+  "python": "3.13.5",
+  "git_commit": "2a814c1b37342983b6057543158033c6f07e554a",
+  "mcp": "2.3.0",
+  "anthropic": "2.6.0"
+}
