@@ -22,6 +22,18 @@ TOP_LEARNED, LEFT_LEARNED, RIGHT_LEARNED = "#2c8ed1", "#216a9c", "#1a527a"
 TOP_SHAFT = "#a3adbb"
 COLUMN = "#8f99a7"         # lighter than open cells, darker than the white dashes of a route
 TRAIL = "#67e8f9"          # exploration: cyan, distinct from the blue of learned cells
+OUTLINE = "#5f6977"        # hollow cells: states that carry no data (never visited)
+
+
+def shade(hex_colour, factor):
+    """The side faces of a coloured slab: the top colour darkened by `factor`."""
+    r, g, b = (int(hex_colour[i:i + 2], 16) for i in (1, 3, 5))
+    return "#{:02x}{:02x}{:02x}".format(*(int(c * factor) for c in (r, g, b)))
+
+
+def slab_fill(top):
+    """A (top, left, right) fill for draw_slab from one top-face colour."""
+    return top, shade(top, 0.72), shade(top, 0.55)
 
 
 class IsoMaze:
@@ -76,10 +88,18 @@ class IsoMaze:
         down = level > 0 and self.grid[level - 1, y, x] == 0
         return up or down
 
-    def draw_slab(self, ax, x, y, level, learned=False, zorder=2):
+    def draw_slab(self, ax, x, y, level, learned=False, zorder=2, fill=None):
+        """One open cell. `fill` overrides the colours: a (top, left, right) tuple, or "outline"
+        for a hollow cell (drawn for states that carry no data, such as unvisited ones)."""
         cx, cy = self.centre(x, y, level)
         u, h, t = self.u, self.u / 2, self.slab
-        if learned:
+        if fill == "outline":
+            ax.add_patch(Polygon(self.top_face(x, y, level), closed=True, facecolor="none", edgecolor=OUTLINE,
+                                 linewidth=0.9 * self.scale, zorder=zorder))
+            return
+        if fill is not None:
+            top, left, right = fill
+        elif learned:
             top, left, right = TOP_LEARNED, LEFT_LEARNED, RIGHT_LEARNED
         else:
             top = TOP_SHAFT if self.is_shaft(x, y, level) else TOP
@@ -93,9 +113,11 @@ class IsoMaze:
             ax.add_patch(Polygon(points, closed=True, facecolor=colour, edgecolor=colour, linewidth=0.4 * self.scale,
                                  zorder=zorder))
 
-    def draw_level(self, ax, level, learned=frozenset(), zorder=2):
+    def draw_level(self, ax, level, learned=frozenset(), zorder=2, fills=None):
+        """All open cells of a level; `fills` maps (x, y, level) to a draw_slab fill."""
         for x, y in self.open_cells(level):
-            self.draw_slab(ax, x, y, level, (x, y, level) in learned, zorder)
+            fill = None if fills is None else fills.get((x, y, level))
+            self.draw_slab(ax, x, y, level, (x, y, level) in learned, zorder, fill)
 
     def draw_columns(self, ax, lower, zorder=2, colour=COLUMN, width=2.6, alpha=1.0):
         """Vertical shaft columns between `lower` and lower + 1."""
