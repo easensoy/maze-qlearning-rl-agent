@@ -12,7 +12,7 @@ Each method's setting was selected on development mazes and committed before the
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/hero-poster.png">
-  <img src="docs/assets/hero.gif" width="800" alt="Exploded isometric replay of three-level maze 54 (21 by 21 by 3 cells, shortest route 146 moves), its levels joined by 9 vertical shafts. Episode 1: 1,000 exploratory moves that do not reach the goal. After 20k, 40k, 80k and 160k environment steps, Q-learning's frozen greedy policy reaches the goal from at most 15 cells next to the goal, and its greedy walk from the start loops each time. After the same steps, Dyna-Q's greedy policy reaches the goal from most of the maze, and from 40k steps its greedy route is a shortest route: 146 moves with 6 level changes. End card: on the 30-maze long-route set, Dyna-Q converged on 30, Q(λ) on 15 and Q-learning on 0.">
+  <img src="docs/assets/hero.gif" width="800" alt="Exploded isometric replay of three-level maze 54 (21 by 21 by 3 cells, shortest route 146 moves), its levels joined by 9 vertical shafts. Episode 1: 1,000 exploratory moves that do not reach the goal. After 20k, 40k, 80k and 160k environment steps, Q-learning's frozen greedy policy reaches the goal from at most 15 cells next to the goal, and its greedy walk from the start loops each time. After the same steps, Dyna-Q's greedy policy reaches the goal from 175 of the 378 non-goal cells at 20k steps and from 292 from 40k steps on, and from 40k steps its greedy route is a shortest route: 146 moves with 6 level changes. End card: on the 30-maze long-route set, Dyna-Q converged on 30, Q(λ) on 15 and Q-learning on 0.">
 </picture>
 
 <sub><b>Replay.</b> Two logged training runs, Q-learning and Dyna-Q (n = 50), on three-level suite maze 54 (shortest route 146 moves). <code>render_hero.py</code> renders them offline from the recorded trajectories; this is not the live React/Three.js viewer. A fixed rule chose the maze: the median shortest route among the 34 three-level suite mazes on which Dyna-Q converged and Q-learning did not. Episode 1 plays at 50 moves per frame. Greedy-policy checkpoints follow at 20k, 40k, 80k and 160k environment steps, and the episodes between them are omitted. The final route advances 5 moves per frame, cell by cell, without interpolation. Blue cells are states from which the frozen greedy policy reaches the goal. <a href="docs/assets/README.md#the-animation">Frame-by-frame text version</a>.</sub>
@@ -22,7 +22,7 @@ Each method's setting was selected on development mazes and committed before the
 1. **Persistent convergence beyond 120 moves.**
    - Converged runs: Q-learning 0/60 [0–6%], Q(λ) 30/60 [38–62%], Dyna-Q 60/60 [94–100%].
    - On the 30-maze long-route set, the exact McNemar test against Q-learning gives p = 1.9 × 10⁻⁹ for Dyna-Q and p = 6.1 × 10⁻⁵ for Q(λ).
-   - The baseline's failure depends on the budget: with 3,000 episodes it converges on all 30 suite mazes longer than 120 moves.
+   - On the suite, the baseline's failure is budget-bound: with 3,000 episodes it converges on all 30 suite mazes longer than 120 moves (routes up to 206 moves). The long-route set (142–278 moves) was not run with a larger budget.
 2. **Interaction–computation trade-off.**
    - On mazes where both it and Q-learning converged, Dyna-Q needs 14.1–18.3× fewer environment steps than Q-learning, at 2.8–3.6× the Q-value updates.
    - On the same basis, Q(λ) needs 1.6–1.8× fewer steps at 6.5–8.9× the updates.
@@ -30,7 +30,7 @@ Each method's setting was selected on development mazes and committed before the
 3. **Both interventions alter exploration.**
    - Dyna-Q shortens the interval from the first goal-reaching training episode to the first shortest greedy route by 22–32× (ratio of medians). On three-level mazes it also reaches the goal 4.7–6.3× sooner.
    - Q(λ) reaches the goal 1.2–3.3× later.
-   - At λ ≥ 0.7, Q(λ)'s median state coverage after 50k development steps is 39% (λ = 0.7) and 16% (λ = 0.9). Only 0–15 of 60 development runs converge, against 47 for Q-learning.
+   - With accumulating traces at λ = 0.7 and 0.9, Q(λ)'s median state coverage after 50k development steps is 39% and 16%. Only 5 and 0 of 60 development runs converge (replacing traces: 15 and 0), against 47 for Q-learning.
 
 [Full report](docs/value-propagation/README.md) · [Evaluation protocol](#evaluation-protocol) · [Reproduction](#reproduction) · [Live 3D viewer](docs/demo.md) · [Debugging case study](docs/evaluation/case-study.md)
 
@@ -76,7 +76,7 @@ Q(s,a) \leftarrow Q(s,a) + \alpha\,\delta,\qquad \delta = r + \gamma\,(1-\mathrm
 |---|---|---|
 | **Q-learning** ([`q_learning_agent.py`](maze_runner_rl/src/agents/q_learning_agent.py)), the repository's agent, unchanged | One backup of the transition just taken | none |
 | **Watkins's Q(λ)** ([`q_lambda_agent.py`](maze_runner_rl/src/agents/q_lambda_agent.py)); Sutton and Barto (1998), §7.6 | δ updates every traced pair, Q ← Q + αδe. The next behaviour action a′ is drawn before the update. Traces then decay by γλ if a′ is greedy in s′ (ties count as greedy) and are cut to zero otherwise. Accumulating traces add 1 to e(s, a); replacing traces set e(s, a) = 1 and clear the state's other actions | λ = 0.3, accumulating |
-| **Dyna-Q** ([`dyna_q_agent.py`](maze_runner_rl/src/agents/dyna_q_agent.py)); Sutton and Barto (2018), §8.2 | After each real step, store M(s, a) = (r, s′, done) in a deterministic model, then apply n backups to modelled transitions. Each draws a state uniformly from those observed, then an action uniformly from those taken there. Planning draws from its own generator (seed 700000 + maze seed), so it consumes none of the random numbers that drive exploration | n = 50 planning updates per real step |
+| **Dyna-Q** ([`dyna_q_agent.py`](maze_runner_rl/src/agents/dyna_q_agent.py)); Sutton and Barto (2018), §8.2 | After each real step, apply the backup to that transition and store M(s, a) = (r, s′, done) in a deterministic model. Then apply n backups to modelled transitions, so n = 50 gives 51 updates per real step. Each modelled transition draws a state uniformly from those observed, then an action uniformly from those taken there. Planning draws from its own generator (seed 700000 + maze seed), so it consumes none of the random numbers that drive exploration | n = 50 planning updates per real step |
 
 Zero initialisation is optimistic under these rewards. An untried action keeps Q = 0, while a tried action whose return excludes the goal turns negative. The greedy choice therefore prefers untried actions, and the first episodes perform a systematic search. Every update rule is checked by hand in [`test_value_agents.py`](maze_runner_rl/tests/test_value_agents.py). The checks include that λ = 0 and n = 0 reduce exactly to Q-learning.
 
@@ -119,7 +119,7 @@ Zero initialisation is optimistic under these rewards. An untried action keeps Q
 
 ## Results
 
-![Four panels, one per maze set: the share of runs whose frozen greedy route is a shortest route, against environment steps on a log scale, with 95% Wilson bands. Dyna-Q's curve rises first in every panel and reaches 100% on the long-route set, where Q(λ) reaches 50% and Q-learning stays at 0%.](docs/value-propagation/figures/learning_curves.png)
+![Four panels, one per maze set: the share of runs whose frozen greedy route is a shortest route at that point, against environment steps on a log scale, with 95% Wilson bands. Dyna-Q's curve rises first in every panel and reaches 100% on the long-route set, where Q(λ) reaches 60% and Q-learning stays at 0%.](docs/value-propagation/figures/learning_curves.png)
 
 | Final mazes | Q-learning converged | Q(λ) converged | Dyna-Q converged | Median steps to convergence: Q-learning / Q(λ) / Dyna-Q |
 |---|---|---|---|---|
@@ -144,7 +144,7 @@ One-step backups predict a long phase 2. Medians, Q-learning / Q(λ) / Dyna-Q:
 | Three levels | 33k / 39k / 7.0k | 342k / 173k / 15k |
 | Long routes | 103k / 129k / 16k | not reached / 343k / 26k |
 
-On 2D and one-level mazes, Dyna-Q's phase 1 is within a factor of 1.6 of Q-learning's, so its gain there is concentrated in phase 2. On three-level mazes, Dyna-Q also shortens phase 1. In its first 10 episodes it visits a median 69% of reachable cells, against 38–49% for Q-learning. A plausible account is that planning propagates step and wall penalties through explored corridors, which removes their residual optimism sooner. The experiment does not isolate this mechanism.
+On 2D and one-level mazes, Dyna-Q's phase 1 is only 1.2–1.6× shorter than Q-learning's, so its gain there is concentrated in phase 2. On three-level mazes, Dyna-Q also shortens phase 1. In its first 10 episodes it visits a median 69% of reachable cells, against 38–49% for Q-learning. A plausible account is that planning propagates step and wall penalties through explored corridors, which removes their residual optimism sooner. The experiment does not isolate this mechanism.
 
 **Failure cases** ([analysis](docs/value-propagation/README.md#failures)):
 
@@ -161,11 +161,11 @@ On 2D and one-level mazes, Dyna-Q's phase 1 is within a factor of 1.6 of Q-learn
 
 The [evaluation suite](docs/evaluation/README.md) characterises the repaired Q-learning agent on the same 180 suite mazes. It compares the agent with a uniform random walk and with two planners that have access to the transition model: breadth-first search and value iteration.
 
-| 60 mazes per type | Exploratory success, last 100 episodes | Converged | Median steps to convergence, converged runs only | Converged with 3,000 episodes | Unseen mazes reached |
+| 60 mazes per type | Exploratory success, last 100 episodes | Converged | Median steps to convergence (censored) | Converged with 3,000 episodes | Unseen mazes reached |
 |---|---|---|---|---|---|
-| 2D, 21&nbsp;×&nbsp;21 | 100% | 54/60 [80–95%] | 91k | 60/60 | 0 of 3,000 |
+| 2D, 21&nbsp;×&nbsp;21 | 100% | 54/60 [80–95%] | 98k | 60/60 | 0 of 3,000 |
 | One level, 21&nbsp;×&nbsp;21 | 100% | 60/60 [94–100%] | 75k | 60/60 | 0 of 3,000 |
-| Three levels, 21&nbsp;×&nbsp;21&nbsp;×&nbsp;3 | 99% | 26/60 [32–56%] | 148k | 60/60 | 0 of 3,000 |
+| Three levels, 21&nbsp;×&nbsp;21&nbsp;×&nbsp;3 | 99% | 26/60 [32–56%] | not reached | 60/60 | 0 of 3,000 |
 
 ![Three panels, one per maze type, 60 runs each, against environment steps on a log scale: the share of runs whose exploratory training episodes reach the goal rises first; the share whose frozen greedy route is shortest rises later and, on three-level mazes, levels off near half.](docs/assets/results.png)
 
@@ -251,15 +251,16 @@ $PY -m experiments.plot_value_propagation
 $PY -m experiments.render_hero
 ```
 
-A complete step 1 reports "630 of 630 reference runs compared … identical in every other field". Adding `--mazes 1` to `final` restricts it to the first maze of each set: 12 runs, about a minute, which `verify` checks against the matching published runs. Timing columns are excluded from the comparison. Wall-clock figures refer to the recorded Intel64 Family 6 Model 170 processor. The evaluation suite (`experiments.evaluate`) and the README figures have their own [regeneration notes](docs/assets/README.md#regenerate).
+A complete step 1 should report "630 of 630 reference runs compared … identical in every other field"; only the 12-run subset below has been rerun and verified. Adding `--mazes 1` to `final` restricts it to the first maze of each set: 12 runs, under a minute on 12 workers here. `verify` then checks them against the matching published runs. Timing columns are excluded from the comparison. Wall-clock figures refer to the recorded Intel64 Family 6 Model 170 processor. The evaluation suite (`experiments.evaluate`) and the README figures have their own [regeneration notes](docs/assets/README.md#regenerate).
 
 **Live viewer.** The viewer streams the maze, the agent and its Q-values from a WebSocket training server.
 
 ```bash
-# Development: server on ws://localhost:8765, viewer on http://localhost:3001
+# Development, from the repository root. Terminal 1: training server on ws://localhost:8765
 cd maze_runner_rl && ../.venv/bin/python main.py          # Windows: ..\.venv\Scripts\python.exe main.py, or start_backend.bat
+# Terminal 2: viewer development server on http://localhost:3001
 cd maze-3d-frontend && npm ci && npm start                # Windows: start_frontend.bat
-# Containers: the backend image, and the production build served by nginx on port 3001
+# Containers instead: the backend image, and the production build served by nginx on port 3001
 docker compose up --build
 ```
 
@@ -268,7 +269,7 @@ The browser connects to `ws://localhost:8765`, the backend's published port. The
 ## Limitations
 
 - **Scope.** All results are for tabular agents on deterministic mazes of at most 21 × 21 × 3 cells, with the goal fixed at the far corner and one maze per run. The state is the cell index, so nothing generalises across mazes.
-- **Finite-budget criterion.** Persistent convergence means at least 100 optimal checks within 1,000 episodes. The baseline's long-route failures are budget-bound: 3,000 episodes suffice on the suite. No extended-budget run was made on the long-route set.
+- **Finite-budget criterion.** Persistent convergence means optimality at each of the final ≥ 100 consecutive evaluations of a 1,000-episode run. On the suite, the baseline's failures are budget-bound: 3,000 episodes suffice for all suite mazes, with routes up to 206 moves. The long-route set (142–278 moves) was not run with a larger budget.
 - **Mechanism not isolated.** No ablation separates goal-value propagation from penalty propagation or from the changed exploration trajectory.
 - **Tuning.** The shared settings (α, γ, the ε schedule, rewards, Q₀) are the repository's defaults and were tuned for no method. Only λ, the trace type and n were selected.
 - **One exploration seed per maze.** Intervals reflect variation across mazes; within-maze variation across exploration seeds is not estimated.
