@@ -1,6 +1,6 @@
 # Does slow value propagation limit learning on long routes?
 
-[README](../../README.md) · [Evaluation suite](../evaluation/README.md) · [Claude tool-use task](../claude-tool-use/README.md) · [Raw results](results)
+[README](../../README.md) · [Evaluation suite](../evaluation/README.md) · [Raw results](results)
 
 **Answer: yes.** Faster value propagation removes the long-route failure:
 
