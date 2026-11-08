@@ -34,10 +34,15 @@ Experience is counted in real environment steps (every move, including bumps int
 Planning updates and trace updates are counted separately from real steps, and the
 time spent in the agent is measured, so extra computation stays visible.
 
-Run from maze_runner_rl/:
-    python -m experiments.compare_methods tune     # development mazes -> frozen_settings.json
-    python -m experiments.compare_methods final    # final mazes, frozen settings -> results/
-    python -m experiments.compare_methods tables   # summary.json and tables.md from results/runs.csv
+Run from maze_runner_rl/. Reproduce the published final runs with the committed settings,
+into a separate folder, then compare them with the published records:
+    python -m experiments.compare_methods final --settings ../docs/value-propagation/frozen_settings.json --out ../reproduction
+    python -m experiments.compare_methods verify --out ../reproduction
+Retune on the development mazes (writes a new frozen_settings.json under --out):
+    python -m experiments.compare_methods tune --out ../retune
+    python -m experiments.compare_methods final --out ../retune
+`tables` rebuilds summary.json and tables.md from <out>/results/runs.csv. `tune` and `final`
+refuse to replace existing frozen settings or run records unless --overwrite is given.
 """
 import argparse
 import contextlib
@@ -509,7 +514,7 @@ def dev_scores(runs, method):
 
 
 def select_settings(runs):
-    """The pre-registered rules in SELECTION_RULES, applied to the development runs."""
+    """The rules in SELECTION_RULES, fixed in code before the final runs, applied to the development runs."""
     chosen, tables = {"q_learning": {}}, {}
     for method in ("q_lambda", "dyna_q"):
         scores = dev_scores(runs, method)
@@ -742,7 +747,14 @@ def make_tasks(kinds, seeds, methods, split, episodes):
     return sorted(tasks, key=task_cost, reverse=True)
 
 
+def refuse_to_overwrite(path, args, what):
+    """Committed records are replaced only on request: a rerun goes to a separate --out."""
+    if os.path.exists(path) and not getattr(args, "overwrite", False):
+        raise SystemExit(f"{path} already exists: write {what} to a separate --out, or pass --overwrite to replace it")
+
+
 def cmd_tune(args):
+    refuse_to_overwrite(os.path.join(args.out, "frozen_settings.json"), args, "the new settings")
     out = os.path.join(args.out, "tuning")
     os.makedirs(out, exist_ok=True)
     seeds = DEV_SEEDS[:args.mazes] if args.mazes else DEV_SEEDS
@@ -785,9 +797,11 @@ def cmd_tune(args):
 
 
 def cmd_final(args):
-    frozen_path = os.path.join(args.out, "frozen_settings.json")
+    frozen_path = getattr(args, "settings", None) or os.path.join(args.out, "frozen_settings.json")
     if not os.path.exists(frozen_path):
-        raise SystemExit(f"{frozen_path} is missing: run `tune` first, so the settings are fixed before the final runs")
+        raise SystemExit(f"{frozen_path} is missing: run `tune` first, so the settings are fixed before the final runs, "
+                         "or pass --settings")
+    refuse_to_overwrite(os.path.join(args.out, "results", "runs.csv"), args, "the new runs")
     with open(frozen_path, encoding="utf-8") as f:
         frozen = json.load(f)
     methods = {m: [frozen["methods"][m]["params"]] for m in METHODS}
@@ -829,12 +843,63 @@ def cmd_tables(args):
     print(render_tables(summary))
 
 
+TIMING_FIELDS = ("agent_seconds", "env_seconds", "run_seconds")
+RUN_KEY = ("split", "kind", "method", "params", "maze_seed")
+
+
+def compare_runs(path, reference):
+    """Compare run records field by field, as written, ignoring the timing columns.
+
+    Every run in `path` must have a run with the same key in `reference`, so a smoke run
+    over the first few mazes is checked against the matching published runs."""
+    def rows(p):
+        with open(p, encoding="utf-8", newline="") as f:
+            return {tuple(r[k] for k in RUN_KEY): r for r in csv.DictReader(f)}
+
+    mine, ref = rows(path), rows(reference)
+    missing = sorted(k for k in mine if k not in ref)
+    differences = []
+    for key in sorted(k for k in mine if k in ref):
+        fields = [f for f in RUN_FIELDS if f not in TIMING_FIELDS and mine[key].get(f) != ref[key].get(f)]
+        if fields:
+            differences.append((key, fields))
+    return {"compared": len(mine) - len(missing), "reference": len(ref), "missing": missing,
+            "differences": differences}
+
+
+def cmd_verify(args):
+    path = os.path.join(args.out, "results", "runs.csv")
+    reference = getattr(args, "reference", None) or os.path.join(OUT, "results", "runs.csv")
+    if os.path.abspath(path) == os.path.abspath(reference):
+        raise SystemExit("verify compares a rerun with the published records: pass the rerun's folder as --out")
+    report = compare_runs(path, reference)
+    print(f"{report['compared']} of {report['reference']} reference runs compared, timing columns "
+          f"({', '.join(TIMING_FIELDS)}) excluded")
+    for key in report["missing"]:
+        print(f"  no reference run for {dict(zip(RUN_KEY, key))}")
+    for key, fields in report["differences"][:20]:
+        print(f"  {dict(zip(RUN_KEY, key))} differs in {', '.join(fields)}")
+    if report["missing"] or report["differences"]:
+        raise SystemExit(f"runs that differ: {len(report['differences'])}; "
+                         f"runs without a reference run: {len(report['missing'])}")
+    print("identical in every other field")
+    return report
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")   # labels such as Q(λ) on a cp1252 console
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("command", choices=["tune", "final", "tables"])
-    parser.add_argument("--out", default=OUT)
+    parser.add_argument("command", choices=["tune", "final", "tables", "verify"])
+    parser.add_argument("--out", default=OUT,
+                        help="folder for frozen_settings.json, tuning/ and results/ (default: the published "
+                             "docs/value-propagation)")
+    parser.add_argument("--settings", default=None,
+                        help="frozen settings for `final` (default: <out>/frozen_settings.json)")
+    parser.add_argument("--reference", default=None,
+                        help="run records `verify` compares with (default: the published results/runs.csv)")
+    parser.add_argument("--overwrite", action="store_true",
+                        help="let `tune` and `final` replace existing frozen settings or run records")
     parser.add_argument("--workers", type=int, default=max(1, min(20, (os.cpu_count() or 2) - 2)))
     parser.add_argument("--episodes", type=int, default=EPISODES)
     parser.add_argument("--mazes", type=int, default=0, help="use only the first N mazes of each set (smoke runs)")
@@ -842,7 +907,7 @@ def main():
                         help="size of the long-route set (tune)")
     parser.add_argument("--quick", action="store_true", help="a small grid, for smoke runs (tune)")
     args = parser.parse_args()
-    {"tune": cmd_tune, "final": cmd_final, "tables": cmd_tables}[args.command](args)
+    {"tune": cmd_tune, "final": cmd_final, "tables": cmd_tables, "verify": cmd_verify}[args.command](args)
 
 
 if __name__ == "__main__":
