@@ -681,7 +681,7 @@ def fmt_median(m):
         return "–"
     low, high = m["ci"]
     if m["median"] == INF:
-        return f"not reached (fewer than half: {m['reached']} of {m['n']})"
+        return f"not reached (reached in only {m['reached']} of {m['n']} runs)"   # censored runs count as +inf
     return f"{fmt_steps(m['median'])} ({fmt_steps(low)}–{fmt_steps(high)})"
 
 

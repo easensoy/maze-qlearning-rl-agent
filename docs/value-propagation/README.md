@@ -2,20 +2,20 @@
 
 [README](../../README.md) · [Evaluation suite](../evaluation/README.md) · [Raw results](results) · [Reproduction](#reproduction)
 
-**Summary.** Under a protocol frozen before the final runs, two methods that propagate value faster than one-step Q-learning reach persistent greedy convergence on long routes where Q-learning does not within 1,000 episodes:
+**Summary.** Under a protocol frozen before the final runs, two methods that propagate value faster than one-step Q-learning reach persistent greedy convergence within 1,000 episodes on long routes where Q-learning does not: Dyna-Q on all of them, Watkins's Q(λ) on half.
 
 - **Long routes.** On the 60 final mazes whose shortest route exceeds 120 moves, Q-learning converged on 0, Watkins's Q(λ) on 30 and Dyna-Q on 60.
 - **Interaction–computation trade-off.** On mazes where both it and Q-learning converged, Dyna-Q used 14–18× fewer environment steps than Q-learning, at 2.8–3.6× its Q-value updates. Over a full run it used 10–16× the agent wall-clock time.
 - **Changed exploration.** Dyna-Q shortened the interval from first goal arrival to the first shortest greedy route by 22–32×. On three-level mazes it also reached the goal 4.7–6.3× sooner. Q(λ) reached the goal later than Q-learning.
 
-The results are consistent with a propagation bottleneck in one-step Q-learning. They do not establish propagation as the sole mechanism, because both interventions also change exploration. Q-learning's failures are budget-bound: the evaluation suite shows convergence on every suite maze with 3,000 episodes.
+The results are consistent with a propagation bottleneck in one-step Q-learning. They do not establish propagation as the sole mechanism, because both interventions also change exploration. On the suite, Q-learning's failures are budget-bound: the evaluation suite shows convergence on every suite maze, with routes up to 206 moves, with 3,000 episodes. The long-route set (142–278 moves) was not run with a larger budget.
 
-**Two failures, both traced:**
+**Two failures, one measured and one traced:**
 
 - **Q(λ) with long traces.** At λ ≥ 0.7, state coverage stalls and few runs converge.
 - **Dyna-Q on 1 maze of 210.** The greedy route settled 8 moves above the optimum. A seeded replay shows the shortcut began with an action that was never taken.
 
-![Four panels, one per maze set: the share of runs whose frozen greedy route is a shortest route, against environment steps on a log scale, with 95% Wilson bands. Dyna-Q's curve rises first in every panel and reaches 100% on the long-route set, where Q(λ) reaches 50% and Q-learning stays at 0%.](figures/learning_curves.png)
+![Four panels, one per maze set: the share of runs whose frozen greedy route is a shortest route at that point, against environment steps on a log scale, with 95% Wilson bands. Dyna-Q's curve rises first in every panel and reaches 100% on the long-route set, where Q(λ) reaches 60% and Q-learning stays at 0%.](figures/learning_curves.png)
 
 ## Results
 
@@ -82,7 +82,7 @@ Time to the first shortest greedy route splits at the first exploratory training
 
 One-step backups predict a long phase 2.
 
-![Two dot plots of median environment steps per maze set and method. Phase 1, exploring until an episode reaches the goal: Dyna-Q is fastest, and Q(λ) is slower than Q-learning. Phase 2, from there to the first shortest greedy route: Dyna-Q is 22 to 32 times faster than Q-learning, Q(λ) about twice as fast, and Q-learning does not get there on the long routes.](figures/diagnostics.png)
+![Two dot plots of median environment steps per maze set and method. Phase 1, exploring until an episode reaches the goal: Dyna-Q is fastest, and Q(λ) is slower than Q-learning. Phase 2, from there to the first shortest greedy route: Dyna-Q is 22 to 32 times faster than Q-learning, Q(λ) 1.6 to 2.0 times as fast, and Q-learning does not get there on the long routes.](figures/diagnostics.png)
 
 | Maze set | Phase 1, median steps (Q-learning / Q(λ) / Dyna-Q) | Phase 2, median steps (Q-learning / Q(λ) / Dyna-Q) |
 |---|---|---|
@@ -93,7 +93,7 @@ One-step backups predict a long phase 2.
 
 - **On 2D and one-level mazes, the gain is concentrated in phase 2.** Phase 1 medians are close: 1.1k–1.5k steps for Dyna-Q against 1.8k for Q-learning. Dyna-Q then reaches the first shortest greedy route 22–32× sooner (ratio of medians). This is consistent with faster backup of the goal's value.
 - **On three-level mazes, Dyna-Q also changes exploration.** It reaches the goal 4.7–6.3× sooner, and in its first 10 episodes it visits a median 69% of reachable cells, against 38–49% for Q-learning. Zero initialisation makes untried actions preferred, because every tried action without goal value turns negative. A plausible account, not isolated here, is that planning propagates the step and wall penalties through explored corridors. Those corridors then lose their residual optimism sooner, and the walk moves on.
-- **Q(λ) shortens phase 2 by 36–50% and lengthens phase 1 by 1.2–3.3×.** Its traces carry the same penalties back along the path just walked, including corridors that lead toward unexplored cells. This is the mild form of the failure below.
+- **Q(λ) shortens phase 2 by 36–50% and lengthens phase 1 by 1.2–3.3×.** A plausible account, not isolated here, is that its traces carry the same penalties back along the path just walked, including corridors that lead toward unexplored cells. That would make this the mild form of the failure below.
 
 ## Failures
 
@@ -136,7 +136,7 @@ Dyna-Q failed to converge on one final maze: three-level maze 58, shortest route
 ## What this does and does not show
 
 - **Shown, under this protocol:**
-  - Methods that propagate value faster than one-step Q-learning converge, within 1,000 episodes, on long routes where it does not.
+  - Within 1,000 episodes, Dyna-Q converges on all 60 routes longer than 120 moves and Q(λ) on 30, while one-step Q-learning converges on none.
   - The gains in environment-step efficiency come with a measured increase in Q-value updates and agent time.
 - **Not shown:**
   - **Sole mechanism.** Both interventions alter exploration, and planning also propagates penalties. Beyond 77 moves from the goal, where $`Q^*(s,a^*) = 102\,\gamma^{d-1} - 2 < 0`$, greedy optimality further requires every competing estimate to fall below a negative optimal value. The design does not separate these components.
@@ -178,7 +178,7 @@ All three agents share everything except how experience updates the Q-table:
 - the TD error δ = r + γ Q(s′, a*) − Q(s, a) is applied to every traced pair;
 - after the step, the traces decay by γλ if a′ = a* and are cut to 0 otherwise.
 
-Replacing traces (Singh and Sutton, 1996) set the trace of the pair taken to 1 and those of the state's other actions to 0. The implementation was checked line by line against the authors' Chapter 7 lecture slides. Those slides print the δ line with a′ and a* swapped; the code uses the Q-learning target, which the section describes.
+Replacing traces (Singh and Sutton, 1996) set the trace of the pair taken to 1 and those of the state's other actions to 0. The implementation was checked line by line against the authors' Chapter 7 lecture slides. Slide 24 prints the δ line as r + γ Q(s′, a′) − Q(s, a*). The code uses δ = r + γ Q(s′, a*) − Q(s, a), the Q-learning target that the section describes.
 
 **Dyna-Q** follows the Tabular Dyna-Q box in Sutton and Barto (2018), Section 8.2, checked against Sutton's slides of the same algorithm:
 
@@ -259,7 +259,7 @@ $PY -m experiments.plot_value_propagation
 
 - **What `verify` checks.** It compares every field of every rerun record with [`results/runs.csv`](results/runs.csv), except the three timing columns. It accepts a partial rerun (`final --mazes 1` covers the first maze of each set: 12 runs), checking each run against the matching published run.
 - **Protection.** `tune` and `final` refuse to replace existing frozen settings or run records unless `--overwrite` is passed.
-- **Provenance.** Each results folder records the commit, a SHA-256 digest of the code the results depend on, the frozen settings' hash, the library versions, the processor and the worker count. The per-episode data behind every run is in `episodes.jsonl.gz`. Every result on this page is computed from the records in [`figures/analysis.json`](figures/analysis.json) or [`results/summary.json`](results/summary.json).
+- **Provenance.** Each results folder records the commit, a SHA-256 digest of the code the results depend on, the frozen settings' hash, the library versions, the processor and the worker count. The per-episode data behind every run is in `episodes.jsonl.gz`. Every number on this page is computed from the committed run records (`results/`, `tuning/`) by `compare_methods.py tables` and `plot_value_propagation.py`. The derived values are stored in [`results/summary.json`](results/summary.json) and [`figures/analysis.json`](figures/analysis.json), and the figures are drawn from the same records.
 
 **Provenance of the current results:**
 
