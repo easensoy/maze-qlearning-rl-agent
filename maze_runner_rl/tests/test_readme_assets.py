@@ -43,22 +43,39 @@ def test_replayed_runs_match_the_suite(tmp_path):
             assert len(c["greedy_path"]) - 1 >= success["shortest_route"]
 
 
-def test_visuals_draw_from_the_recorded_data(tmp_path):
+def test_figures_draw_from_the_recorded_data(tmp_path):
     pytest.importorskip("matplotlib")
     from experiments import asset_style as st
-    from experiments import render_figures, render_hero
+    from experiments import render_figures
 
     if not os.path.exists(os.path.join(st.DATA, "featured.json")):
         pytest.skip("docs/assets/data has not been recorded")
     render_figures.draw_all(st.DATA, str(tmp_path))
     assert sorted(f for f in os.listdir(tmp_path) if f.endswith(".png")) == ["policy.png", "results.png"]
 
-    run = st.load_json("featured.json")["success"]
-    final = next(c for c in run["checkpoints"] if c["episode"] == run["episodes"])
-    assert final["greedy_reaches"] and len(final["greedy_path"]) - 1 == run["shortest_route"]
-    specs = render_hero.frames(run, render_hero.aggregate_from_traces(st.DATA))
-    assert 15_000 <= sum(s["duration"] for s in specs) <= 25_000   # about 15 to 20 seconds, plus holds
-    scene, canvas = render_hero.Scene(run), render_hero.Canvas()
+
+def test_the_animation_draws_from_the_recorded_runs():
+    pytest.importorskip("matplotlib")
+    from experiments import asset_style as st
+    from experiments import render_hero
+
+    if not os.path.exists(os.path.join(st.DATA, "hero.json")) or not os.path.exists(render_hero.SUMMARY):
+        pytest.skip("the animation's runs have not been recorded")
+    data = st.load_json("hero.json")
+    with open(render_hero.SUMMARY, encoding="utf-8") as f:
+        summary = json.load(f)
+    dyna = data["runs"]["dyna_q"]
+    # The route the animation replays is a recorded greedy route, a shortest one, start to goal.
+    route = dyna["final_route"]
+    assert route[0] == data["start_state"] and route[-1] == data["goal_state"]
+    assert len(route) - 1 == data["shortest_route"] == len(data["bfs_route"]) - 1
+    # Checkpoints are the policy after the first episode at or past each real-move budget.
+    for run in data["runs"].values():
+        assert [c["budget"] for c in run["checkpoints"]] == data["budgets"][:len(run["checkpoints"])]
+        assert all(c["env_steps"] >= c["budget"] for c in run["checkpoints"])
+    specs = render_hero.frames(data, summary)
+    assert 15_000 <= sum(s["duration"] for s in specs) <= 22_000   # about 15 to 20 seconds
+    scene, canvas = render_hero.Scene(data), render_hero.Canvas()
     for spec in (specs[0], specs[len(specs) // 2], specs[-1]):
         scene.draw(canvas, spec)
         assert canvas.image().shape == (render_hero.H, render_hero.W, 3)
