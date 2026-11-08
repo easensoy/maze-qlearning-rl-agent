@@ -5,13 +5,14 @@ Q-learning agent and the WebSocket server the React frontend talks to.
 
 ## Run
 
+Commands run from this folder (`config`, `src`, `experiments` and `websocket` are imported relative to it) and call the repository's virtual environment explicitly. They are shown for Windows; on Linux and macOS, create the environment with `python3.13 -m venv ../.venv` and replace `..\.venv\Scripts\python.exe` with `../.venv/bin/python`.
+
 ```
 py -3.13 -m venv ..\.venv
 ..\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ..\.venv\Scripts\python.exe main.py
 ```
 
-Run from this folder: `config`, `src`, `experiments` and `websocket` are imported relative to it.
 The server listens on `ws://localhost:8765`; override with `MAZE_SERVER_HOST` / `MAZE_SERVER_PORT`.
 
 Offline training without the frontend:
@@ -42,13 +43,24 @@ A run counts as converged only if the greedy route is a shortest route at every 
 ## Value propagation: Q-learning, Watkins's Q(λ) and Dyna-Q
 
 ```
-..\.venv\Scripts\python.exe -m experiments.compare_methods tune      # development mazes -> frozen settings
-..\.venv\Scripts\python.exe -m experiments.compare_methods final     # final mazes, frozen settings
+# Reproduce the published final runs with the committed settings, then compare with the records
+..\.venv\Scripts\python.exe -m experiments.compare_methods final --settings ..\docs\value-propagation\frozen_settings.json --out ..\reproduction\final
+..\.venv\Scripts\python.exe -m experiments.compare_methods verify --out ..\reproduction\final
+# Retune on the development mazes into a separate folder, then run the final mazes with those settings
+..\.venv\Scripts\python.exe -m experiments.compare_methods tune --out ..\reproduction\retune
+..\.venv\Scripts\python.exe -m experiments.compare_methods final --out ..\reproduction\retune
+# Rebuild the tables, figures and analysis.json from the committed records
 ..\.venv\Scripts\python.exe -m experiments.compare_methods tables
 ..\.venv\Scripts\python.exe -m experiments.plot_value_propagation
 ```
 
-`compare_methods.py` tunes each new method's own setting on development mazes, by rules fixed in the code. It writes the choice to `frozen_settings.json`, then runs all three methods on the final mazes with the same exploration seeds. It records real steps, Q-value updates, planning updates and agent time per run, and a learned-depth diagnostic per episode. The report is [docs/value-propagation](../docs/value-propagation/README.md).
+`compare_methods.py` selects each new method's own setting on development mazes by rules fixed in the code (`tune`). It writes the choice and the final maze sets to `frozen_settings.json`. It then runs all three methods on the final mazes with the same exploration seeds (`final`). It records, per run:
+
+- environment steps, Q-value updates and planning updates;
+- agent wall-clock time;
+- a learned-depth diagnostic per episode.
+
+`verify` compares a rerun's `runs.csv` with the published one field by field, excluding the timing columns. `tune` and `final` write to `--out` and refuse to replace existing frozen settings or run records unless `--overwrite` is given. The report is [docs/value-propagation](../docs/value-propagation/README.md).
 
 ## Claude tool use over MCP
 
@@ -59,7 +71,7 @@ A run counts as converged only if the greedy route is a shortest route at every 
 ..\.venv\Scripts\python.exe -m experiments.claude_navigation claude --max-usd 20 # needs ANTHROPIC_API_KEY
 ```
 
-`mcp_maze/` serves isolated, seeded maze sessions through four MCP tools: `reset`, `observe`, `step` and `episode_status`. `claude_navigation.py` evaluates Claude on held-out mazes through those tools, with a depth-first explorer, breadth-first search and a random walk as references. It counts tokens, cost and latency, keeps every transcript and enforces a spending cap. The report is [docs/claude-tool-use](../docs/claude-tool-use/README.md).
+`mcp_maze/` serves isolated, seeded maze sessions through four MCP tools: `reset`, `observe`, `step` and `episode_status`. `claude_navigation.py` is a harness for evaluating Claude on held-out mazes through those tools, with a depth-first explorer, breadth-first search and a random walk as references. It counts tokens, cost and latency, keeps every transcript and enforces a spending cap. Only the deterministic references have been run; the Claude run has not been executed, and no Claude result exists ([status](../docs/claude-tool-use/README.md)).
 
 ## Tests
 
