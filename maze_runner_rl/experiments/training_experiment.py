@@ -33,13 +33,21 @@ def shortest_route_length(env):
 
 def greedy_route_length(env, agent, limit):
     """Moves the agent's greedy policy (no exploration) needs from start to goal under
-    the environment's transition model, or None if it does not arrive within `limit`."""
+    the environment's transition model, or None if it does not arrive within `limit`.
+
+    The policy and the maze are both deterministic, so a route that comes back to a
+    cell it has already visited (including bumping into a wall) loops forever; the
+    check stops there instead of using up the limit."""
     state = env.state_index(env.maze_generator.get_start())
     goal = env.state_index(env.maze_generator.get_end())
+    visited = {state}
     for moves in range(1, limit + 1):
         state, _, _ = env.step_from_state(state, agent.greedy_action(state))
         if state == goal:
             return moves
+        if state in visited:
+            return None
+        visited.add(state)
     return None
 
 
@@ -138,8 +146,11 @@ class TrainingExperiment:
             'total_episodes': 0
         }
 
-    def run(self, num_episodes=1000, max_steps=200, log_every=100, evaluate_greedy=True):
+    def run(self, num_episodes=1000, max_steps=200, log_every=100, evaluate_greedy=True, greedy_limit=None):
+        """Train for num_episodes of at most max_steps steps each. The greedy check after
+        each episode allows greedy_limit moves (default max_steps)."""
         evaluate_greedy = evaluate_greedy and hasattr(self.env, 'step_from_state')
+        greedy_limit = greedy_limit or max_steps
         start_time = time.time()
 
         for episode in range(num_episodes):
@@ -172,7 +183,7 @@ class TrainingExperiment:
             self.results['successes'].append(bool(terminated))
             self.results['epsilon_values'].append(self.agent.epsilon)
             if evaluate_greedy:
-                self.results['greedy_steps'].append(greedy_route_length(self.env, self.agent, max_steps))
+                self.results['greedy_steps'].append(greedy_route_length(self.env, self.agent, greedy_limit))
 
             if log_every and (episode % log_every == 0 or episode == num_episodes - 1):
                 avg_reward = np.mean(self.results['rewards'][-log_every:])
