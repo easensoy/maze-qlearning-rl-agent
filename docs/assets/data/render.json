@@ -3,29 +3,35 @@
     "hero-poster.png": {
       "size": [
         1600,
-        1120
+        1360
       ]
     },
     "hero.gif": {
-      "end_card": {
-        "converged": 26,
-        "converged_x3": 60,
-        "heldout": "0 of 3,000",
-        "n": 60,
-        "one_level": "60/60",
-        "two_d": "54/60"
-      },
-      "explore_moves_per_frame": 25,
-      "frames": 121,
-      "maze_seed": 12,
-      "megabytes": 1.38,
-      "route_moves_per_frame": 3,
-      "seconds": 19.88,
+      "checkpoint_budgets": [
+        20000,
+        40000,
+        80000,
+        160000
+      ],
+      "checkpoint_ms": 700,
+      "explore_moves_per_frame": 50,
+      "frames": 62,
+      "maze_seed": 54,
+      "megabytes": 0.66,
+      "route_frames": 36,
+      "seconds": 18.1,
       "size": [
         800,
-        560
-      ],
-      "timelapse_episodes_per_frame": 10
+        680
+      ]
+    },
+    "hero.webp": {
+      "megabytes": 0.67,
+      "quality": 88,
+      "size": [
+        800,
+        680
+      ]
     },
     "policy.png": {
       "dpi": 200,
