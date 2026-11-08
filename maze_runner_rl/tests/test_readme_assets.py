@@ -30,6 +30,11 @@ def test_replayed_runs_match_the_suite(tmp_path):
         featured = json.load(f)
     success, failure = featured["success"], featured["failure"]
     assert failure["episodes"] == 3 * success["episodes"]
+    # Each featured run trains for exactly the episodes it reports, even below the fixed
+    # snapshot episodes (100 and 300), so its statistics describe the advertised run.
+    for run in (success, failure):
+        assert len(run["steps"]) == run["episodes"] == len(run["success"])
+        assert max(c["episode"] for c in run["checkpoints"]) == run["episodes"]
     # Training in segments (for the checkpoints) is the same run as training in one call.
     plain = {r["maze_seed"]: r for r in traces["3d_3"]}
     assert failure["steps"][:30] == plain[1]["steps"] and failure["success"][:30] == plain[1]["success"]
