@@ -10,10 +10,12 @@ class Maze3DGenerator:
     Generation steps:
       1. depth-first (recursive backtracker) carving from the start, with occasional
          vertical shafts between levels
-      2. extra short corridors that create loops; their number scales with
-         `branching_factor` (0.4 -> 10 branches)
+      2. extra short side corridors; their number scales with `branching_factor`
+         (0.4 -> 10 branches). One that meets another corridor creates a loop; most
+         do not, and step 4 trims them again as dead ends
       3. more dead ends by closing junction cells, towards `dead_end_percentage`
-      4. dead-end tips pruned until at least `wall_density` of all cells are walls
+      4. dead-end tips pruned towards `wall_density`, the target share of wall cells;
+         pruning stops early once no dead ends are left
     Steps 3 and 4 only ever close a cell if every open cell stays reachable from the
     start, so every generated maze is solvable and has no unreachable pockets.
     """
@@ -121,8 +123,9 @@ class Maze3DGenerator:
             self.maze[current_z, current_y, current_x] = 0
 
     def _add_branching_corridors(self):
-        """Add short corridors from existing ones; they create loops (alternative routes).
-        branching_factor 0.4 gives 10 branches, 0.2 gives 5, 0.6 gives 15."""
+        """Carve short corridors off existing ones; a branch that meets another corridor
+        creates a loop (an alternative route). branching_factor 0.4 gives 10 branches,
+        0.2 gives 5, 0.6 gives 15."""
         corridors = [(x, y, z)
                      for z in range(self.depth)
                      for y in range(1, self.height - 1)
