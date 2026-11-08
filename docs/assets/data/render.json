@@ -3,7 +3,7 @@
     "hero-poster.png": {
       "size": [
         1600,
-        1360
+        1440
       ]
     },
     "hero.gif": {
@@ -17,20 +17,20 @@
       "explore_moves_per_frame": 50,
       "frames": 62,
       "maze_seed": 54,
-      "megabytes": 0.66,
+      "megabytes": 0.75,
       "route_frames": 36,
       "seconds": 18.1,
       "size": [
         800,
-        680
+        720
       ]
     },
     "hero.webp": {
-      "megabytes": 0.67,
+      "megabytes": 0.83,
       "quality": 88,
       "size": [
         800,
-        680
+        720
       ]
     },
     "policy.png": {
