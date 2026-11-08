@@ -29,6 +29,16 @@ Each run reports three things separately:
 
 A run counts as converged only if the greedy route is a shortest route at every check for at least the last `--window` episodes (default 100). `--save` writes the per-episode results, the summary and the run settings (git commit, config, library versions).
 
+## Evaluation
+
+```
+..\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+..\.venv\Scripts\python.exe -m experiments.evaluate              # 34 minutes on 20 worker processes
+..\.venv\Scripts\python.exe -m experiments.plot_evaluation
+```
+
+`evaluate.py` trains the agent on 60 mazes of each type, with one exploration seed per maze. It repeats the runs with each repair undone (ablation) and with two follow-up settings (discount 0.99, three times the episodes), and tests every trained agent on 50 unseen mazes. It also computes two references exactly: a random walk and a planner that is given the maze. Results go to `docs/evaluation/results` with 95% intervals, the settings, the commit and a hash of the code that ran. `plot_evaluation.py` draws the figures into `docs/evaluation/figures`. `--quick` runs a small version in under a minute; `--configs` and `--kinds` run a subset. The report is [docs/evaluation](../docs/evaluation/README.md).
+
 ## Tests
 
 ```
@@ -43,7 +53,8 @@ The suite covers:
 - the Gymnasium API, and that `step_from_state()` matches `step()`;
 - the convergence rule, plus a learning regression on the UI's default maze;
 - policy iteration against BFS;
-- the server's stop/restart lifecycle and its WebSocket protocol, over a real socket.
+- the server's stop/restart lifecycle and its WebSocket protocol, over a real socket;
+- the evaluation suite: its confidence intervals, the exact random-walk and value-iteration references, the pre-fix agent rule used in the ablation, a deterministic end-to-end run and the figures.
 
 CI runs it on every push (`.github/workflows/ci.yml`).
 
@@ -60,7 +71,9 @@ CI runs it on every push (`.github/workflows/ci.yml`).
 | `src/agents/q_learning_agent.py` | `QLearningAgent`: tabular, epsilon-greedy |
 | `src/algorithms/policy_iteration.py` | `PolicyIteration`: exact solver using the env's `step_from_state()` |
 | `experiments/training_experiment.py` | `TrainingExperiment` loop, greedy-route checks, the convergence rule and a command-line entry point |
-| `tests/` | pytest suite: agent, generators, environments, training, policy iteration and the server |
+| `experiments/evaluate.py`, `stats.py` | Evaluation suite (seeds, references, ablation, unseen mazes) and its confidence intervals |
+| `experiments/plot_evaluation.py` | Figures for `docs/evaluation` |
+| `tests/` | pytest suite: agent, generators, environments, training, policy iteration, the server and the evaluation suite |
 
 ## Environment contract
 
