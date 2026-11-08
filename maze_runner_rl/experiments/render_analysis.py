@@ -583,9 +583,9 @@ def value_static(case, summary, budget=40_000):
     fig.text(0.07, 0.56, "Below 0: the goal's value has not reached s. Above 0: the zero initialisation is not yet "
                          "deflated (V* < 0 beyond 77 moves). Dashed: the error of a state with V = 0.", color=st.INK2,
              fontsize=12.5, family=st.FONT_FAMILY)
-    fig.text(0.07, 0.285, "ρ(s) = max_a [r + γ(1 − done) V(s′)] − V(s) under the exact model: 0 where V is locally "
-                          "consistent; > 0 where a successor's value is not yet backed up into s; < 0 where s keeps "
-                          "an untried action at 0.", color=st.INK2,
+    fig.text(0.07, 0.285, "ρ(s) = max_a [r + γ(1 − done) V(s′)] − V(s): 0 where V is locally consistent; > 0 where a "
+                          "successor's value is not backed up into s; < 0 where an untried action holds V(s) at 0.",
+             color=st.INK2,
              fontsize=12.5, family=st.FONT_FAMILY)
     path = os.path.join(OUT, "value.png")
     fig.savefig(path, dpi=100, facecolor=st.BG)
