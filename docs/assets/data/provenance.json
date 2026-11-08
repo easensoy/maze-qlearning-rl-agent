@@ -1,9 +1,9 @@
 {
-  "started_utc": "2026-11-08T03:54:20+00:00",
-  "git_commit": "1793a82a0ba42da14be57417b0f1372548a872dd",
+  "started_utc": "2026-11-08T12:49:07+00:00",
+  "git_commit": "66abfc7cb7cd26137d2016ce8c4a32441c98abbd",
   "git_uncommitted_source_changes": false,
-  "source_sha256": "d2e0c041cda91700be8c7e42b194a4025d99cf8e32545ed24b2d58c1df7a78d6",
-  "capture_script_sha256": "99709277caf0e72b0d479e56ba1a11c7691ab0bbecb45e97cf0d0f644bb9cf0b",
+  "source_sha256": "9a1945403c84732d19b5e7775885663e1e7da342e549d5124e84dba034345619",
+  "capture_script_sha256": "97d4dad25a6be3e1577455a204230140385364ef22e76881c112d2bdd46c23bc",
   "capture_script_uncommitted": true,
   "command": "python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv",
   "kinds": [
@@ -53,7 +53,7 @@
   "numpy": "2.3.2",
   "gymnasium": "1.2.0",
   "workers": 8,
-  "wall_seconds": 67.9,
+  "wall_seconds": 113.2,
   "check_against_suite": {
     "runs_csv": "docs/evaluation/results/runs.csv",
     "runs_compared": 180,
