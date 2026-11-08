@@ -1,0 +1,674 @@
+{
+  "sets": {
+    "suite:2d": {
+      "label": "2D, 21 × 21",
+      "q_learning": {
+        "runs": 60,
+        "converged": 54,
+        "real_steps_to_converge": {
+          "median": 97562.0,
+          "ci": [
+            83589.0,
+            118290.0
+          ],
+          "reached": 54,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 1766.5,
+          "ci": [
+            828.0,
+            2861.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 80216.5,
+          "ci": [
+            71910.0,
+            103146.0
+          ],
+          "reached": 59,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 90704.0,
+        "updates_per_real_step": 1.0,
+        "agent_seconds_per_run_median": 1.777,
+        "cells_found_10_episodes_median": 0.7601076448231002
+      },
+      "q_lambda": {
+        "runs": 60,
+        "converged": 60,
+        "real_steps_to_converge": {
+          "median": 63207.5,
+          "ci": [
+            53321.0,
+            76626.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 5882.5,
+          "ci": [
+            3830.5,
+            8291.5
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 51349.0,
+          "ci": [
+            42725.0,
+            63885.5
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 937002.5,
+        "updates_per_real_step": 23.47001357238443,
+        "agent_seconds_per_run_median": 5.939,
+        "cells_found_10_episodes_median": 0.6619613217603167,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": {
+            "ratio": 1.5861937322169075,
+            "ci": [
+              1.5687921740138477,
+              1.6064681833722951
+            ],
+            "mazes": 54
+          },
+          "updates_ratio": {
+            "ratio": 8.864920088071115,
+            "ci": [
+              8.376775047683292,
+              9.371870248483416
+            ],
+            "mazes": 54
+          }
+        }
+      },
+      "dyna_q": {
+        "runs": 60,
+        "converged": 60,
+        "real_steps_to_converge": {
+          "median": 5168.0,
+          "ci": [
+            4312.0,
+            5985.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 1101.5,
+          "ci": [
+            858.0,
+            1942.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 2537.5,
+          "ci": [
+            2004.0,
+            3694.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 263568.0,
+        "updates_per_real_step": 51.0,
+        "agent_seconds_per_run_median": 27.25,
+        "cells_found_10_episodes_median": 0.8005750594583081,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": {
+            "ratio": 18.29287745626968,
+            "ci": [
+              16.781913988050775,
+              19.899527092869647
+            ],
+            "mazes": 54
+          },
+          "updates_ratio": {
+            "ratio": 2.787970351953586,
+            "ci": [
+              2.562874974967332,
+              3.038985900911751
+            ],
+            "mazes": 54
+          }
+        }
+      }
+    },
+    "suite:3d_1": {
+      "label": "One level, 21 × 21",
+      "q_learning": {
+        "runs": 60,
+        "converged": 60,
+        "real_steps_to_converge": {
+          "median": 74649.0,
+          "ci": [
+            63860.0,
+            97944.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 1833.0,
+          "ci": [
+            1237.0,
+            3676.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 65264.5,
+          "ci": [
+            51484.0,
+            85829.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 74649.0,
+        "updates_per_real_step": 1.0,
+        "agent_seconds_per_run_median": 1.6735,
+        "cells_found_10_episodes_median": 0.9123376623376623
+      },
+      "q_lambda": {
+        "runs": 60,
+        "converged": 60,
+        "real_steps_to_converge": {
+          "median": 44556.0,
+          "ci": [
+            35989.0,
+            56603.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 5738.0,
+          "ci": [
+            4483.0,
+            7793.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 33589.0,
+          "ci": [
+            28260.5,
+            47926.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 446847.5,
+        "updates_per_real_step": 18.54410301882189,
+        "agent_seconds_per_run_median": 2.9775,
+        "cells_found_10_episodes_median": 0.8367258344588077,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": {
+            "ratio": 1.6810140061352392,
+            "ci": [
+              1.6549566542103935,
+              1.710401993641794
+            ],
+            "mazes": 60
+          },
+          "updates_ratio": {
+            "ratio": 6.520151531484268,
+            "ci": [
+              6.22606569454657,
+              6.827645318186777
+            ],
+            "mazes": 60
+          }
+        }
+      },
+      "dyna_q": {
+        "runs": 60,
+        "converged": 60,
+        "real_steps_to_converge": {
+          "median": 5645.5,
+          "ci": [
+            4570.0,
+            7356.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 1525.5,
+          "ci": [
+            967.5,
+            2426.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 3003.0,
+          "ci": [
+            2004.0,
+            3662.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 287920.5,
+        "updates_per_real_step": 51.0,
+        "agent_seconds_per_run_median": 27.372,
+        "cells_found_10_episodes_median": 0.9421373974645786,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": {
+            "ratio": 14.134226111103002,
+            "ci": [
+              13.242693894149564,
+              15.09061177888821
+            ],
+            "mazes": 60
+          },
+          "updates_ratio": {
+            "ratio": 3.6082626384431076,
+            "ci": [
+              3.3795846548348076,
+              3.851180160747434
+            ],
+            "mazes": 60
+          }
+        }
+      }
+    },
+    "suite:3d_3": {
+      "label": "Three levels, 21 × 21 × 3",
+      "q_learning": {
+        "runs": 60,
+        "converged": 26,
+        "real_steps_to_converge": {
+          "median": null,
+          "ci": [
+            249549.0,
+            null
+          ],
+          "reached": 26,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 32876.0,
+          "ci": [
+            13937.0,
+            53828.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 342441.0,
+          "ci": [
+            218877.0,
+            null
+          ],
+          "reached": 36,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 148173.0,
+        "updates_per_real_step": 1.0,
+        "agent_seconds_per_run_median": 5.4815000000000005,
+        "cells_found_10_episodes_median": 0.48752525252525253
+      },
+      "q_lambda": {
+        "runs": 60,
+        "converged": 45,
+        "real_steps_to_converge": {
+          "median": 223289.0,
+          "ci": [
+            148905.0,
+            312892.0
+          ],
+          "reached": 45,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 38980.5,
+          "ci": [
+            27988.5,
+            62920.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 172551.0,
+          "ci": [
+            108902.0,
+            223789.0
+          ],
+          "reached": 47,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 2128913.0,
+        "updates_per_real_step": 22.986699171097094,
+        "agent_seconds_per_run_median": 11.129000000000001,
+        "cells_found_10_episodes_median": 0.38539042821158687,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": {
+            "ratio": 1.8199312172157969,
+            "ci": [
+              1.7368691309718336,
+              1.9152348288336083
+            ],
+            "mazes": 26
+          },
+          "updates_ratio": {
+            "ratio": 6.452894491002592,
+            "ci": [
+              5.943075320848142,
+              7.0038009378088235
+            ],
+            "mazes": 26
+          }
+        }
+      },
+      "dyna_q": {
+        "runs": 60,
+        "converged": 59,
+        "real_steps_to_converge": {
+          "median": 32504.0,
+          "ci": [
+            19540.0,
+            40043.0
+          ],
+          "reached": 59,
+          "n": 60
+        },
+        "first_goal": {
+          "median": 6966.5,
+          "ci": [
+            4686.0,
+            11558.0
+          ],
+          "reached": 60,
+          "n": 60
+        },
+        "first_goal_to_shortest": {
+          "median": 14755.5,
+          "ci": [
+            8321.0,
+            19929.0
+          ],
+          "reached": 59,
+          "n": 60
+        },
+        "updates_to_converge_median_converged_runs": 1623330.0,
+        "updates_per_real_step": 51.0,
+        "agent_seconds_per_run_median": 54.632,
+        "cells_found_10_episodes_median": 0.6892326150866878,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": {
+            "ratio": 14.180648496449171,
+            "ci": [
+              12.606529546150762,
+              16.059261304924792
+            ],
+            "mazes": 25
+          },
+          "updates_ratio": {
+            "ratio": 3.5964504735287948,
+            "ci": [
+              3.175737602847285,
+              4.0455225852044405
+            ],
+            "mazes": 25
+          }
+        }
+      }
+    },
+    "long:3d_3": {
+      "label": "Long routes (> 140 moves)",
+      "q_learning": {
+        "runs": 30,
+        "converged": 0,
+        "real_steps_to_converge": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 0,
+          "n": 30
+        },
+        "first_goal": {
+          "median": 102866.0,
+          "ci": [
+            86477.5,
+            120946.5
+          ],
+          "reached": 30,
+          "n": 30
+        },
+        "first_goal_to_shortest": {
+          "median": null,
+          "ci": [
+            null,
+            null
+          ],
+          "reached": 2,
+          "n": 30
+        },
+        "updates_to_converge_median_converged_runs": null,
+        "updates_per_real_step": 1.0,
+        "agent_seconds_per_run_median": 7.773,
+        "cells_found_10_episodes_median": 0.37794384057971014
+      },
+      "q_lambda": {
+        "runs": 30,
+        "converged": 15,
+        "real_steps_to_converge": {
+          "median": null,
+          "ci": [
+            441159.5,
+            null
+          ],
+          "reached": 15,
+          "n": 30
+        },
+        "first_goal": {
+          "median": 129400.0,
+          "ci": [
+            98376.0,
+            143379.5
+          ],
+          "reached": 30,
+          "n": 30
+        },
+        "first_goal_to_shortest": {
+          "median": 343253.0,
+          "ci": [
+            284896.0,
+            null
+          ],
+          "reached": 18,
+          "n": 30
+        },
+        "updates_to_converge_median_converged_runs": 9712319.0,
+        "updates_per_real_step": 30.832428847423433,
+        "agent_seconds_per_run_median": 23.6415,
+        "cells_found_10_episodes_median": 0.3082663316582914,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": null,
+          "updates_ratio": null
+        }
+      },
+      "dyna_q": {
+        "runs": 30,
+        "converged": 30,
+        "real_steps_to_converge": {
+          "median": 56510.0,
+          "ci": [
+            53197.5,
+            66088.0
+          ],
+          "reached": 30,
+          "n": 30
+        },
+        "first_goal": {
+          "median": 16281.5,
+          "ci": [
+            12307.5,
+            22809.0
+          ],
+          "reached": 30,
+          "n": 30
+        },
+        "first_goal_to_shortest": {
+          "median": 25756.5,
+          "ci": [
+            21016.5,
+            33010.0
+          ],
+          "reached": 30,
+          "n": 30
+        },
+        "updates_to_converge_median_converged_runs": 2882010.0,
+        "updates_per_real_step": 51.0,
+        "agent_seconds_per_run_median": 100.89750000000001,
+        "cells_found_10_episodes_median": 0.6916415662650602,
+        "vs_q_learning_where_both_converged": {
+          "real_steps_ratio": null,
+          "updates_ratio": null
+        }
+      }
+    }
+  },
+  "route_length": {
+    "0-80": {
+      "q_learning": {
+        "converged": 96,
+        "runs": 96
+      },
+      "q_lambda": {
+        "converged": 96,
+        "runs": 96
+      },
+      "dyna_q": {
+        "converged": 96,
+        "runs": 96
+      }
+    },
+    "81-120": {
+      "q_learning": {
+        "converged": 44,
+        "runs": 54
+      },
+      "q_lambda": {
+        "converged": 54,
+        "runs": 54
+      },
+      "dyna_q": {
+        "converged": 53,
+        "runs": 54
+      }
+    },
+    "121+": {
+      "q_learning": {
+        "converged": 0,
+        "runs": 60
+      },
+      "q_lambda": {
+        "converged": 30,
+        "runs": 60
+      },
+      "dyna_q": {
+        "converged": 60,
+        "runs": 60
+      }
+    }
+  },
+  "development": {
+    "replacing=False,trace_decay=0.1": {
+      "converged": 51,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.9791424638216433
+    },
+    "replacing=False,trace_decay=0.3": {
+      "converged": 57,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.9548971899244132
+    },
+    "replacing=False,trace_decay=0.5": {
+      "converged": 48,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.8269148901332809
+    },
+    "replacing=False,trace_decay=0.7": {
+      "converged": 5,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.39334832055011903
+    },
+    "replacing=False,trace_decay=0.9": {
+      "converged": 0,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.1638755980861244
+    },
+    "replacing=True,trace_decay=0.1": {
+      "converged": 51,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.9721661074709715
+    },
+    "replacing=True,trace_decay=0.3": {
+      "converged": 56,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.9233365672245128
+    },
+    "replacing=True,trace_decay=0.5": {
+      "converged": 47,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.7926033357505439
+    },
+    "replacing=True,trace_decay=0.7": {
+      "converged": 15,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.4020699323767112
+    },
+    "replacing=True,trace_decay=0.9": {
+      "converged": 0,
+      "runs": 60,
+      "cells_found_by_50k_median": 0.18786869128249944
+    },
+    "q_learning": {
+      "converged": 47,
+      "runs": 60
+    }
+  },
+  "failure": {
+    "dyna_q_not_converged": [
+      {
+        "split": "suite",
+        "kind": "3d_3",
+        "maze_seed": 58,
+        "shortest_route": 106,
+        "final_greedy_route": 114,
+        "first_greedy_shortest_episode": null,
+        "q_learning_converged_episode": 891,
+        "q_lambda_converged_episode": 332
+      }
+    ],
+    "q_lambda_map": {
+      "maze_seed": 1004,
+      "route": 100,
+      "discovered": [
+        183,
+        26
+      ]
+    }
+  }
+}
