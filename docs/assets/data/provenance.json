@@ -1,0 +1,83 @@
+{
+  "started_utc": "2026-11-08T03:54:20+00:00",
+  "git_commit": "1793a82a0ba42da14be57417b0f1372548a872dd",
+  "git_uncommitted_source_changes": false,
+  "source_sha256": "d2e0c041cda91700be8c7e42b194a4025d99cf8e32545ed24b2d58c1df7a78d6",
+  "capture_script_sha256": "99709277caf0e72b0d479e56ba1a11c7691ab0bbecb45e97cf0d0f644bb9cf0b",
+  "capture_script_uncommitted": true,
+  "command": "python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv",
+  "kinds": [
+    "2d",
+    "3d_1",
+    "3d_3"
+  ],
+  "maze_seeds": "0-59",
+  "agent": {
+    "learning_rate": 0.1,
+    "epsilon": 0.1,
+    "epsilon_decay": 0.995,
+    "epsilon_min": 0.01,
+    "gamma": 0.95
+  },
+  "maze": {
+    "default_width": 21,
+    "default_height": 21,
+    "default_depth": 1,
+    "wall_density": 0.65,
+    "branching_factor": 0.4,
+    "dead_end_percentage": 0.3
+  },
+  "max_steps": 1000,
+  "episodes": 1000,
+  "window": 100,
+  "exploration_seed": "500000 + maze seed",
+  "rewards": {
+    "goal": 100,
+    "step": -0.1,
+    "wall": -1.0
+  },
+  "featured": {
+    "success": {
+      "kind": "3d_3",
+      "maze_seed": 12,
+      "episodes": 1000
+    },
+    "failure": {
+      "kind": "3d_3",
+      "maze_seed": 0,
+      "episodes": 3000
+    }
+  },
+  "featured_rule": "success: the converged three-level run at the median convergence episode (the lower middle run for an even count); failure: the lowest maze seed whose three-level run did not converge, continued to three times the episodes",
+  "python": "3.13.5",
+  "numpy": "2.3.2",
+  "gymnasium": "1.2.0",
+  "workers": 8,
+  "wall_seconds": 67.9,
+  "check_against_suite": {
+    "runs_csv": "docs/evaluation/results/runs.csv",
+    "runs_compared": 180,
+    "fields": [
+      "env_steps",
+      "shortest_route",
+      "final_greedy_route",
+      "greedy_reaches_final",
+      "greedy_shortest_final",
+      "greedy_reaches_last100",
+      "greedy_shortest_last100",
+      "first_greedy_shortest_episode",
+      "converged_episode",
+      "converged_env_steps",
+      "training_success_last100",
+      "first_success_episode",
+      "first_success_env_steps"
+    ],
+    "mismatches": [],
+    "suite_provenance": {
+      "started_utc": "2026-11-08T02:54:01+00:00",
+      "git_commit": "7e35fcc5c8bcf6a6db48c87ce4161b0dabfd77a1",
+      "git_uncommitted_source_changes": false,
+      "source_sha256": "d2e0c041cda91700be8c7e42b194a4025d99cf8e32545ed24b2d58c1df7a78d6"
+    }
+  }
+}
