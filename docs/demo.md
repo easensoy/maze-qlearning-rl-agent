@@ -10,12 +10,20 @@ A React and Three.js front end shows the agent while it trains. A Python WebSock
 
 ### Backend
 
-```bash
+```powershell
 # Windows: double-click start_backend.bat (creates .venv on the first run), or:
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r maze_runner_rl\requirements.txt
 cd maze_runner_rl
 ..\.venv\Scripts\python.exe main.py
+```
+
+```bash
+# Linux and macOS
+python3.13 -m venv .venv
+.venv/bin/python -m pip install -r maze_runner_rl/requirements.txt
+cd maze_runner_rl
+../.venv/bin/python main.py
 ```
 
 The server listens on `ws://localhost:8765` (see `maze_runner_rl/websocket/config.yaml`).
