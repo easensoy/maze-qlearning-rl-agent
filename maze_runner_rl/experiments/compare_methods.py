@@ -660,6 +660,10 @@ def fmt_steps(x):
     return ev.fmt_steps(x)
 
 
+def fmt_ratio(x):
+    return f"{x:.2f}" if x < 10 else f"{x:.1f}"
+
+
 def fmt_share(p):
     if p is None:
         return "–"
@@ -692,7 +696,7 @@ def render_tables(summary):
             lines.append(f"| {METHODS[method]['label']} ({s['params']}) | {fmt_share(s['converged'])} | "
                          f"{fmt_median(s['converged_env_steps'])} | {fmt_share(s['greedy_shortest_final'])} | "
                          f"{s['updates_per_real_step']:.1f} | {s['agent_seconds']:.1f} s | "
-                         f"{ev.fmt_number(s['planning_updates'])} |")
+                         f"{fmt_steps(s['planning_updates']) if s['planning_updates'] else '0'} |")
         lines.append("")
         pairs = [(m, s["vs_q_learning"]) for m, s in entry.items() if "vs_q_learning" in s]
         if pairs:
@@ -703,7 +707,8 @@ def render_tables(summary):
                 d = p["converged_difference"]
                 speed = p["speedup_where_both_converged"]
                 speed_text = "–" if speed is None else (
-                    f"{speed['geometric_mean']:.1f}× ({speed['ci'][0]:.1f}–{speed['ci'][1]:.1f}), {speed['mazes']} mazes")
+                    f"{fmt_ratio(speed['geometric_mean'])}× ({fmt_ratio(speed['ci'][0])}–{fmt_ratio(speed['ci'][1])}), "
+                    f"{speed['mazes']} mazes")
                 lines.append(f"| {METHODS[method]['label']} | {p['converged_only_method']} / "
                              f"{p['converged_only_baseline']} (p = {p['converged_mcnemar_p']:.2g}) | "
                              f"{d['diff'] * 100:+.0f} points ({d['ci'][0] * 100:+.0f} to {d['ci'][1] * 100:+.0f}) | "
@@ -825,6 +830,8 @@ def cmd_tables(args):
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")   # labels such as Q(λ) on a cp1252 console
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("command", choices=["tune", "final", "tables"])
     parser.add_argument("--out", default=OUT)
