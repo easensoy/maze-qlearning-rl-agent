@@ -13,13 +13,14 @@ from matplotlib.patches import Polygon
 
 from experiments import asset_style as st
 
-# Slab colours: the top face is lit, the two side faces are progressively darker. Corridors
-# stay quiet so the overlays carry the message; cells the greedy policy already leads to the
-# goal from turn deep blue; shaft cells are a lighter grey, so the columns' ends are visible.
-TOP, LEFT, RIGHT = "#343c48", "#232931", "#1a1f26"
-TOP_LEARNED, LEFT_LEARNED, RIGHT_LEARNED = "#1f6c98", "#17506f", "#123d55"
-TOP_SHAFT = "#525c6a"
-COLUMN = "#4d5663"
+# Slab colours: the top face is lit, the two side faces are progressively darker. Open cells
+# clear the page background by about 3:1 but stay darker than every overlay; cells from which
+# the greedy policy reaches the goal turn blue; shaft cells and the columns joining them are
+# light grey, so the connections between levels read at a glance.
+TOP, LEFT, RIGHT = "#5b6575", "#3f4753", "#30373f"
+TOP_LEARNED, LEFT_LEARNED, RIGHT_LEARNED = "#2c8ed1", "#216a9c", "#1a527a"
+TOP_SHAFT = "#a3adbb"
+COLUMN = "#8f99a7"         # lighter than open cells, darker than the white dashes of a route
 TRAIL = "#67e8f9"          # exploration: cyan, distinct from the blue of learned cells
 
 
@@ -96,7 +97,7 @@ class IsoMaze:
         for x, y in self.open_cells(level):
             self.draw_slab(ax, x, y, level, (x, y, level) in learned, zorder)
 
-    def draw_columns(self, ax, lower, zorder=2, colour=COLUMN, width=2.2, alpha=0.9):
+    def draw_columns(self, ax, lower, zorder=2, colour=COLUMN, width=2.6, alpha=1.0):
         """Vertical shaft columns between `lower` and lower + 1."""
         for x, y in self.open_cells(lower):
             if lower + 1 < self.levels and self.grid[lower + 1, y, x] == 0:
