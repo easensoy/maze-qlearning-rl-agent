@@ -95,7 +95,7 @@ Bands are 95% Wilson intervals for a share of 60 independent runs. A run that ha
 From `maze_runner_rl/`, with the development requirements installed (`python -m pip install -r requirements-dev.txt`):
 
 ```bash
-python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv   # the figures' data, 68 s on 8 workers
+python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv   # the figures' data, 1-2 min on 8 workers
 python -m experiments.render_figures         # results.png and policy.png
 python -m experiments.capture_hero           # data/hero.json, checked against the value-propagation results
 python -m experiments.render_hero            # hero.gif, hero.webp and hero-poster.png
