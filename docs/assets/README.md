@@ -1,27 +1,69 @@
 # README visuals
 
-[README](../../README.md) · [Evaluation](../evaluation/README.md) · [Debugging case study](../evaluation/case-study.md)
+[README](../../README.md) · [Value-propagation experiment](../value-propagation/README.md) · [Evaluation](../evaluation/README.md) · [Debugging case study](../evaluation/case-study.md)
 
-This page covers the animation and the two figures on the [README](../../README.md): what they show, what they are drawn from, and how to draw them again. Code in this repository generates every image from recorded training runs. None is a mock-up, and none is AI-generated.
+This page covers the animation and the two figures on the [README](../../README.md): what they show, what they are drawn from, and how to draw them again. Code in this repository generates every image from recorded training runs. None is a mock-up, and none is AI-generated. The animation is a recorded replay drawn by its own renderer, not a capture of the live viewer.
 
 ## Files
 
 | File | Shows | Drawn by, from |
 |---|---|---|
-| [`hero.gif`](hero.gif) | One three-level run: its first exploring episode, the greedy policy at checkpoints, and the learned route next to a BFS shortest route. 800 × 560 px, 121 frames, 19.9 s, 1.4 MB | `render_hero.py`, from `data/featured.json`. The end card's 3,000-episode and unseen-maze counts come from the suite's [`runs.csv`](../evaluation/results/runs.csv) |
-| [`hero-poster.png`](hero-poster.png) | The animation's learned-route frame at twice the size (1600 × 1120 px). The README shows it instead of the animation when the reader's system asks for reduced motion | `render_hero.py` |
-| [`results.png`](results.png) | All 180 runs: exploring success, greedy-route optimality and convergence, against moves of experience | `render_figures.py`, from `data/traces_*.json` |
-| [`policy.png`](policy.png) | What the greedy policy knows in a converged run and in one that ran out of episodes | `render_figures.py`, from `data/featured.json`. The episodes-per-move figure comes from the suite's [`summary.json`](../evaluation/results/summary.json) |
-| [`data/traces_<kind>.json`](data) | Every run of one maze type, per episode: moves taken, whether the training episode reached the goal, and the greedy check after it | `capture_traces.py` |
-| [`data/featured.json`](data/featured.json) | The two runs drawn in detail: the maze, a BFS route, the cells visited in episodes 1 to 3, and the greedy policy every 10 episodes | `capture_traces.py` |
-| [`data/provenance.json`](data/provenance.json) | Commit, code digest, settings, seeds, library versions, and the comparison with the suite's records | `capture_traces.py` |
+| [`hero.gif`](hero.gif) | Q-learning and Dyna-Q on one three-level maze, in an exploded 3D view. 800 × 680 px, 62 frames, 18.1 s, 0.66 MB | `render_hero.py`, from `data/hero.json`. The end card's counts come from [`summary.json`](../value-propagation/results/summary.json) |
+| [`hero.webp`](hero.webp) | The same frames without the GIF's 256-colour palette (0.67 MB) | `render_hero.py` |
+| [`hero-poster.png`](hero-poster.png) | The learned-route frame at twice the size (1600 × 1360 px). The README shows it instead of the animation when the reader's system asks for reduced motion | `render_hero.py` |
+| [`results.png`](results.png) | All 180 evaluation-suite runs of Q-learning: exploring success, greedy-route optimality and convergence, against moves of experience | `render_figures.py`, from `data/traces_*.json` |
+| [`policy.png`](policy.png) | What Q-learning's greedy policy knows in a converged run and in one that ran out of episodes | `render_figures.py`, from `data/featured.json` |
+| [`data/hero.json`](data/hero.json) | The animation's runs: the maze, a BFS route, episode 1's cells, and each method's greedy policy after 10k, 20k, 40k, 80k and 160k real moves | `capture_hero.py` |
+| [`data/traces_<kind>.json`](data), [`featured.json`](data/featured.json), [`provenance.json`](data/provenance.json) | The figures' data: every suite run per episode, the two runs drawn in `policy.png`, and the capture's provenance | `capture_traces.py` |
 | [`data/render.json`](data/render.json) | Libraries, typeface and playback settings used to draw the images | `render_hero.py`, `render_figures.py` |
 
 The scripts are in [`maze_runner_rl/experiments/`](../../maze_runner_rl/experiments).
 
-## The runs
+## The animation
 
-The visuals use the evaluation suite's current agent, run by run ([evaluation](../evaluation/README.md#setup)):
+### Text version
+
+The animation, part by part. Every number is from [`data/hero.json`](data/hero.json).
+
+1. **The maze** (2.4 s): three-level maze 54 of the final suite, 21 × 21 × 3 cells.
+   - Level 0, where the agent starts, is at the bottom; level 2, with the goal, at the top.
+   - Level 1 is only the 9 shafts that join them, drawn as vertical columns.
+   - The shortest route is 146 moves.
+2. **Episode 1** (2.2 s): Q-learning's first episode.
+   - It is 1,000 moves of exploration that never reach the goal.
+   - It plays at 50 moves per frame, with the path in cyan.
+3. **Q-learning after 20k, 40k, 80k and 160k real moves** (3.2 s), at episodes 20, 41, 83 and 181. Episodes between the checkpoints are skipped.
+   - **Blue cells:** its greedy policy reaches the goal from 0, 2, 11 and then 15 cells, all next to the goal.
+   - **Its greedy walk from the start:** in amber, it loops after a few moves every time.
+4. **Dyna-Q after the same real moves** (3.2 s), at episodes 50, 171, 438 and 981, with 50 planning updates per real move.
+   - **Blue cells:** 175 after 20k real moves, then 292 of the maze's 378 non-goal cells.
+   - **Its greedy route:** from 40k real moves (episode 171) it is a shortest route.
+5. **Dyna-Q's learned route** (3.3 s): 146 moves, the same length as the dashed breadth-first-search route.
+   - It changes level 6 times through the shafts.
+   - It plays at 5 moves per frame, cell by cell, with no interpolation.
+6. **The result** (3.8 s): on the 30 long-route mazes, Dyna-Q converged on 30, Q(λ) on 15 and Q-learning on 0. These are the same mazes and exploration seeds, with 1,000 episodes each, and Dyna-Q spends 51 updates per real move.
+
+### How it was made
+
+- **The runs.**
+  - **Recapture:** `capture_hero.py` trains the two runs again exactly as the value-propagation experiment trains them: same maze, same exploration seed, same random draws. It records what the animation draws.
+  - **Check:** it compares seven fields of each run with the experiment's [`runs.csv`](../value-propagation/results/runs.csv) and stops if any differs. The fields are real steps, first goal, first shortest route, convergence episode and steps, final greedy route, and whether it is shortest.
+- **The maze, chosen by rule** (`pick_maze`): among the three-level suite mazes where Dyna-Q converged and Q-learning did not (34 mazes), the one with the median shortest route. The animation shows the typical case of the difference the tables report, not the most dramatic one.
+- **The 3D view** ([`iso_maze.py`](../../maze_runner_rl/experiments/iso_maze.py)):
+  - **Levels:** each level is an isometric plate of thin slabs, one per open cell. Walls are left empty, so no corridor hides another. The levels are pulled apart vertically and joined by the shaft columns.
+  - **Camera:** it looks from behind the start, so a route climbs from the front of the bottom plate to the back of the top one.
+  - **Rendering:** the plates for each set of learned cells are drawn once and reused, and only paths, markers and text change between frames.
+- **Colours,** as in the other figures:
+  - cyan for the path taken while exploring;
+  - blue for cells the greedy policy already leads to the goal from;
+  - amber, the one accent, for the greedy route;
+  - a dashed off-white line for a breadth-first-search route;
+  - a hollow ring for the start and a filled disk for the goal.
+- **Accessibility.** The README shows the poster instead of the animation to readers whose system asks for reduced motion (`prefers-reduced-motion`). Its alt text summarises the run, and this section is the full text version.
+
+## The figures
+
+`results.png` and `policy.png` show the evaluation suite's Q-learning runs ([evaluation](../evaluation/README.md#setup)):
 
 - **Mazes:** three types (2D 21 × 21, one level 21 × 21, three levels 21 × 21 × 3), maze seeds 0 to 59 of each.
 - **Exploration:** each run's exploration seed is 500000 plus its maze seed.
@@ -31,73 +73,37 @@ The visuals use the evaluation suite's current agent, run by run ([evaluation](.
 
 After every episode the greedy policy, with no exploration, is followed from the start. The check stops at the goal or at the first cell it repeats. A run has **converged** when that greedy route was a shortest route, by breadth-first search over the maze, at every check for at least the last 100 episodes.
 
-**Replayed and checked.** `capture_traces.py` trains every run again, exactly as `evaluate.py` does, and compares 13 fields of each run with the suite's [`runs.csv`](../evaluation/results/runs.csv). These include the moves of experience, the first success, the final greedy route, the convergence episode and the training success. All 180 runs match ([`provenance.json`](data/provenance.json), `check_against_suite`). Two captures produced byte-identical traces.
+**Replayed and checked.** `capture_traces.py` trains every run again, exactly as `evaluate.py` does, and compares 13 fields of each run with the suite's [`runs.csv`](../evaluation/results/runs.csv). All 180 runs match ([`provenance.json`](data/provenance.json), `check_against_suite`). Two captures produced byte-identical traces.
 
-**Featured runs, chosen by rule** (`pick_featured`):
+**Featured runs in `policy.png`, chosen by rule** (`pick_featured`):
 
 - **Seed 12:** of the 26 converged three-level runs, the one at the median convergence episode (episode 504).
-- **Seed 0:** the lowest-numbered three-level maze whose run did not converge. It is continued to 3,000 episodes, as in the suite's three-times-the-episodes setting, and converges at episode 1,096, as the suite records. Its first 1,000 episodes are the 1,000-episode run; the capture checks this.
+- **Seed 0:** the lowest-numbered three-level maze whose run did not converge, continued to 3,000 episodes as in the suite's three-times-the-episodes setting. It converges at episode 1,096.
 
-**Checkpoints.** The greedy policy is read from the Q-table after episode 1, every 10 episodes, and after the run's key episodes: first success, first shortest greedy route and convergence. Each checkpoint stores:
-
-- the greedy walk from the start;
-- the cells from which the greedy policy reaches the goal (the **solved** cells);
-- at a few episodes, each cell's value, greedy action and visit count, and whether the greedy action is optimal under value iteration on the known maze.
-
-**Reachable cells.** An episode ends at the goal, so a cell that can only be reached through the goal is never visited and is not counted. In seed 12 all 398 open cells are reachable; in seed 0, 359 of 397.
-
-## Reading the visuals
-
-The colours are the same in all three:
-
-- blue for exploration and for cells the policy already leads to the goal from;
-- amber, the one accent, for the learned greedy route;
-- a dashed off-white line for a BFS shortest route;
-- a hollow ring for the start, a filled disk for the goal, and a small square for a shaft cell.
-
-**Animation.** Nothing is interpolated: every frame shows recorded cells, and the agent moves cell by cell.
-
-| Part | Shows | Playback |
-|---|---|---|
-| Setup | The maze, start, goal, seed and dimensions | 2.0 s still |
-| Episode 1 | The 1,000 moves of the first training episode, exploring | 25 moves per 70 ms frame, then 1.0 s still |
-| Time-lapse | The greedy policy after episodes 10, 20, … 500, with the solved cells and the greedy walk from the start | 1 frame per 10 episodes (80 ms); 1.1 s holds at episode 371 (first shortest route) and 504 (converged) |
-| Final walk | The greedy route after episode 1,000 beside the BFS route; episodes 505 to 1,000 are skipped, and the frame says so | 3 moves per 70 ms frame, then 1.5 s still |
-| End card | The run's result and the results across all mazes, with their scope | 4.0 s |
-
-Seed 12's level 1 consists of its 13 shaft cells. Each has open cells directly above and below, so level 1 is drawn as the gutter between the panels for level 0 and level 2. The renderer checks this and refuses a maze where it does not hold. A route changes level by passing through a shaft: two moves, up or down, through level 1. The numbered badges ↑1, ↓2, ↑3 mark each change on both panels.
-
-**Results figure.** Each panel shows 60 runs on 60 different mazes. The quantities, against moves of experience on a log scale:
+**Results figure.** Each panel shows 60 runs on 60 different mazes, against moves of experience on a log scale:
 
 - **Blue:** runs in which at least 45 of the last 50 training episodes reached the goal while exploring.
 - **Amber:** runs whose greedy route is a shortest route at that point.
 - **Dashed:** runs that have converged.
 
-Bands are 95% Wilson intervals for a share of 60 independent runs, each with its own maze and exploration seed. A run that has finished its 1,000 episodes keeps its final state. Episodes within a run are not treated as independent samples.
+Bands are 95% Wilson intervals for a share of 60 independent runs. A run that has finished its 1,000 episodes keeps its final state.
 
-**Policy figure.** Blue cells are those from which following the greedy action reaches the goal. The chart on the right follows a BFS shortest route's cells over training, as the share from which the greedy policy reaches the goal. It is not monotone: a Q-value update can change a greedy action, which breaks a chain that worked before.
+**Policy figure.** Blue cells are those from which following the greedy action reaches the goal. The chart on the right follows a BFS shortest route's cells over training, as the share from which the greedy policy reaches the goal. In seed 12 all 398 open cells are reachable; in seed 0, 359 of 397.
 
 ## Regenerate
 
 From `maze_runner_rl/`, with the development requirements installed (`python -m pip install -r requirements-dev.txt`):
 
 ```bash
-python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv   # 180 runs and the 2 featured runs
+python -m experiments.capture_traces --check ../docs/evaluation/results/runs.csv   # the figures' data, 68 s on 8 workers
 python -m experiments.render_figures         # results.png and policy.png
-python -m experiments.render_hero            # hero.gif and hero-poster.png
+python -m experiments.capture_hero           # data/hero.json, checked against the value-propagation results
+python -m experiments.render_hero            # hero.gif, hero.webp and hero-poster.png
 ```
 
-The capture took 68 s on 8 worker processes here (`--workers` sets the number; the default is up to 8). It writes `docs/assets/data`; the two render scripts read it and write the images. Run the evaluation suite first (`python -m experiments.evaluate`) if `docs/evaluation/results` is missing. Without it the capture still works, but the check, the end card's 3,000-episode and unseen-maze counts, and the episodes-per-move note are left out.
+`capture_hero.py` needs the value-propagation results (`python -m experiments.compare_methods final`). `capture_traces.py` checks against the evaluation suite's results (`python -m experiments.evaluate`).
 
 **Dependencies.** numpy, gymnasium and PyYAML from `requirements.txt`, plus matplotlib and its dependency Pillow from `requirements-dev.txt`. The versions used are recorded in `data/provenance.json` and `data/render.json`. Text is set in Segoe UI where it is installed and otherwise in matplotlib's bundled DejaVu Sans. Single-line text shrinks to fit, so the wider fallback still fits the frame.
-
-**Provenance of the current files.**
-
-- **Capture:** run at commit `1793a82`, with no uncommitted changes to the code the results depend on (SHA-256 `d2e0c041…`, as in the suite's own [summary](../evaluation/results/summary.json)).
-- **Environment:** Python 3.13.5, numpy 2.3.2, gymnasium 1.2.0.
-- **Drawing:** matplotlib 3.10.5 and Pillow 13.0.0, with Segoe UI.
-
-`provenance.json` also records a hash of `capture_traces.py` itself.
 
 ## What is not here
 
