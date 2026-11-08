@@ -51,18 +51,18 @@ def pt(px, scale=1):
 class Canvas:
     """A W x H pixel canvas; scale 2 draws the same layout at twice the resolution."""
 
-    def __init__(self, scale=1):
+    def __init__(self, scale=1, width=W, height=H):
         import matplotlib.pyplot as plt
-        self.scale = scale
-        self.fig = plt.figure(figsize=(W * scale / 100, H * scale / 100), dpi=100)
+        self.scale, self.w, self.h = scale, width, height
+        self.fig = plt.figure(figsize=(width * scale / 100, height * scale / 100), dpi=100)
         self.ax = self.fig.add_axes([0, 0, 1, 1])
 
     def clear(self):
         self.ax.cla()
-        self.ax.set_xlim(0, W)
-        self.ax.set_ylim(H, 0)
+        self.ax.set_xlim(0, self.w)
+        self.ax.set_ylim(self.h, 0)
         self.ax.axis("off")
-        self.ax.add_patch(Rectangle((0, 0), W, H, facecolor=st.BG, edgecolor="none", zorder=0))
+        self.ax.add_patch(Rectangle((0, 0), self.w, self.h, facecolor=st.BG, edgecolor="none", zorder=0))
 
     def text(self, x, y, s, size=13, color=st.INK, weight="normal", ha="left", va="baseline", zorder=40, **kw):
         return self.ax.text(x, y, s, fontsize=pt(size, self.scale), color=color, fontweight=weight, ha=ha, va=va,
