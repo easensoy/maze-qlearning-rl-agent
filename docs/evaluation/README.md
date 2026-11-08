@@ -19,13 +19,13 @@ What the tabular Q-learning agent in this repository learns, how much experience
 
 **Tasks.** Three maze types, 60 mazes each (maze seeds 0 to 59):
 
-| Maze type | Open cells (median) | Mazes with a single route | Shortest route, moves (median, range) |
+| Maze type | Cells the agent can reach (median) | Mazes with a single route | Shortest route, moves (median, range) |
 |---|---|---|---|
 | 2D maze, 21x21 | 189 | 60 of 60 | 82 (40 to 152) |
 | 3D env, 1 level, 21x21 (the viewer's default) | 152 | 47 of 60 | 62 (38 to 118) |
 | 3D env, 3 levels, 21x21x3 | 395 | 30 of 60 | 107 (46 to 206) |
 
-The agent starts in one corner and the goal is in the opposite corner (on the top level of a 3-level maze). The maze stays the same for the whole run.
+The agent starts in one corner and the goal is in the opposite corner (on the top level of a 3-level maze). The maze stays the same for the whole run. An episode ends at the goal, so cells that can only be reached through the goal never count: the mazes have a median of 199, 154 and 398.5 open cells.
 
 **Agent.** Tabular Q-learning on the agent's cell index, with the repository's settings (`websocket/config.yaml`): learning rate 0.1, discount 0.95, epsilon 0.1 decaying by 0.995 per episode to 0.01, and untried actions valued at 0. Each run has 1000 episodes of up to 1000 steps. Rewards: +100 for reaching the goal, -0.1 per move, -1 for bumping into a wall.
 
@@ -33,7 +33,7 @@ The agent starts in one corner and the goal is in the opposite corner (on the to
 
 **What is measured.** After every episode the greedy policy (no exploration) is followed from the start:
 
-- does it reach the goal, and is its route a shortest route? (In every run here, a greedy route that reached the goal was a shortest route.)
+- does it reach the goal, and is its route a shortest route? (A greedy route that reached the goal was a shortest route at all but 4 of the 180,000 checks, all four on three-level mazes, and at every final check.)
 - **Converged** means the greedy route was a shortest route at every check for at least the last 100 episodes. A run that only got there near the end counts as not converged; it is not dropped.
 - **Experience** is counted in environment steps, every move being one step, because episodes vary in length: early ones often use all 1000 steps, late ones about as many as the shortest route.
 
