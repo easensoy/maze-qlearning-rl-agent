@@ -171,7 +171,7 @@ The 60 unmodified runs match the published development records episode by episod
 ### Dyna-Q on suite maze 58
 
 **Observed:**
-- The first greedy route to reach the goal, at episode 74, is the 114-move route. From episode 85 it never changes.
+- Every greedy route Dyna-Q found was the 114-move route. It first appears at episode 74. Until episode 84 it alternates with a greedy walk that loops before the goal (episodes 75–78, 81–82 and 84). From episode 85 it holds at every episode.
 - The route follows a shortest route for 102 moves and leaves it 4 moves from the goal.
 - One cell further along, 3 moves from the goal, the goal-ward action was never taken (Q = 0). The tried actions there are valued 49.5, 49.5 and 53.1.
 - At the junction, the greedy detour is valued 56.02 and the shortest direction 50.36 at every snapshot, from episode 60 to episode 1,000.
