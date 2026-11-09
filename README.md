@@ -34,7 +34,7 @@ Their settings were frozen on development mazes. All three methods then ran on 2
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/analysis/comparison.png">
-  <img src="docs/assets/analysis/comparison.gif" width="800" alt="Maze 54 in the exploded isometric view, one learner per frame at 10k, 20k, 40k, 80k and 160k real steps. Blue marks cells from which the greedy policy reaches the goal, amber the greedy route, hollow cells the never-visited states. Q-learning's and Q(λ)'s routes loop at every budget, and their blue regions grow to only 15 and 39 cells near the goal. Dyna-Q's region is 175 cells at 20k and 292 from 40k, when its route becomes a 146-move shortest route.">
+  <img src="docs/assets/analysis/comparison.gif" width="800" alt="Maze 54 in the exploded isometric view, one learner per frame at 10k, 20k, 40k, 80k and 160k real steps. Blue marks cells from which the greedy policy reaches the goal, amber the greedy route, hollow cells the never-visited states. Q-learning's and Q(λ)'s routes loop at every budget, and their blue regions grow to only 15 and 39 cells, within 15 and 37 moves of the goal. Dyna-Q's region is 175 cells at 20k and 292 from 40k, when its route becomes a 146-move shortest route.">
 </picture>
 
 ![Static comparison at 40k real steps: three maps side by side, Q-learning and Q(λ) with looping routes and almost no blue cells, Dyna-Q with a shortest route and 292 blue cells; below, the share of cells from which the greedy policy reaches the goal at each budget, with Dyna-Q at 77% from 40k and the others at or below 10% at 160k.](docs/assets/analysis/comparison.png)
@@ -43,14 +43,14 @@ Their settings were frozen on development mazes. All three methods then ran on 2
 
 ## 2. Value error and Bellman residual
 
-**After 40k real steps, Dyna-Q's values match V* within 0.01 on 72% of visited states, and on all of them from 80k. Q-learning's and Q(λ)'s median errors are 2.4 and 3.4. At 160k, their positive Bellman residuals remain within 14 moves of the goal.**
+**After 40k real steps, Dyna-Q's values match V* within 0.01 on 72% of visited states, and on all of them from 80k. Q-learning's and Q(λ)'s median errors are 2.4 and 3.4. At 160k, their residuals above 1 lie within 11 and 14 moves of the goal.**
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/analysis/value.png">
   <img src="docs/assets/analysis/value.gif" width="800" alt="Maze 54 coloured by the absolute value error |V − V*| on a fixed log scale, one learner per frame from 2.5k to 160k real steps. Q-learning and Q(λ) keep bright, high-error cells on the goal level throughout; Dyna-Q's visited cells turn dark, near-zero error, from 40k steps, while 88 of its states stay hollow, never visited.">
 </picture>
 
-![Coordinated value analysis: error maps at 40k real steps, then signed value error and Bellman residual against graph distance from the goal for each learner at 10k, 40k and 160k steps. Dyna-Q's error collapses to zero at every distance; Q-learning's and Q(λ)'s errors follow the curve of an unchanged state beyond the first few moves, with positive residuals only near the goal.](docs/assets/analysis/value.png)
+![Coordinated value analysis: error maps at 40k real steps, then signed value error and Bellman residual against graph distance from the goal for each learner at 10k, 40k and 160k steps. Dyna-Q's error collapses to zero at every distance; Q-learning's and Q(λ)'s errors follow, within 2, the curve of an unchanged state beyond 14 moves, and their residuals above 1 lie within 14 moves of the goal.](docs/assets/analysis/value.png)
 
 <sub>e(s) = V(s) − V*(s), with untried actions at 0 and V* by value iteration. ρ(s) = maxₐ [r + γ(1 − done)V(s′)] − V(s). Residual bands show local inconsistency, not individual backups. <a href="docs/assets/analysis/README.md#2-value-error-and-bellman-residual">Definitions and tables</a>.</sub>
 
