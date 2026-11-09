@@ -824,10 +824,14 @@ def failure_dyna(case, summary):
         ax2.spines[spine].set_visible(False)
     ax2.set_title("Observed: greedy route after every episode", color=st.INK, fontsize=14, fontweight="bold",
                   loc="left")
-    first = next(i + 1 for i, v in enumerate(run["greedy_route_length_per_episode"]) if v > 0)
+    lengths = run["greedy_route_length_per_episode"]
+    first = next(i + 1 for i, v in enumerate(lengths) if v > 0)
+    stable = max(i for i, v in enumerate(lengths) if v != lengths[-1]) + 2     # first episode of the final streak
+    found = sorted({v for v in lengths if v > 0})
     q_first = next(i + 1 for i, v in enumerate(case.runs["q_learning"]["greedy_route_length_per_episode"])
                    if v == case.route_length)
-    ax2.text(20, 130.5, f"Dyna-Q: first route to the goal at episode {first} ({len(walk) - 1} moves), unchanged after",
+    only = f"only ever a {found[0]}-move route" if len(found) == 1 else f"routes of {', '.join(map(str, found))} moves"
+    ax2.text(20, 130.5, f"Dyna-Q: {only}; first at episode {first}, at every episode from {stable}",
              color=METHOD_COLOURS["dyna_q"], fontsize=11.5, family=st.FONT_FAMILY)
     ax2.text(20, 126.5, f"Q-learning: shortest route from episode {q_first}", color=METHOD_COLOURS["q_learning"],
              fontsize=11.5, family=st.FONT_FAMILY)
@@ -873,7 +877,8 @@ def failure_dyna(case, summary):
                                "untried_state": cell, "untried_distance": case.distance[cell],
                                "tried_q_at_untried_state": tried_q, "continuation_unvisited_by_dyna": len(unvisited_cont),
                                "continuation_visited_by_q_learning_ep60": sum(s in q_visited for s in continuation[:-1]),
-                               "first_route_episode": first, "q_learning_first_shortest_episode": q_first,
+                               "first_route_episode": first, "route_every_episode_from": stable,
+                               "route_lengths_found": found, "q_learning_first_shortest_episode": q_first,
                                "action_values": rows}
     return path
 
