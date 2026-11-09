@@ -51,7 +51,7 @@ Q-learning's rows reproduce the evaluation suite exactly. The experiment's train
 | One level (60 for both) | 14.1× (13.2–15.1) | 3.6× (3.4–3.9) | 1.68× (1.65–1.71) | 6.5× (6.2–6.8) |
 | Three levels (25 for Dyna-Q, 26 for Q(λ)) | 14.2× (12.6–16.1) | 3.6× (3.2–4.0) | 1.82× (1.74–1.92) | 6.5× (5.9–7.0) |
 
-These ratios are conditional on convergence, so they exclude the mazes where the methods differ most. On the long-route set no pair exists, because Q-learning converged on none.
+These ratios are conditional on convergence, so they exclude the mazes where the methods differ most. The figures [`tradeoff.png`](figures/tradeoff.png) and [`tradeoff_paired.png`](figures/tradeoff_paired.png) cover the trade-off: performance against real steps and against Q-value updates, the paired per-maze ratios with the discordant mazes, the development sweep, and agent time ([notes](../assets/analysis/README.md#3-interactioncomputation-trade-off)). On the long-route set no pair exists, because Q-learning converged on none.
 
 **Discordant pairs** (exact McNemar tests on mazes that only one method of the pair converged):
 
