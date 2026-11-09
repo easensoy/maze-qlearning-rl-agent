@@ -1,0 +1,984 @@
+{
+  "source": "experiments/plot_tradeoff.py, from docs/value-propagation/results and tuning",
+  "conventions": {
+    "share": "A, B: share of a method's 210 final runs (the four maze sets pooled) whose frozen greedy route is a shortest route at x real steps or x Q-value updates. A run's state at x is its check after the last episode that ended within x: not shortest before its first episode ends, and its final state carried forward once it has finished its 1,000 episodes. Intervals: 95% Wilson.",
+    "first_reaches_half": "A, B: the smallest x at which the pooled share is at least 50%, exact over every episode end; at_half gives Q-learning's x over the method's (real steps) and the method's over Q-learning's (updates).",
+    "updates_to_converge": "Q-value updates (real, trace and planning) summed through the converged episode, as analysis.json counts them.",
+    "paired": "C: suite mazes; geometric means over the mazes on which both methods converged, real steps as Q-learning's over the method's and updates as the method's over Q-learning's, with 95% percentile-bootstrap intervals (the same numbers as analysis.json).",
+    "development": "D: development mazes (seeds 1000-1019 of each type), not the final runs. Each axis is a separate median over the configuration's runs, a run that did not converge counted as +inf (null: not reached).",
+    "dominance": "D: a configuration dominates another if it converged on at least as many runs, with no more median real steps and no more median updates to convergence, and strictly better in at least one of the three. non_dominated: non-dominated among the 15 measured configurations, not a Pareto frontier.",
+    "agent_time": "E: wall-clock seconds inside agent calls per 1,000-episode run, median and interquartile range (numpy percentiles, linear interpolation). Indicative: measured with concurrent worker processes on one hybrid-core laptop CPU, not a controlled benchmark."
+  },
+  "set_sizes": [
+    60,
+    60,
+    60,
+    30
+  ],
+  "planning_steps": 50,
+  "shares": {
+    "steps": {
+      "q_learning": {
+        "runs": 210,
+        "at": [
+          {
+            "x": 10000.0,
+            "k": 0,
+            "share": 0.0,
+            "ci": [
+              0.0,
+              0.017964050759283236
+            ]
+          },
+          {
+            "x": 100000.0,
+            "k": 78,
+            "share": 0.37142857142857144,
+            "ci": [
+              0.30893553084358993,
+              0.4385409393516544
+            ]
+          },
+          {
+            "x": 1000000.0,
+            "k": 148,
+            "share": 0.7047619047619048,
+            "ci": [
+              0.6398352343550862,
+              0.7623318686673026
+            ]
+          }
+        ],
+        "first_reaches_half": 131276.0,
+        "last_run_ends": 869742.0,
+        "final": {
+          "k": 148,
+          "share": 0.7047619047619048,
+          "ci": [
+            0.6398352343550862,
+            0.7623318686673026
+          ]
+        }
+      },
+      "q_lambda": {
+        "runs": 210,
+        "at": [
+          {
+            "x": 10000.0,
+            "k": 0,
+            "share": 0.0,
+            "ci": [
+              0.0,
+              0.017964050759283236
+            ]
+          },
+          {
+            "x": 100000.0,
+            "k": 119,
+            "share": 0.5666666666666667,
+            "ci": [
+              0.4990416087319848,
+              0.631896517833444
+            ]
+          },
+          {
+            "x": 1000000.0,
+            "k": 184,
+            "share": 0.8761904761904762,
+            "ci": [
+              0.8247736132772039,
+              0.9140915294848593
+            ]
+          }
+        ],
+        "first_reaches_half": 79082.0,
+        "last_run_ends": 999984.0,
+        "final": {
+          "k": 184,
+          "share": 0.8761904761904762,
+          "ci": [
+            0.8247736132772039,
+            0.9140915294848593
+          ]
+        }
+      },
+      "dyna_q": {
+        "runs": 210,
+        "at": [
+          {
+            "x": 10000.0,
+            "k": 114,
+            "share": 0.5428571428571428,
+            "ci": [
+              0.47531442949248526,
+              0.6088600804424332
+            ]
+          },
+          {
+            "x": 100000.0,
+            "k": 208,
+            "share": 0.9904761904761905,
+            "ci": [
+              0.965946171975922,
+              0.9973843306125906
+            ]
+          },
+          {
+            "x": 1000000.0,
+            "k": 209,
+            "share": 0.9952380952380953,
+            "ci": [
+              0.9735243141882093,
+              0.9991589117264055
+            ]
+          }
+        ],
+        "first_reaches_half": 8936.0,
+        "last_run_ends": 331749.0,
+        "final": {
+          "k": 209,
+          "share": 0.9952380952380953,
+          "ci": [
+            0.9735243141882093,
+            0.9991589117264055
+          ]
+        }
+      }
+    },
+    "updates": {
+      "q_learning": {
+        "runs": 210,
+        "at": [
+          {
+            "x": 100000.0,
+            "k": 78,
+            "share": 0.37142857142857144,
+            "ci": [
+              0.30893553084358993,
+              0.4385409393516544
+            ]
+          },
+          {
+            "x": 1000000.0,
+            "k": 148,
+            "share": 0.7047619047619048,
+            "ci": [
+              0.6398352343550862,
+              0.7623318686673026
+            ]
+          },
+          {
+            "x": 10000000.0,
+            "k": 148,
+            "share": 0.7047619047619048,
+            "ci": [
+              0.6398352343550862,
+              0.7623318686673026
+            ]
+          }
+        ],
+        "first_reaches_half": 131276.0,
+        "last_run_ends": 869742.0,
+        "final": {
+          "k": 148,
+          "share": 0.7047619047619048,
+          "ci": [
+            0.6398352343550862,
+            0.7623318686673026
+          ]
+        }
+      },
+      "q_lambda": {
+        "runs": 210,
+        "at": [
+          {
+            "x": 100000.0,
+            "k": 0,
+            "share": 0.0,
+            "ci": [
+              0.0,
+              0.017964050759283236
+            ]
+          },
+          {
+            "x": 1000000.0,
+            "k": 95,
+            "share": 0.4523809523809524,
+            "ci": [
+              0.38652049588368165,
+              0.5199522708552977
+            ]
+          },
+          {
+            "x": 10000000.0,
+            "k": 171,
+            "share": 0.8142857142857143,
+            "ci": [
+              0.7562139222626946,
+              0.8610658172600417
+            ]
+          }
+        ],
+        "first_reaches_half": 1065194.0,
+        "last_run_ends": 50876926.0,
+        "final": {
+          "k": 184,
+          "share": 0.8761904761904762,
+          "ci": [
+            0.8247736132772039,
+            0.9140915294848593
+          ]
+        }
+      },
+      "dyna_q": {
+        "runs": 210,
+        "at": [
+          {
+            "x": 100000.0,
+            "k": 9,
+            "share": 0.04285714285714286,
+            "ci": [
+              0.022708534648770106,
+              0.0794300260454317
+            ]
+          },
+          {
+            "x": 1000000.0,
+            "k": 144,
+            "share": 0.6857142857142857,
+            "ci": [
+              0.620067862137868,
+              0.7446883475801126
+            ]
+          },
+          {
+            "x": 10000000.0,
+            "k": 209,
+            "share": 0.9952380952380953,
+            "ci": [
+              0.9735243141882093,
+              0.9991589117264055
+            ]
+          }
+        ],
+        "first_reaches_half": 455736.0,
+        "last_run_ends": 16919199.0,
+        "final": {
+          "k": 209,
+          "share": 0.9952380952380953,
+          "ci": [
+            0.9735243141882093,
+            0.9991589117264055
+          ]
+        }
+      }
+    }
+  },
+  "at_half": {
+    "q_lambda": {
+      "real_steps_fewer": 1.659998482587694,
+      "updates_more": 8.11415643377312
+    },
+    "dyna_q": {
+      "real_steps_fewer": 14.690689346463742,
+      "updates_more": 3.471586580943965
+    }
+  },
+  "paired": {
+    "suite:2d": {
+      "q_lambda": {
+        "pairs": 54,
+        "only_method": [
+          9,
+          31,
+          38,
+          55,
+          56,
+          57
+        ],
+        "only_q_learning": [],
+        "neither": [],
+        "real_steps_ratio": {
+          "ratio": 1.5861937322169075,
+          "ci": [
+            1.5687921740138477,
+            1.6064681833722951
+          ],
+          "mazes": 54
+        },
+        "updates_ratio": {
+          "ratio": 8.864920088071115,
+          "ci": [
+            8.376775047683292,
+            9.371870248483416
+          ],
+          "mazes": 54
+        },
+        "fewer_real_steps": 54,
+        "more_updates": 54
+      },
+      "dyna_q": {
+        "pairs": 54,
+        "only_method": [
+          9,
+          31,
+          38,
+          55,
+          56,
+          57
+        ],
+        "only_q_learning": [],
+        "neither": [],
+        "real_steps_ratio": {
+          "ratio": 18.29287745626968,
+          "ci": [
+            16.781913988050775,
+            19.899527092869647
+          ],
+          "mazes": 54
+        },
+        "updates_ratio": {
+          "ratio": 2.787970351953586,
+          "ci": [
+            2.562874974967332,
+            3.038985900911751
+          ],
+          "mazes": 54
+        },
+        "fewer_real_steps": 54,
+        "more_updates": 54
+      }
+    },
+    "suite:3d_1": {
+      "q_lambda": {
+        "pairs": 60,
+        "only_method": [],
+        "only_q_learning": [],
+        "neither": [],
+        "real_steps_ratio": {
+          "ratio": 1.6810140061352392,
+          "ci": [
+            1.6549566542103935,
+            1.710401993641794
+          ],
+          "mazes": 60
+        },
+        "updates_ratio": {
+          "ratio": 6.520151531484268,
+          "ci": [
+            6.22606569454657,
+            6.827645318186777
+          ],
+          "mazes": 60
+        },
+        "fewer_real_steps": 60,
+        "more_updates": 60
+      },
+      "dyna_q": {
+        "pairs": 60,
+        "only_method": [],
+        "only_q_learning": [],
+        "neither": [],
+        "real_steps_ratio": {
+          "ratio": 14.134226111103002,
+          "ci": [
+            13.242693894149564,
+            15.09061177888821
+          ],
+          "mazes": 60
+        },
+        "updates_ratio": {
+          "ratio": 3.6082626384431076,
+          "ci": [
+            3.3795846548348076,
+            3.851180160747434
+          ],
+          "mazes": 60
+        },
+        "fewer_real_steps": 60,
+        "more_updates": 60
+      }
+    },
+    "suite:3d_3": {
+      "q_lambda": {
+        "pairs": 26,
+        "only_method": [
+          0,
+          4,
+          7,
+          8,
+          18,
+          19,
+          21,
+          23,
+          25,
+          28,
+          31,
+          33,
+          42,
+          43,
+          46,
+          48,
+          53,
+          54,
+          55
+        ],
+        "only_q_learning": [],
+        "neither": [
+          3,
+          10,
+          11,
+          13,
+          22,
+          24,
+          32,
+          35,
+          37,
+          39,
+          41,
+          45,
+          47,
+          49,
+          52
+        ],
+        "real_steps_ratio": {
+          "ratio": 1.8199312172157969,
+          "ci": [
+            1.7368691309718336,
+            1.9152348288336083
+          ],
+          "mazes": 26
+        },
+        "updates_ratio": {
+          "ratio": 6.452894491002592,
+          "ci": [
+            5.943075320848142,
+            7.0038009378088235
+          ],
+          "mazes": 26
+        },
+        "fewer_real_steps": 26,
+        "more_updates": 26
+      },
+      "dyna_q": {
+        "pairs": 25,
+        "only_method": [
+          0,
+          3,
+          4,
+          7,
+          8,
+          10,
+          11,
+          13,
+          18,
+          19,
+          21,
+          22,
+          23,
+          24,
+          25,
+          28,
+          31,
+          32,
+          33,
+          35,
+          37,
+          39,
+          41,
+          42,
+          43,
+          45,
+          46,
+          47,
+          48,
+          49,
+          52,
+          53,
+          54,
+          55
+        ],
+        "only_q_learning": [
+          58
+        ],
+        "neither": [],
+        "real_steps_ratio": {
+          "ratio": 14.180648496449171,
+          "ci": [
+            12.606529546150762,
+            16.059261304924792
+          ],
+          "mazes": 25
+        },
+        "updates_ratio": {
+          "ratio": 3.5964504735287948,
+          "ci": [
+            3.175737602847285,
+            4.0455225852044405
+          ],
+          "mazes": 25
+        },
+        "fewer_real_steps": 25,
+        "more_updates": 25
+      }
+    }
+  },
+  "suite_counts": {
+    "q_lambda": {
+      "mazes": 180,
+      "both": 140,
+      "only_method": 25,
+      "only_q_learning": 0,
+      "neither": 15
+    },
+    "dyna_q": {
+      "mazes": 180,
+      "both": 139,
+      "only_method": 40,
+      "only_q_learning": 1,
+      "neither": 0
+    }
+  },
+  "long_not_paired": {
+    "mazes": 30,
+    "converged": {
+      "q_learning": 0,
+      "q_lambda": 15,
+      "dyna_q": 30
+    }
+  },
+  "agent_time": {
+    "suite:2d": {
+      "label": "2D, 21 × 21",
+      "q_learning": {
+        "runs": 60,
+        "median": 1.777,
+        "q25": 1.25,
+        "q75": 2.4114999999999998
+      },
+      "q_lambda": {
+        "runs": 60,
+        "median": 5.939,
+        "q25": 3.7817499999999997,
+        "q75": 8.145
+      },
+      "dyna_q": {
+        "runs": 60,
+        "median": 27.25,
+        "q25": 20.9635,
+        "q75": 37.47475
+      },
+      "dyna_q_median_over_q_learning_median": 15.33483398987057
+    },
+    "suite:3d_1": {
+      "label": "One level, 21 × 21",
+      "q_learning": {
+        "runs": 60,
+        "median": 1.6735,
+        "q25": 1.3065,
+        "q75": 2.2785
+      },
+      "q_lambda": {
+        "runs": 60,
+        "median": 2.9775,
+        "q25": 2.2235,
+        "q75": 3.97675
+      },
+      "dyna_q": {
+        "runs": 60,
+        "median": 27.372,
+        "q25": 22.68275,
+        "q75": 37.48675
+      },
+      "dyna_q_median_over_q_learning_median": 16.356139826710486
+    },
+    "suite:3d_3": {
+      "label": "Three levels, 21 × 21 × 3",
+      "q_learning": {
+        "runs": 60,
+        "median": 5.4815000000000005,
+        "q25": 2.5284999999999997,
+        "q75": 7.6995000000000005
+      },
+      "q_lambda": {
+        "runs": 60,
+        "median": 11.129000000000001,
+        "q25": 4.76525,
+        "q75": 23.2435
+      },
+      "dyna_q": {
+        "runs": 60,
+        "median": 54.632,
+        "q25": 30.3295,
+        "q75": 78.82549999999999
+      },
+      "dyna_q_median_over_q_learning_median": 9.966614977652101
+    },
+    "long:3d_3": {
+      "label": "Long routes (> 140 moves)",
+      "q_learning": {
+        "runs": 30,
+        "median": 7.773,
+        "q25": 6.65325,
+        "q75": 10.15125
+      },
+      "q_lambda": {
+        "runs": 30,
+        "median": 23.6415,
+        "q25": 17.4595,
+        "q75": 47.8715
+      },
+      "dyna_q": {
+        "runs": 30,
+        "median": 100.89750000000001,
+        "q25": 82.08625,
+        "q75": 107.52425
+      },
+      "dyna_q_median_over_q_learning_median": 12.98050945580857
+    }
+  },
+  "measurement": {
+    "workers": 20,
+    "processor": "Intel64 Family 6 Model 170 Stepping 4, GenuineIntel",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "development": {
+    "runs_per_setting": 60,
+    "settings": [
+      {
+        "method": "q_learning",
+        "params": "default",
+        "runs": 60,
+        "converged": 47,
+        "median_real_steps": 147190.0,
+        "median_updates": 147190.0,
+        "frozen": false,
+        "label": "Q-learning",
+        "non_dominated": true,
+        "dominated_by": []
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=True,trace_decay=0.1",
+        "runs": 60,
+        "converged": 51,
+        "median_real_steps": 127751.5,
+        "median_updates": 1933230.5,
+        "frozen": false,
+        "label": "Q(λ), λ 0.1, replacing",
+        "non_dominated": false,
+        "dominated_by": [
+          "Q(λ), λ 0.3, replacing",
+          "Q(λ), λ 0.3, accumulating",
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=True,trace_decay=0.3",
+        "runs": 60,
+        "converged": 56,
+        "median_real_steps": 95088.0,
+        "median_updates": 1021517.5,
+        "frozen": false,
+        "label": "Q(λ), λ 0.3, replacing",
+        "non_dominated": false,
+        "dominated_by": [
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=True,trace_decay=0.5",
+        "runs": 60,
+        "converged": 47,
+        "median_real_steps": 74194.0,
+        "median_updates": 648718.5,
+        "frozen": false,
+        "label": "Q(λ), λ 0.5, replacing",
+        "non_dominated": false,
+        "dominated_by": [
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=True,trace_decay=0.7",
+        "runs": 60,
+        "converged": 15,
+        "median_real_steps": null,
+        "median_updates": null,
+        "frozen": false,
+        "label": "Q(λ), λ 0.7, replacing",
+        "non_dominated": false,
+        "dominated_by": [
+          "Q-learning",
+          "Q(λ), λ 0.1, replacing",
+          "Q(λ), λ 0.3, replacing",
+          "Q(λ), λ 0.5, replacing",
+          "Q(λ), λ 0.1, accumulating",
+          "Q(λ), λ 0.3, accumulating",
+          "Q(λ), λ 0.5, accumulating",
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=True,trace_decay=0.9",
+        "runs": 60,
+        "converged": 0,
+        "median_real_steps": null,
+        "median_updates": null,
+        "frozen": false,
+        "label": "Q(λ), λ 0.9, replacing",
+        "non_dominated": false,
+        "dominated_by": [
+          "Q-learning",
+          "Q(λ), λ 0.1, replacing",
+          "Q(λ), λ 0.3, replacing",
+          "Q(λ), λ 0.5, replacing",
+          "Q(λ), λ 0.7, replacing",
+          "Q(λ), λ 0.1, accumulating",
+          "Q(λ), λ 0.3, accumulating",
+          "Q(λ), λ 0.5, accumulating",
+          "Q(λ), λ 0.7, accumulating",
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=False,trace_decay=0.1",
+        "runs": 60,
+        "converged": 51,
+        "median_real_steps": 127358.0,
+        "median_updates": 2582211.5,
+        "frozen": false,
+        "label": "Q(λ), λ 0.1, accumulating",
+        "non_dominated": false,
+        "dominated_by": [
+          "Q(λ), λ 0.3, replacing",
+          "Q(λ), λ 0.3, accumulating",
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=False,trace_decay=0.3",
+        "runs": 60,
+        "converged": 57,
+        "median_real_steps": 92991.0,
+        "median_updates": 1316173.5,
+        "frozen": true,
+        "label": "Q(λ), λ 0.3, accumulating",
+        "non_dominated": false,
+        "dominated_by": [
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=False,trace_decay=0.5",
+        "runs": 60,
+        "converged": 48,
+        "median_real_steps": 64069.5,
+        "median_updates": 711163.0,
+        "frozen": false,
+        "label": "Q(λ), λ 0.5, accumulating",
+        "non_dominated": false,
+        "dominated_by": [
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=False,trace_decay=0.7",
+        "runs": 60,
+        "converged": 5,
+        "median_real_steps": null,
+        "median_updates": null,
+        "frozen": false,
+        "label": "Q(λ), λ 0.7, accumulating",
+        "non_dominated": false,
+        "dominated_by": [
+          "Q-learning",
+          "Q(λ), λ 0.1, replacing",
+          "Q(λ), λ 0.3, replacing",
+          "Q(λ), λ 0.5, replacing",
+          "Q(λ), λ 0.7, replacing",
+          "Q(λ), λ 0.1, accumulating",
+          "Q(λ), λ 0.3, accumulating",
+          "Q(λ), λ 0.5, accumulating",
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "q_lambda",
+        "params": "replacing=False,trace_decay=0.9",
+        "runs": 60,
+        "converged": 0,
+        "median_real_steps": null,
+        "median_updates": null,
+        "frozen": false,
+        "label": "Q(λ), λ 0.9, accumulating",
+        "non_dominated": false,
+        "dominated_by": [
+          "Q-learning",
+          "Q(λ), λ 0.1, replacing",
+          "Q(λ), λ 0.3, replacing",
+          "Q(λ), λ 0.5, replacing",
+          "Q(λ), λ 0.7, replacing",
+          "Q(λ), λ 0.1, accumulating",
+          "Q(λ), λ 0.3, accumulating",
+          "Q(λ), λ 0.5, accumulating",
+          "Q(λ), λ 0.7, accumulating",
+          "Dyna-Q, n 5",
+          "Dyna-Q, n 10",
+          "Dyna-Q, n 20",
+          "Dyna-Q, n 50"
+        ]
+      },
+      {
+        "method": "dyna_q",
+        "params": "planning_steps=5",
+        "runs": 60,
+        "converged": 58,
+        "median_real_steps": 54172.0,
+        "median_updates": 325032.0,
+        "frozen": false,
+        "label": "Dyna-Q, n 5",
+        "non_dominated": true,
+        "dominated_by": []
+      },
+      {
+        "method": "dyna_q",
+        "params": "planning_steps=10",
+        "runs": 60,
+        "converged": 60,
+        "median_real_steps": 33711.0,
+        "median_updates": 370821.0,
+        "frozen": false,
+        "label": "Dyna-Q, n 10",
+        "non_dominated": true,
+        "dominated_by": []
+      },
+      {
+        "method": "dyna_q",
+        "params": "planning_steps=20",
+        "runs": 60,
+        "converged": 60,
+        "median_real_steps": 22033.0,
+        "median_updates": 462693.0,
+        "frozen": false,
+        "label": "Dyna-Q, n 20",
+        "non_dominated": true,
+        "dominated_by": []
+      },
+      {
+        "method": "dyna_q",
+        "params": "planning_steps=50",
+        "runs": 60,
+        "converged": 60,
+        "median_real_steps": 10918.5,
+        "median_updates": 556843.5,
+        "frozen": true,
+        "label": "Dyna-Q, n 50",
+        "non_dominated": true,
+        "dominated_by": []
+      }
+    ]
+  },
+  "checks": {
+    "A: per-run shortest flags on the step grid equal curves.json": true,
+    "A, B: q_learning final share k equals summary.json": true,
+    "A, B: q_lambda final share k equals summary.json": true,
+    "A, B: dyna_q final share k equals summary.json": true,
+    "C: suite:2d q_lambda ratios and intervals equal analysis.json": true,
+    "C: suite:2d q_lambda discordant counts equal summary.json": true,
+    "C: suite:2d dyna_q ratios and intervals equal analysis.json": true,
+    "C: suite:2d dyna_q discordant counts equal summary.json": true,
+    "C: suite:3d_1 q_lambda ratios and intervals equal analysis.json": true,
+    "C: suite:3d_1 q_lambda discordant counts equal summary.json": true,
+    "C: suite:3d_1 dyna_q ratios and intervals equal analysis.json": true,
+    "C: suite:3d_1 dyna_q discordant counts equal summary.json": true,
+    "C: suite:3d_3 q_lambda ratios and intervals equal analysis.json": true,
+    "C: suite:3d_3 q_lambda discordant counts equal summary.json": true,
+    "C: suite:3d_3 dyna_q ratios and intervals equal analysis.json": true,
+    "C: suite:3d_3 dyna_q discordant counts equal summary.json": true,
+    "updates to convergence: suite:2d q_learning median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:2d q_lambda median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:2d dyna_q median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:3d_1 q_learning median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:3d_1 q_lambda median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:3d_1 dyna_q median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:3d_3 q_learning median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:3d_3 q_lambda median over converged runs equals analysis.json": true,
+    "updates to convergence: suite:3d_3 dyna_q median over converged runs equals analysis.json": true,
+    "updates to convergence: long:3d_3 q_learning median over converged runs equals analysis.json": true,
+    "updates to convergence: long:3d_3 q_lambda median over converged runs equals analysis.json": true,
+    "updates to convergence: long:3d_3 dyna_q median over converged runs equals analysis.json": true,
+    "D: Q-learning converged count equals analysis.json": true,
+    "D: Q(λ), λ 0.1, replacing count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.1, replacing count equals analysis.json": true,
+    "D: Q(λ), λ 0.3, replacing count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.3, replacing count equals analysis.json": true,
+    "D: Q(λ), λ 0.5, replacing count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.5, replacing count equals analysis.json": true,
+    "D: Q(λ), λ 0.7, replacing count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.7, replacing count equals analysis.json": true,
+    "D: Q(λ), λ 0.9, replacing count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.9, replacing count equals analysis.json": true,
+    "D: Q(λ), λ 0.1, accumulating count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.1, accumulating count equals analysis.json": true,
+    "D: Q(λ), λ 0.3, accumulating count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.3, accumulating count equals analysis.json": true,
+    "D: Q(λ), λ 0.5, accumulating count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.5, accumulating count equals analysis.json": true,
+    "D: Q(λ), λ 0.7, accumulating count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.7, accumulating count equals analysis.json": true,
+    "D: Q(λ), λ 0.9, accumulating count and median steps equal frozen_settings.json": true,
+    "D: Q(λ), λ 0.9, accumulating count equals analysis.json": true,
+    "D: Dyna-Q, n 5 count and median steps equal frozen_settings.json": true,
+    "D: Dyna-Q, n 10 count and median steps equal frozen_settings.json": true,
+    "D: Dyna-Q, n 20 count and median steps equal frozen_settings.json": true,
+    "D: Dyna-Q, n 50 count and median steps equal frozen_settings.json": true,
+    "E: suite:2d q_learning median agent time equals analysis.json and summary.json": true,
+    "E: suite:2d q_lambda median agent time equals analysis.json and summary.json": true,
+    "E: suite:2d dyna_q median agent time equals analysis.json and summary.json": true,
+    "E: suite:3d_1 q_learning median agent time equals analysis.json and summary.json": true,
+    "E: suite:3d_1 q_lambda median agent time equals analysis.json and summary.json": true,
+    "E: suite:3d_1 dyna_q median agent time equals analysis.json and summary.json": true,
+    "E: suite:3d_3 q_learning median agent time equals analysis.json and summary.json": true,
+    "E: suite:3d_3 q_lambda median agent time equals analysis.json and summary.json": true,
+    "E: suite:3d_3 dyna_q median agent time equals analysis.json and summary.json": true,
+    "E: long:3d_3 q_learning median agent time equals analysis.json and summary.json": true,
+    "E: long:3d_3 q_lambda median agent time equals analysis.json and summary.json": true,
+    "E: long:3d_3 dyna_q median agent time equals analysis.json and summary.json": true
+  }
+}
