@@ -175,7 +175,7 @@ The 60 unmodified runs match the published development records episode by episod
 - The route follows a shortest route for 102 moves and leaves it 4 moves from the goal.
 - One cell further along, 3 moves from the goal, the goal-ward action was never taken (Q = 0). The tried actions there are valued 49.5, 49.5 and 53.1.
 - At the junction, the greedy detour is valued 56.02 and the shortest direction 50.36 at every snapshot, from episode 60 to episode 1,000.
-- The shaft up to the goal (2 cells) was never visited by Dyna-Q. Q-learning had visited all three cells of that continuation by episode 60, and found the 106-move route at episode 703.
+- The shaft up to the goal (2 cells) was never visited by Dyna-Q. Q-learning had visited all three cells of that continuation by episode 60. Its 106-move route first appears at episode 703, alternates with no route until episode 890, and holds from 891, its convergence episode in the records.
 
 **Reading, a hypothesis consistent with these values, not tested by intervention.** Planning gave the tried actions near the goal positive values before the shortcut was found. From then on the untried goal-ward action (0) never won the greedy choice, and ε = 0.01 exploration did not take it within the budget.
 
