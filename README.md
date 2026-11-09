@@ -73,7 +73,7 @@ Their settings were frozen on development mazes. All three methods then ran on 2
 
 ![Failure A: maze 1004 for Q-learning and Q(λ) with λ 0.9 after 1,000 and 50,000 real steps, cells coloured by visits; Q(λ)'s 26 visited cells stay next to the start, with one frontier cell last visited at step 209. Right: coverage against real steps, flat for Q(λ) after step 208; and coverage after 50k steps over 60 development runs: 16% unmodified, 58% with traces cut at untried actions, 100% for Q-learning.](docs/assets/analysis/failure-traces.png)
 
-**B. Dyna-Q on maze 58.** **Dyna-Q's first route to the goal, at episode 74, is 114 moves and never changes. Three moves from the goal, the goal-ward action was never taken (Q = 0), while the tried actions carry 49.5–53.1. Q-learning visited the shaft beyond by episode 60 and found the 106-move route at episode 703.**
+**B. Dyna-Q on maze 58.** **Every greedy route Dyna-Q found was the 114-move route: first at episode 74, and at every episode from 85. Three moves from the goal, the goal-ward action was never taken (Q = 0), while the tried actions carry 49.5–53.1. Q-learning visited the shaft beyond by episode 60 and found the 106-move route at episode 703.**
 
 ![Failure B: maze 58 with Dyna-Q's 114-move greedy route leaving the shortest routes 4 moves from the goal; ringed cells mark the junction and the untried goal-ward action. Right: greedy route length per episode, constant at 114 for Dyna-Q from episode 85 and 106 for Q-learning from episode 703; action values at the two cells, unchanged from episode 60 to 1,000.](docs/assets/analysis/failure-dyna.png)
 
