@@ -111,7 +111,7 @@ A threshold crossing or a change of greedy action in these snapshots is not an o
 
 The median changes partly because the set of visited states changes, not only because values move.
 
-After 160k real steps, the states with ρ(s) > 1 lie within 11 moves of the goal for Q-learning (11 states) and within 14 for Q(λ) (15 states). Dyna-Q has none.
+After 160k real steps, the states with ρ(s) > 1 lie within 11 moves of the goal for Q-learning (11 states) and within 14 for Q(λ) (15 states). Dyna-Q has none. Smaller positive residuals reach farther for Q(λ): 70 states have ρ(s) > 0, up to 120 moves from the goal, and every one beyond 18 moves is at most 0.1. All 15 of Q-learning's positive residuals lie within 14 moves.
 
 ## 3. Interaction–computation trade-off
 
