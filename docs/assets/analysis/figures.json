@@ -513,6 +513,7 @@
    114
   ],
   "q_learning_first_shortest_episode": 703,
+  "q_learning_shortest_every_episode_from": 891,
   "action_values": [
    {
     "state": 416,
