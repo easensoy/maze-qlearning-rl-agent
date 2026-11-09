@@ -828,13 +828,14 @@ def failure_dyna(case, summary):
     first = next(i + 1 for i, v in enumerate(lengths) if v > 0)
     stable = max(i for i, v in enumerate(lengths) if v != lengths[-1]) + 2     # first episode of the final streak
     found = sorted({v for v in lengths if v > 0})
-    q_first = next(i + 1 for i, v in enumerate(case.runs["q_learning"]["greedy_route_length_per_episode"])
-                   if v == case.route_length)
+    q_lengths = case.runs["q_learning"]["greedy_route_length_per_episode"]
+    q_first = next(i + 1 for i, v in enumerate(q_lengths) if v == case.route_length)
+    q_stable = max(i for i, v in enumerate(q_lengths) if v != q_lengths[-1]) + 2
     only = f"only ever a {found[0]}-move route" if len(found) == 1 else f"routes of {', '.join(map(str, found))} moves"
     ax2.text(20, 130.5, f"Dyna-Q: {only}; first at episode {first}, at every episode from {stable}",
              color=METHOD_COLOURS["dyna_q"], fontsize=11.5, family=st.FONT_FAMILY)
-    ax2.text(20, 126.5, f"Q-learning: shortest route from episode {q_first}", color=METHOD_COLOURS["q_learning"],
-             fontsize=11.5, family=st.FONT_FAMILY)
+    ax2.text(20, 126.5, f"Q-learning: shortest route first at episode {q_first}, at every episode from {q_stable}",
+             color=METHOD_COLOURS["q_learning"], fontsize=11.5, family=st.FONT_FAMILY)
     # Action values at the two cells, at each snapshot.
     ax3 = fig.add_axes([0.62, 0.11, 0.35, 0.3])
     labels = [s["label"].replace("episode ", "ep ") for s in run["snapshots"]]
@@ -879,6 +880,7 @@ def failure_dyna(case, summary):
                                "continuation_visited_by_q_learning_ep60": sum(s in q_visited for s in continuation[:-1]),
                                "first_route_episode": first, "route_every_episode_from": stable,
                                "route_lengths_found": found, "q_learning_first_shortest_episode": q_first,
+                               "q_learning_shortest_every_episode_from": q_stable,
                                "action_values": rows}
     return path
 
