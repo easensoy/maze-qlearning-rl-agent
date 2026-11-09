@@ -508,6 +508,10 @@
   "continuation_unvisited_by_dyna": 2,
   "continuation_visited_by_q_learning_ep60": 3,
   "first_route_episode": 74,
+  "route_every_episode_from": 85,
+  "route_lengths_found": [
+   114
+  ],
   "q_learning_first_shortest_episode": 703,
   "action_values": [
    {
